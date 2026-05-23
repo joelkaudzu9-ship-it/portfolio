@@ -10,42 +10,34 @@ const projects = [
     id: 'moyowanga',
     title: 'MoyoWanga',
     subtitle: 'Multilingual Chronic Disease Support Ecosystem',
-    icon: Heart,
     tags: ['Python', 'Flask', 'PostgreSQL', 'SMS API', 'Healthcare'],
     description: 'SMS-based patient support system for chronic disease management in low-resource environments.',
     status: 'active',
-    color: 'primary'
   },
   {
     id: 'checkmysmile',
     title: 'CheckMySmile',
     subtitle: 'Mobile Dental Health Application',
-    icon: Smartphone,
     tags: ['MIT App Inventor', 'Mobile Health', 'Dentistry'],
     description: 'Mobile health concept focused on oral healthcare awareness and preventive dentistry.',
     status: 'concept',
-    color: 'gold'
   },
   {
     id: 'kuhes-bank',
     title: 'KUHeS Knowledge Bank',
     subtitle: 'Student Academic Infrastructure',
-    icon: BookOpen,
     tags: ['Digital Archive', 'Education', 'Collaboration'],
-    description: 'Student-centered digital archive system for organized learning resources and collaboration.',
+    description: 'Student-centered digital archive system for organized learning resources.',
     status: 'planning',
-    color: 'earth'
   },
   {
     id: 'sendme',
     title: 'SendMe',
-    subtitle: 'Digital Communication & Delivery Platform',
-    icon: MessageCircle,
+    subtitle: 'Digital Communication Platform',
     tags: ['Communication', 'UX Design', 'Web App'],
-    description: 'Application exploring digital communication, system usability, and workflow simplification.',
+    description: 'Exploring digital communication, system usability, and workflow simplification.',
     status: 'experiment',
-    color: 'primary'
-  }
+  },
 ]
 
 export default function ProjectsPage() {
