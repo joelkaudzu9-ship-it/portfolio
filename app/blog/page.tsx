@@ -12,7 +12,8 @@ type Post = {
   excerpt: string
   published: boolean
   created_at: string
-  image_url: string | null
+  featured_image: string | null
+  featured_image_type: string | null
   video_id: string | null
 }
 
@@ -25,6 +26,10 @@ export default function BlogPage() {
       .then(res => res.json())
       .then(data => {
         setPosts(data.filter((p: Post) => p.published))
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error('Error fetching posts:', err)
         setLoading(false)
       })
   }, [])
@@ -61,34 +66,49 @@ export default function BlogPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="glass-card-hover overflow-hidden relative"
+              className="glass-card-hover overflow-hidden relative group"
             >
               <Link href={`/blog/${post.slug}`}>
-                {post.image_url && (
-                  <div className="h-48 overflow-hidden">
+                {/* Featured Image */}
+                {post.featured_image ? (
+                  <div className="h-56 overflow-hidden">
                     <img 
-                      src={post.image_url} 
+                      src={post.featured_image} 
                       alt={post.title}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
+                    {/* Dark overlay for text readability on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </div>
+                ) : (
+                  /* Placeholder when no featured image */
+                  <div className="h-56 bg-gradient-to-br from-accent-gold/20 to-accent-gold/5 flex items-center justify-center">
+                    <span className="text-text-muted text-sm">No image</span>
                   </div>
                 )}
                 
+                {/* Video Badge */}
                 {post.video_id && (
-                  <div className="absolute top-4 right-4 bg-accent-gold/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 text-sm text-background">
+                  <div className="absolute top-4 right-4 bg-accent-gold/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 text-sm text-background z-10">
                     <Video size={14} /> Video
                   </div>
                 )}
                 
                 <div className="p-6">
                   <div className="flex items-center gap-4 text-sm text-text-muted mb-3">
-                    <span className="flex items-center gap-1"><Calendar size={14} /> {new Date(post.created_at).toLocaleDateString()}</span>
-                    <span className="flex items-center gap-1"><User size={14} /> Joel Kaudzu</span>
+                    <span className="flex items-center gap-1">
+                      <Calendar size={14} /> {new Date(post.created_at).toLocaleDateString()}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <User size={14} /> Joel Kaudzu
+                    </span>
                   </div>
-                  <h2 className="text-xl font-bold mb-2 group-hover:text-accent-gold transition-colors">
+                  <h2 className="text-xl font-bold mb-3 group-hover:text-accent-gold transition-colors line-clamp-2">
                     {post.title}
                   </h2>
-                  <p className="text-text-secondary line-clamp-3">{post.excerpt}</p>
+                  <p className="text-text-secondary line-clamp-3 leading-relaxed">
+                    {post.excerpt || post.content.substring(0, 150).replace(/[#*`]/g, '') + '...'}
+                  </p>
                   <div className="mt-4 text-accent-gold font-medium group-hover:gap-2 inline-flex items-center gap-1 transition-all">
                     Read more <span>→</span>
                   </div>
