@@ -1,55 +1,66 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Heart, Smartphone, BookOpen, MessageCircle, ChevronRight } from 'lucide-react'
+import { ArrowRight, Calendar, User, Code, ExternalLink, Github } from 'lucide-react'
 
-const projects = [
-  {
-    id: 'moyowanga',
-    title: 'MoyoWanga',
-    subtitle: 'Multilingual Chronic Disease Support Ecosystem',
-    icon: Heart,
-    tags: ['Python', 'Flask', 'PostgreSQL', 'SMS API', 'Healthcare'],
-    description: 'SMS-based patient support system for chronic disease management in low-resource environments.',
-    status: 'active',
-  },
-  {
-    id: 'checkmysmile',
-    title: 'CheckMySmile',
-    subtitle: 'Mobile Dental Health Application',
-    icon: Smartphone,
-    tags: ['MIT App Inventor', 'Mobile Health', 'Dentistry'],
-    description: 'Mobile health concept focused on oral healthcare awareness and preventive dentistry.',
-    status: 'concept',
-  },
-  {
-    id: 'kuhes-bank',
-    title: 'KUHeS Knowledge Bank',
-    subtitle: 'Student Academic Infrastructure',
-    icon: BookOpen,
-    tags: ['Digital Archive', 'Education', 'Collaboration'],
-    description: 'Student-centered digital archive system for organized learning resources.',
-    status: 'planning',
-  },
-  {
-    id: 'sendme',
-    title: 'SendMe',
-    subtitle: 'Digital Communication Platform',
-    icon: MessageCircle,
-    tags: ['Communication', 'UX Design', 'Web App'],
-    description: 'Exploring digital communication, system usability, and workflow simplification.',
-    status: 'experiment',
-  },
-]
+type Project = {
+  id: number
+  title: string
+  slug: string
+  subtitle: string
+  description: string
+  content: string
+  technologies: string[]
+  image_url: string
+  gallery_urls: string[]
+  github_url: string
+  live_url: string
+  status: string
+  featured: boolean
+  created_at: string
+}
 
 export default function ProjectsPage() {
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
+
+  useEffect(() => {
+    fetch('/api/projects')
+      .then(res => res.json())
+      .then(data => {
+        setProjects(data || [])
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error('Error fetching projects:', err)
+        setLoading(false)
+      })
+  }, [])
 
   const filteredProjects = filter === 'all' 
     ? projects 
     : projects.filter(p => p.status === filter)
+
+  const getStatusColor = (status: string) => {
+    switch(status) {
+      case 'active': return 'bg-green-500/20 text-green-500'
+      case 'concept': return 'bg-amber-500/20 text-amber-500'
+      case 'planning': return 'bg-blue-500/20 text-blue-500'
+      case 'experiment': return 'bg-purple-500/20 text-purple-500'
+      default: return 'bg-gray-500/20 text-gray-500'
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-amber-500">Loading projects...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen py-20">
@@ -60,7 +71,7 @@ export default function ProjectsPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <span className="text-accent-gold text-sm font-semibold tracking-wide uppercase">My Work</span>
+          <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">My Work</span>
           <h1 className="text-4xl sm:text-5xl font-bold mt-2">
             Featured <span className="gradient-text-gold">Projects</span>
           </h1>
@@ -77,8 +88,8 @@ export default function ProjectsPage() {
               onClick={() => setFilter(category)}
               className={`px-4 py-2 rounded-full capitalize transition-all duration-300 text-sm ${
                 filter === category
-                  ? 'bg-accent-gold text-background font-medium'
-                  : 'bg-surface border border-border text-text-secondary hover:border-accent-gold/30'
+                  ? 'bg-amber-500 text-white'
+                  : 'bg-surface border border-border text-text-secondary hover:border-amber-500/30'
               }`}
             >
               {category}
@@ -87,52 +98,119 @@ export default function ProjectsPage() {
         </div>
 
         {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {filteredProjects.map((project, index) => (
             <motion.div
               key={project.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="group"
             >
-              <Link href={`/projects/${project.id}`}>
-                <div className="group h-full p-6 rounded-2xl glass-card-hover cursor-pointer">
-                  <div className="flex items-start justify-between mb-4">
-                    <project.icon size={40} className="text-accent-gold" />
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${
-                      project.status === 'active' ? 'bg-green-500/20 text-green-500' :
-                      project.status === 'concept' ? 'bg-accent-gold/20 text-accent-gold' :
-                      'bg-text-muted/20 text-text-muted'
-                    }`}>
-                      {project.status}
-                    </span>
-                  </div>
-                  
-                  <h3 className="text-xl font-bold mb-1 group-hover:text-accent-gold transition-colors">
-                    {project.title}
-                  </h3>
-                  <p className="text-accent-gold text-sm mb-3">{project.subtitle}</p>
-                  
-                  <p className="text-text-secondary mb-4 text-sm leading-relaxed">
-                    {project.description}
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {project.tags.map(tag => (
-                      <span key={tag} className="px-2 py-1 bg-surface border border-border rounded-md text-xs text-text-muted">
-                        {tag}
+              <Link href={`/projects/${project.slug}`}>
+                <div className="glass-card-hover overflow-hidden h-full flex flex-col">
+                  {/* Featured Image */}
+                  <div className="relative h-56 overflow-hidden bg-gradient-to-br from-amber-500/20 to-amber-500/5">
+                    {project.image_url ? (
+                      <>
+                        <img 
+                          src={project.image_url} 
+                          alt={project.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Code size={48} className="text-text-muted" />
+                      </div>
+                    )}
+                    
+                    {/* Status Badge */}
+                    <div className="absolute top-4 right-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
+                        {project.status}
                       </span>
-                    ))}
+                    </div>
                   </div>
                   
-                  <div className="flex items-center gap-2 text-accent-gold text-sm font-medium group-hover:gap-3 transition-all">
-                    Learn more <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  <div className="p-6 flex-1 flex flex-col">
+                    {/* Title */}
+                    <h2 className="text-xl font-bold mb-2 group-hover:text-amber-500 transition-colors">
+                      {project.title}
+                    </h2>
+                    
+                    {/* Subtitle */}
+                    {project.subtitle && (
+                      <p className="text-amber-500 text-sm mb-3">
+                        {project.subtitle}
+                      </p>
+                    )}
+                    
+                    {/* Description */}
+                    <p className="text-text-secondary mb-4 leading-relaxed flex-1">
+                      {project.description}
+                    </p>
+                    
+                    {/* Technologies */}
+                    {project.technologies && project.technologies.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {project.technologies.slice(0, 4).map((tech, i) => (
+                          <span key={i} className="px-2 py-1 bg-surface border border-border rounded-md text-xs text-text-muted">
+                            {tech}
+                          </span>
+                        ))}
+                        {project.technologies.length > 4 && (
+                          <span className="px-2 py-1 text-xs text-text-muted">
+                            +{project.technologies.length - 4} more
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Links */}
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="flex items-center gap-3">
+                        {project.github_url && (
+                          <a 
+                            href={project.github_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-text-muted hover:text-amber-500 transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Github size={18} />
+                          </a>
+                        )}
+                        {project.live_url && (
+                          <a 
+                            href={project.live_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-text-muted hover:text-amber-500 transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <ExternalLink size={18} />
+                          </a>
+                        )}
+                      </div>
+                      <div className="text-amber-500 text-sm font-medium group-hover:gap-2 inline-flex items-center gap-1 transition-all">
+                        View Project <ArrowRight size={14} />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Link>
             </motion.div>
           ))}
         </div>
+
+        {filteredProjects.length === 0 && (
+          <div className="glass-card p-12 text-center">
+            <Code size={48} className="mx-auto mb-4 text-text-muted" />
+            <p className="text-text-secondary">No projects found in this category.</p>
+          </div>
+        )}
       </div>
     </div>
   )
