@@ -135,68 +135,111 @@ export default function BlogPostPage() {
                 src={post.featured_image} 
                 alt={post.title}
                 className="w-full h-auto"
+                onError={(e) => {
+                  console.error('Featured image failed to load:', post.featured_image)
+                  e.currentTarget.src = 'https://placehold.co/1200x600/1a1a1a/666?text=Image+Not+Found'
+                }}
               />
             </div>
           )}
 
-          {/* Media Gallery (if multiple images) */}
+          {/* Media Gallery - Improved version */}
           {post.media_gallery && post.media_gallery.length > 0 && !post.video_id && (
             <div className="mb-8">
-              {post.media_gallery[0].type === 'image' && (
-                <div className="relative">
-                  <div className="rounded-2xl overflow-hidden">
+              <div className="relative">
+                {post.media_gallery[galleryIndex].type === 'image' && (
+                  <div className="rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800">
                     <img 
                       src={post.media_gallery[galleryIndex].url} 
                       alt={`Gallery ${galleryIndex + 1}`}
-                      className="w-full h-auto"
+                      className="w-full h-auto max-h-[500px] object-contain"
+                      onError={(e) => {
+                        console.error('Image failed to load:', post.media_gallery[galleryIndex].url)
+                        e.currentTarget.src = 'https://placehold.co/800x400/1a1a1a/666?text=Image+Not+Found'
+                      }}
                     />
                   </div>
-                  
-                  {post.media_gallery.length > 1 && (
-                    <>
-                      <button
-                        onClick={prevImage}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 rounded-full hover:bg-black/70 transition-colors"
-                      >
-                        <ChevronLeft size={24} />
-                      </button>
-                      <button
-                        onClick={nextImage}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 rounded-full hover:bg-black/70 transition-colors"
-                      >
-                        <ChevronRight size={24} />
-                      </button>
-                      <div className="flex justify-center gap-2 mt-4">
-                        {post.media_gallery.map((_, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setGalleryIndex(idx)}
-                            className={`w-2 h-2 rounded-full transition-colors ${
-                              idx === galleryIndex ? 'bg-amber-500' : 'bg-gray-600'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </>
-                  )}
+                )}
+                
+                {post.media_gallery[galleryIndex].type === 'youtube' && (
+                  <div className="rounded-2xl overflow-hidden aspect-video">
+                    <iframe
+                      src={post.media_gallery[galleryIndex].url}
+                      title="YouTube video"
+                      className="w-full h-full"
+                      allowFullScreen
+                    />
+                  </div>
+                )}
+                
+                {post.media_gallery[galleryIndex].type === 'video' && (
+                  <div className="rounded-2xl overflow-hidden bg-black/20">
+                    <video 
+                      controls 
+                      className="w-full rounded-lg"
+                      onError={(e) => {
+                        console.error('Video failed to load:', post.media_gallery[galleryIndex].url)
+                        e.currentTarget.style.display = 'none'
+                        // Show fallback message
+                        const parent = e.currentTarget.parentElement
+                        if (parent) {
+                          const fallback = document.createElement('div')
+                          fallback.className = 'p-8 text-center bg-red-500/10 rounded-lg'
+                          fallback.innerHTML = `
+                            <p class="text-red-400">⚠️ Video failed to load</p>
+                            <p class="text-text-muted text-sm mt-2">URL: ${post.media_gallery[galleryIndex].url.substring(0, 100)}...</p>
+                            <a href="${post.media_gallery[galleryIndex].url}" target="_blank" class="text-amber-500 underline mt-2 inline-block">Download video</a>
+                          `
+                          parent.appendChild(fallback)
+                        }
+                      }}
+                    >
+                      <source src={post.media_gallery[galleryIndex].url} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                )}
+                
+                {post.media_gallery.length > 1 && (
+                  <>
+                    <button
+                      onClick={prevImage}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                    >
+                      <ChevronLeft size={24} />
+                    </button>
+                    <button
+                      onClick={nextImage}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                    >
+                      <ChevronRight size={24} />
+                    </button>
+                  </>
+                )}
+              </div>
+              
+              {/* Gallery Indicators */}
+              {post.media_gallery.length > 1 && (
+                <div className="flex justify-center gap-2 mt-4">
+                  {post.media_gallery.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setGalleryIndex(idx)}
+                      className={`transition-all ${
+                        idx === galleryIndex 
+                          ? 'w-6 h-2 bg-amber-500 rounded-full' 
+                          : 'w-2 h-2 bg-gray-600 rounded-full hover:bg-gray-500'
+                      }`}
+                    />
+                  ))}
                 </div>
               )}
               
-              {post.media_gallery[0].type === 'youtube' && (
-                <div className="rounded-2xl overflow-hidden aspect-video">
-                  <iframe
-                    src={post.media_gallery[0].url}
-                    title="YouTube video"
-                    className="w-full h-full"
-                    allowFullScreen
-                  />
-                </div>
-              )}
-              
-              {post.media_gallery[0].type === 'video' && (
-                <div className="rounded-2xl overflow-hidden">
-                  <video controls src={post.media_gallery[0].url} className="w-full rounded-lg" />
-                </div>
+              {/* Gallery Image Counter */}
+              {post.media_gallery.length > 1 && (
+                <p className="text-center text-text-muted text-sm mt-3">
+                  {galleryIndex + 1} / {post.media_gallery.length}
+                </p>
               )}
             </div>
           )}
@@ -217,7 +260,10 @@ export default function BlogPostPage() {
                 blockquote: ({ children }) => <blockquote className="border-l-4 border-amber-500 pl-4 italic my-4 text-text-secondary">{children}</blockquote>,
                 code: ({ children }) => <code className="bg-surface px-1 py-0.5 rounded text-amber-500 text-sm">{children}</code>,
                 pre: ({ children }) => <pre className="bg-surface p-4 rounded-lg overflow-x-auto mb-4">{children}</pre>,
-                img: ({ src, alt }) => <img src={src} alt={alt} className="rounded-lg my-4 max-w-full h-auto shadow-lg" />,
+                img: ({ src, alt }) => <img src={src} alt={alt} className="rounded-lg my-4 max-w-full h-auto shadow-lg" onError={(e) => {
+                  console.error('Markdown image failed to load:', src)
+                  e.currentTarget.src = 'https://placehold.co/800x400/1a1a1a/666?text=Image+Not+Found'
+                }} />,
               }}
             >
               {post.content}

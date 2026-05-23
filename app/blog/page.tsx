@@ -59,6 +59,17 @@ export default function BlogPage() {
     return null
   }
 
+  const getGalleryPreview = (post: Post) => {
+    if (post.media_gallery && post.media_gallery.length > 0) {
+      const firstMedia = post.media_gallery[0]
+      if (firstMedia.type === 'image') return firstMedia.url
+      if (firstMedia.type === 'youtube' && firstMedia.videoId) {
+        return `https://img.youtube.com/vi/${firstMedia.videoId}/mqdefault.jpg`
+      }
+    }
+    return null
+  }
+
   const getMediaType = (post: Post) => {
     if (post.video_id) return 'youtube'
     if (post.featured_image_type) return post.featured_image_type
@@ -122,7 +133,9 @@ export default function BlogPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {sortedPosts.map((post, index) => {
             const featuredImage = getFeaturedImage(post)
+            const galleryPreview = getGalleryPreview(post)
             const mediaType = getMediaType(post)
+            const displayImage = featuredImage || galleryPreview
             
             return (
               <motion.article
@@ -135,12 +148,23 @@ export default function BlogPage() {
                 <Link href={`/blog/${post.slug}`}>
                   {/* Featured Image / Thumbnail */}
                   <div className="relative h-56 overflow-hidden bg-gradient-to-br from-amber-500/20 to-amber-500/5">
-                    {featuredImage ? (
+                    {displayImage ? (
                       <>
                         <img 
-                          src={featuredImage} 
+                          src={displayImage} 
                           alt={post.title}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          onError={(e) => {
+                            console.error('Image failed to load:', displayImage)
+                            e.currentTarget.style.display = 'none'
+                            const parent = e.currentTarget.parentElement
+                            if (parent) {
+                              const fallback = document.createElement('div')
+                              fallback.className = 'w-full h-full flex items-center justify-center'
+                              fallback.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-text-muted"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"></path></svg>'
+                              parent.appendChild(fallback)
+                            }
+                          }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </>
