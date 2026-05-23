@@ -51,17 +51,16 @@ export async function GET(
       return NextResponse.json(data || [])
     }
     
-    // For sections with multiple records
+    // For sections with multiple records - removed nullsLast
     const { data, error } = await supabaseAdmin
       .from(table)
       .select('*')
-      .order('order_index', { ascending: true, nullsLast: true })
+      .order('order_index', { ascending: true })
     
     if (error) throw error
     return NextResponse.json(data || [])
   } catch (error) {
     console.error(`Error fetching ${section}:`, error)
-    // Return empty array instead of error to prevent UI crash
     return NextResponse.json([])
   }
 }
@@ -86,14 +85,12 @@ export async function POST(
   
   // Special handling for hero section (single record)
   if (section === 'hero') {
-    // Check if a record already exists
     const { data: existing } = await supabaseAdmin
       .from(table)
       .select('id')
       .limit(1)
     
     if (existing && existing.length > 0) {
-      // Update existing record
       const { data, error } = await supabaseAdmin
         .from(table)
         .update(body)
@@ -103,7 +100,6 @@ export async function POST(
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
       return NextResponse.json(data?.[0] || {})
     } else {
-      // Insert new record
       const { data, error } = await supabaseAdmin
         .from(table)
         .insert(body)
@@ -114,7 +110,6 @@ export async function POST(
     }
   }
   
-  // For other sections, insert as new item
   const { data, error } = await supabaseAdmin
     .from(table)
     .insert(body)
