@@ -8,12 +8,15 @@ import { Menu, X, Sun, Moon } from 'lucide-react'
 
 const navItems = [
   { href: '/', label: 'Home' },
+  { href: '/about', label: 'About' },
   { href: '/journey', label: 'Journey' },
+  { href: '/education', label: 'Education' },
   { href: '/projects', label: 'Projects' },
+  { href: '/leadership', label: 'Leadership' },
   { href: '/blog', label: 'Blog' },
   { href: '/poetry', label: 'Poetry' },
+  { href: '/systems', label: 'Systems' },
   { href: '/contact', label: 'Contact' },
-  { href: '/systems', label: 'Systems Thinking' },
 ]
 
 export default function Navigation() {
