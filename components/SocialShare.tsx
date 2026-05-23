@@ -1,6 +1,6 @@
 'use client'
 
-import { X, Linkedin, Link2, Check } from 'lucide-react'  // Changed Twitter to X
+import { X, LinkedinIcon, Link2, Check } from 'lucide-react'  // Use LinkedinIcon instead
 import { useState } from 'react'
 
 interface SocialShareProps {
@@ -44,7 +44,7 @@ export default function SocialShare({ title, url }: SocialShareProps) {
         className="p-2 rounded-lg bg-surface border border-border hover:border-amber-500/30 transition-colors"
         aria-label="Share on LinkedIn"
       >
-        <Linkedin size={16} className="text-text-secondary" />
+        <LinkedinIcon size={16} className="text-text-secondary" />
       </a>
       <button
         onClick={copyToClipboard}
