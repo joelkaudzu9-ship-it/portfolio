@@ -23,13 +23,12 @@ type Project = {
 }
 
 export default function EditProjectPage() {
-  // ALL useState declarations must have 'const' keyword
   const [title, setTitle] = useState('')
   const [subtitle, setSubtitle] = useState('')
   const [description, setDescription] = useState('')
   const [content, setContent] = useState('')
   const [technologies, setTechnologies] = useState<string[]>([])
-  const [currentTech, setCurrentTech] = useState('')  // ← FIXED: added 'const'
+  const [currentTech, setCurrentTech] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [galleryUrls, setGalleryUrls] = useState<string[]>([])
   const [githubUrl, setGithubUrl] = useState('')
@@ -46,7 +45,6 @@ export default function EditProjectPage() {
   const params = useParams()
   const id = params?.id as string
 
-  // Fetch project data
   useEffect(() => {
     if (id) {
       fetchProject()
@@ -180,7 +178,6 @@ export default function EditProjectPage() {
         <h1 className="text-3xl font-bold mb-8 gradient-text-gold">Edit Project: {title}</h1>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Title */}
           <div className="glass-card p-6">
             <label className="block text-sm font-medium mb-2">Project Title *</label>
             <input
@@ -192,7 +189,6 @@ export default function EditProjectPage() {
             />
           </div>
           
-          {/* Subtitle */}
           <div className="glass-card p-6">
             <label className="block text-sm font-medium mb-2">Subtitle / Tagline</label>
             <input
@@ -204,7 +200,6 @@ export default function EditProjectPage() {
             />
           </div>
           
-          {/* Featured Image */}
           <div className="glass-card p-6">
             <label className="block text-sm font-medium mb-2">Featured Image</label>
             <div className="flex gap-2">
@@ -235,7 +230,6 @@ export default function EditProjectPage() {
             )}
           </div>
           
-          {/* Technologies */}
           <div className="glass-card p-6">
             <label className="block text-sm font-medium mb-2">Technologies Used</label>
             <div className="flex gap-2 mb-2">
@@ -263,7 +257,6 @@ export default function EditProjectPage() {
             </div>
           </div>
           
-          {/* Short Description */}
           <div className="glass-card p-6">
             <label className="block text-sm font-medium mb-2">Short Description</label>
             <textarea
@@ -275,7 +268,6 @@ export default function EditProjectPage() {
             />
           </div>
           
-          {/* Full Content */}
           <div className="glass-card p-6">
             <label className="block text-sm font-medium mb-2">Full Content (Markdown supported)</label>
             <textarea
@@ -283,9 +275,7 @@ export default function EditProjectPage() {
               onChange={(e) => setContent(e.target.value)}
               rows={12}
               className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 font-mono text-sm"
-              placeholder="## Project Overview
-
-Detailed project description in Markdown...",
+              placeholder="## Project Overview&#10;&#10;Write your project description in Markdown here...&#10;&#10;### Features&#10;- Feature 1&#10;- Feature 2&#10;&#10;### Challenges overcome&#10;- Challenge 1&#10;- Challenge 2"
               required
             />
             <p className="text-xs text-gray-500 mt-2">
@@ -293,7 +283,6 @@ Detailed project description in Markdown...",
             </p>
           </div>
           
-          {/* Gallery Images */}
           <div className="glass-card p-6">
             <label className="block text-sm font-medium mb-2">Image Gallery</label>
             <div className="flex gap-2 mb-3">
@@ -326,7 +315,6 @@ Detailed project description in Markdown...",
             )}
           </div>
           
-          {/* Links */}
           <div className="glass-card p-6">
             <label className="block text-sm font-medium mb-2">GitHub Repository URL</label>
             <input
@@ -349,7 +337,6 @@ Detailed project description in Markdown...",
             />
           </div>
           
-          {/* Status & Featured */}
           <div className="glass-card p-6">
             <div className="flex flex-wrap gap-6">
               <div>
@@ -380,7 +367,6 @@ Detailed project description in Markdown...",
             </div>
           </div>
           
-          {/* Submit Buttons */}
           <div className="flex gap-4">
             <button
               type="submit"
