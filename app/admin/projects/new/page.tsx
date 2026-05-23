@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Upload, X, Plus, Save, Trash2 } from 'lucide-react'
+import { ArrowLeft, Upload, X, Plus, Save } from 'lucide-react'
 
 export default function NewProjectPage() {
   const [title, setTitle] = useState('')
@@ -11,7 +11,7 @@ export default function NewProjectPage() {
   const [description, setDescription] = useState('')
   const [content, setContent] = useState('')
   const [technologies, setTechnologies] = useState<string[]>([])
-  [currentTech, setCurrentTech] = useState('')
+  const [currentTech, setCurrentTech] = useState('')  // ← MUST have 'const'
   const [imageUrl, setImageUrl] = useState('')
   const [galleryUrls, setGalleryUrls] = useState<string[]>([])
   const [githubUrl, setGithubUrl] = useState('')
@@ -20,6 +20,8 @@ export default function NewProjectPage() {
   const [featured, setFeatured] = useState(false)
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [newGalleryUrl, setNewGalleryUrl] = useState('')
+  
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
@@ -56,6 +58,17 @@ export default function NewProjectPage() {
 
   const removeTechnology = (tech: string) => {
     setTechnologies(technologies.filter(t => t !== tech))
+  }
+
+  const addToGallery = () => {
+    if (newGalleryUrl.trim() && !galleryUrls.includes(newGalleryUrl.trim())) {
+      setGalleryUrls([...galleryUrls, newGalleryUrl.trim()])
+      setNewGalleryUrl('')
+    }
+  }
+
+  const removeFromGallery = (url: string) => {
+    setGalleryUrls(galleryUrls.filter(u => u !== url))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,7 +116,6 @@ export default function NewProjectPage() {
         <h1 className="text-3xl font-bold mb-8 gradient-text-gold">New Project</h1>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Title */}
           <div className="glass-card p-6">
             <label className="block text-sm font-medium mb-2">Project Title *</label>
             <input
@@ -115,7 +127,6 @@ export default function NewProjectPage() {
             />
           </div>
           
-          {/* Subtitle */}
           <div className="glass-card p-6">
             <label className="block text-sm font-medium mb-2">Subtitle / Tagline</label>
             <input
@@ -127,7 +138,6 @@ export default function NewProjectPage() {
             />
           </div>
           
-          {/* Featured Image */}
           <div className="glass-card p-6">
             <label className="block text-sm font-medium mb-2">Featured Image</label>
             <div className="flex gap-2">
@@ -144,10 +154,20 @@ export default function NewProjectPage() {
               </label>
             </div>
             {uploading && <p className="text-sm text-gray-500 mt-2">Uploading...</p>}
-            {imageUrl && <img src={imageUrl} alt="Preview" className="mt-2 h-32 rounded-lg object-cover" />}
+            {imageUrl && (
+              <div className="relative mt-2 inline-block">
+                <img src={imageUrl} alt="Preview" className="h-32 rounded-lg object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setImageUrl('')}
+                  className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white hover:bg-red-600"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            )}
           </div>
           
-          {/* Technologies */}
           <div className="glass-card p-6">
             <label className="block text-sm font-medium mb-2">Technologies Used</label>
             <div className="flex gap-2 mb-2">
@@ -175,7 +195,6 @@ export default function NewProjectPage() {
             </div>
           </div>
           
-          {/* Description */}
           <div className="glass-card p-6">
             <label className="block text-sm font-medium mb-2">Short Description</label>
             <textarea
@@ -187,55 +206,87 @@ export default function NewProjectPage() {
             />
           </div>
           
-          {/* Full Content */}
           <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Full Content (Markdown)</label>
+            <label className="block text-sm font-medium mb-2">Full Content (Markdown supported)</label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              rows={10}
+              rows={12}
               className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 font-mono text-sm"
-              placeholder="Detailed project description in Markdown..."
+              placeholder="## Project Overview&#10;&#10;Write your project description in Markdown here..."
             />
+            <p className="text-xs text-gray-500 mt-2">
+              Supports Markdown: # headings, **bold**, *italic*, - lists, [links](url), ![images](url)
+            </p>
           </div>
           
-          {/* Links */}
           <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">GitHub URL</label>
+            <label className="block text-sm font-medium mb-2">Image Gallery</label>
+            <div className="flex gap-2 mb-3">
+              <input
+                type="text"
+                value={newGalleryUrl}
+                onChange={(e) => setNewGalleryUrl(e.target.value)}
+                className="flex-1 px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                placeholder="Image URL"
+              />
+              <button type="button" onClick={addToGallery} className="px-4 py-2 bg-green-500 text-white rounded-lg">
+                <Plus size={16} />
+              </button>
+            </div>
+            {galleryUrls.length > 0 && (
+              <div className="grid grid-cols-3 gap-3 mt-3">
+                {galleryUrls.map((url, index) => (
+                  <div key={index} className="relative">
+                    <img src={url} alt={`Gallery ${index + 1}`} className="h-24 w-full object-cover rounded-lg" />
+                    <button
+                      type="button"
+                      onClick={() => removeFromGallery(url)}
+                      className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white hover:bg-red-600"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          <div className="glass-card p-6">
+            <label className="block text-sm font-medium mb-2">GitHub Repository URL</label>
             <input
               type="url"
               value={githubUrl}
               onChange={(e) => setGithubUrl(e.target.value)}
               className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              placeholder="https://github.com/..."
+              placeholder="https://github.com/username/repo"
             />
           </div>
           
           <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Live URL</label>
+            <label className="block text-sm font-medium mb-2">Live Demo URL</label>
             <input
               type="url"
               value={liveUrl}
               onChange={(e) => setLiveUrl(e.target.value)}
               className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              placeholder="https://..."
+              placeholder="https://project-demo.com"
             />
           </div>
           
-          {/* Status & Featured */}
           <div className="glass-card p-6">
             <div className="flex flex-wrap gap-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Status</label>
+                <label className="block text-sm font-medium mb-2">Project Status</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
                   className="px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
                 >
-                  <option value="active">Active</option>
-                  <option value="concept">Concept</option>
-                  <option value="planning">Planning</option>
-                  <option value="experiment">Experiment</option>
+                  <option value="active">Active - Currently maintained</option>
+                  <option value="concept">Concept - Idea stage</option>
+                  <option value="planning">Planning - In development</option>
+                  <option value="experiment">Experiment - Research/Test</option>
                 </select>
               </div>
               <div className="flex items-center gap-2">
@@ -243,15 +294,16 @@ export default function NewProjectPage() {
                   type="checkbox"
                   checked={featured}
                   onChange={(e) => setFeatured(e.target.checked)}
-                  className="w-4 h-4"
+                  className="w-4 h-4 rounded border-gray-300 text-amber-500 focus:ring-amber-500"
                   id="featured"
                 />
-                <label htmlFor="featured" className="text-sm">Feature this project on homepage</label>
+                <label htmlFor="featured" className="text-sm cursor-pointer">
+                  Feature this project on homepage
+                </label>
               </div>
             </div>
           </div>
           
-          {/* Submit */}
           <div className="flex gap-4">
             <button
               type="submit"
@@ -260,7 +312,10 @@ export default function NewProjectPage() {
             >
               <Save size={16} /> {loading ? 'Creating...' : 'Create Project'}
             </button>
-            <Link href="/admin/projects" className="px-6 py-3 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+            <Link
+              href="/admin/projects"
+              className="px-6 py-3 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
               Cancel
             </Link>
           </div>
