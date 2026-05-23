@@ -52,7 +52,18 @@ function CMSContent() {
     try {
       const res = await fetch(`/api/dynamic/${activeSection}`)
       const result = await res.json()
-      setData(Array.isArray(result) ? result : result.id ? [result] : [])
+      
+      // For hero section, result might be an empty array
+      if (activeSection === 'hero') {
+        // If no data, create an empty object for editing
+        if (!result || result.length === 0) {
+          setData([])
+        } else {
+          setData(result)
+        }
+      } else {
+        setData(Array.isArray(result) ? result : result.id ? [result] : [])
+      }
     } catch (error) {
       console.error('Error fetching data:', error)
       setData([])
@@ -261,12 +272,12 @@ function CMSContent() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-black">
-      <div className="container-custom py-8">
-        <div className="flex items-center justify-between mb-6">
+      <div className="container-custom py-6 sm:py-8 px-4 sm:px-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <Link href="/admin/dashboard" className="inline-flex items-center gap-2 text-amber-500 hover:gap-3 transition-all">
             <ArrowLeft size={18} /> Back to Dashboard
           </Link>
-          <h1 className="text-2xl font-bold gradient-text-gold">Content Management</h1>
+          <h1 className="text-xl sm:text-2xl font-bold gradient-text-gold">Content Management</h1>
         </div>
         
         <div className="flex flex-col lg:flex-row gap-8">
@@ -296,15 +307,25 @@ function CMSContent() {
           
           {/* Content Area */}
           <div className="flex-1">
-            <div className="glass-card p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">{SECTIONS.find(s => s.id === activeSection)?.name}</h2>
-                <button
-                  onClick={() => setEditing({})}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-amber-500 text-white rounded-lg text-sm"
-                >
-                  <Plus size={14} /> Add New
-                </button>
+            <div className="glass-card p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                <h2 className="text-lg sm:text-xl font-bold">{SECTIONS.find(s => s.id === activeSection)?.name}</h2>
+                {activeSection !== 'hero' && (
+                  <button
+                    onClick={() => setEditing({})}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-amber-500 text-white rounded-lg text-sm w-full sm:w-auto justify-center"
+                  >
+                    <Plus size={14} /> Add New
+                  </button>
+                )}
+                {activeSection === 'hero' && data.length === 0 && !editing && (
+                  <button
+                    onClick={() => setEditing({})}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-amber-500 text-white rounded-lg text-sm w-full sm:w-auto justify-center"
+                  >
+                    <Plus size={14} /> Create Hero Section
+                  </button>
+                )}
               </div>
               
               {loading ? (
@@ -314,17 +335,17 @@ function CMSContent() {
                   {renderForm(editing, (field, value) => {
                     setEditing({ ...editing, [field]: value })
                   })}
-                  <div className="flex gap-2 mt-4">
+                  <div className="flex flex-col sm:flex-row gap-2 mt-4">
                     <button
                       onClick={() => handleSave(editing)}
                       disabled={saving || uploading}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-green-500 text-white rounded-lg text-sm disabled:opacity-50"
+                      className="flex items-center justify-center gap-2 px-3 py-1.5 bg-green-500 text-white rounded-lg text-sm disabled:opacity-50"
                     >
                       <Save size={14} /> {saving ? 'Saving...' : uploading ? 'Uploading...' : 'Save'}
                     </button>
                     <button
                       onClick={() => setEditing(null)}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-gray-500 text-white rounded-lg text-sm"
+                      className="flex items-center justify-center gap-2 px-3 py-1.5 bg-gray-500 text-white rounded-lg text-sm"
                     >
                       <X size={14} /> Cancel
                     </button>
@@ -339,21 +360,21 @@ function CMSContent() {
                   {data.map((item) => (
                     <div key={item.id} className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
                       {editing?.id === item.id ? null : (
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
+                        <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
+                          <div className="flex-1 w-full">
                             {Object.entries(item)
                               .filter(([key]) => !['id', 'created_at', 'updated_at'].includes(key))
                               .slice(0, 3)
                               .map(([key, value]) => (
-                                <div key={key} className="mb-1">
+                                <div key={key} className="mb-1 break-words">
                                   <span className="text-xs text-gray-500 capitalize">{key.replace(/_/g, ' ')}: </span>
-                                  <span className="text-sm break-words">
+                                  <span className="text-sm">
                                     {typeof value === 'object' ? JSON.stringify(value).slice(0, 100) : String(value).slice(0, 100)}
                                   </span>
                                 </div>
                               ))}
                           </div>
-                          <div className="flex gap-1 ml-4">
+                          <div className="flex gap-1 ml-0 sm:ml-4">
                             <button
                               onClick={() => setEditing(item)}
                               className="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"

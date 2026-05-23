@@ -39,14 +39,26 @@ export async function GET(
     return NextResponse.json({ error: 'Invalid section' }, { status: 400 })
   }
   
-  // Fix: Use only ascending, remove nullsLast
+  // For hero section, get the first row (should only be one)
+  if (section === 'hero') {
+    const { data, error } = await supabaseAdmin
+      .from(table)
+      .select('*')
+      .limit(1)
+    
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    // Return as array for consistency with other sections
+    return NextResponse.json(data || [])
+  }
+  
+  // For other sections, get all ordered by order_index
   const { data, error } = await supabaseAdmin
     .from(table)
     .select('*')
-    .order('order_index', { ascending: true })
+    .order('order_index', { ascending: true, nullsLast: true })
   
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+  return NextResponse.json(data || [])
 }
 
 export async function POST(
@@ -69,14 +81,14 @@ export async function POST(
   
   // Special handling for hero section (single record)
   if (section === 'hero') {
-    // For hero section, we want to update existing or insert single record
+    // Check if a record already exists
     const { data: existing } = await supabaseAdmin
       .from(table)
       .select('id')
       .limit(1)
     
     if (existing && existing.length > 0) {
-      // Update existing
+      // Update existing record
       const { data, error } = await supabaseAdmin
         .from(table)
         .update(body)
@@ -84,27 +96,27 @@ export async function POST(
         .select()
       
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-      return NextResponse.json(data?.[0])
+      return NextResponse.json(data?.[0] || {})
     } else {
-      // Insert new
+      // Insert new record
       const { data, error } = await supabaseAdmin
         .from(table)
         .insert(body)
         .select()
       
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-      return NextResponse.json(data?.[0])
+      return NextResponse.json(data?.[0] || {})
     }
   }
   
-  // Default behavior for other sections (allow multiple records)
+  // For other sections, insert as new item
   const { data, error } = await supabaseAdmin
     .from(table)
     .insert(body)
     .select()
   
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data?.[0])
+  return NextResponse.json(data?.[0] || {})
 }
 
 export async function PUT(
@@ -133,7 +145,7 @@ export async function PUT(
     .select()
   
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data?.[0])
+  return NextResponse.json(data?.[0] || {})
 }
 
 export async function DELETE(
