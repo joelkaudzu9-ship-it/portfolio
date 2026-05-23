@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Plus, Edit, Trash2, Eye, LogOut, Settings } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, LogOut, Settings, FileText } from 'lucide-react'
 
 type Post = { 
   id: number; 
@@ -84,6 +84,18 @@ export default function AdminDashboard() {
       </header>
 
       <div className="container-custom py-6 sm:py-8 px-4 sm:px-6">
+        {/* Content Management Card */}
+        <Link
+          href="/admin/cms"
+          className="flex items-center gap-3 p-4 rounded-xl bg-surface border border-border hover:border-accent-gold transition-colors mb-8"
+        >
+          <FileText size={24} className="text-accent-gold" />
+          <div>
+            <h3 className="font-semibold text-text-primary">Content Management</h3>
+            <p className="text-sm text-text-muted">Manage all site content - hero, values, skills, mentors, timeline, quotes</p>
+          </div>
+        </Link>
+
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <h2 className="text-xl sm:text-2xl font-bold">Blog Posts</h2>
           <Link href="/admin/new-post" className="btn-primary inline-flex items-center gap-2 text-sm w-full sm:w-auto justify-center">

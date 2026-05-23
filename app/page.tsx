@@ -1,44 +1,147 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, Target, Heart, TrendingUp, Users, Globe } from 'lucide-react'
+import { ArrowRight, Target, Heart, TrendingUp, Users, Globe, Calendar, User, Star } from 'lucide-react'
 
-const quotes = [
-  "Every problem becomes temporary once you prove to yourself that you can build something real from nothing.",
-  "The future of African innovation will belong to those who can combine empathy, systems thinking, and disciplined execution.",
-  "Curiosity becomes powerful once discipline gives it direction.",
-  "Technology should serve people, not merely impress them.",
-]
+type HeroData = {
+  title: string
+  subtitle: string
+  description: string
+  cta_text: string
+  cta_link: string
+  profile_image_url?: string
+}
 
-const values = [
-  { icon: Target, title: "Innovation", description: "Solving practical human problems, not chasing trends." },
-  { icon: Globe, title: "Accessibility", description: "Technology accessible regardless of economics, language, or location." },
-  { icon: Heart, title: "Faith", description: "Resilience and purpose through faith in Jesus Christ." },
-  { icon: TrendingUp, title: "Growth", description: "Lifelong learning across disciplines." },
-  { icon: Users, title: "Impact", description: "Building systems that empower people and communities." },
-]
+type CoreValue = {
+  id: number
+  title: string
+  description: string
+  order_index: number
+}
+
+type PersonalQuote = {
+  id: number
+  quote: string
+  is_featured: boolean
+}
+
+type FeaturedProject = {
+  id: number
+  title: string
+  slug: string
+  description: string
+  image_url: string
+  technologies: string[]
+}
+
+type LatestPost = {
+  id: number
+  title: string
+  slug: string
+  excerpt: string
+  featured_image: string
+  created_at: string
+}
+
+type Testimonial = {
+  id: number
+  name: string
+  role: string
+  content: string
+}
 
 export default function Home() {
+  const [hero, setHero] = useState<HeroData | null>(null)
+  const [values, setValues] = useState<CoreValue[]>([])
+  const [quotes, setQuotes] = useState<PersonalQuote[]>([])
+  const [featuredProjects, setFeaturedProjects] = useState<FeaturedProject[]>([])
+  const [latestPosts, setLatestPosts] = useState<LatestPost[]>([])
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [currentQuote, setCurrentQuote] = useState(0)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentQuote((prev) => (prev + 1) % quotes.length)
-    }, 5000)
-    return () => clearInterval(interval)
+    fetchAllData()
   }, [])
+
+  useEffect(() => {
+    if (quotes.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentQuote((prev) => (prev + 1) % quotes.length)
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [quotes])
+
+  const fetchAllData = async () => {
+    try {
+      // Fetch hero section
+      const heroRes = await fetch('/api/dynamic/hero')
+      const heroData = await heroRes.json()
+      setHero(heroData[0] || null)
+
+      // Fetch core values
+      const valuesRes = await fetch('/api/dynamic/values')
+      const valuesData = await valuesRes.json()
+      setValues(valuesData)
+
+      // Fetch featured quotes
+      const quotesRes = await fetch('/api/dynamic/quotes')
+      const quotesData = await quotesRes.json()
+      setQuotes(quotesData.filter((q: PersonalQuote) => q.is_featured))
+
+      // Fetch featured projects
+      const projectsRes = await fetch('/api/projects?featured=true')
+      const projectsData = await projectsRes.json()
+      setFeaturedProjects(projectsData.filter((p: any) => p.featured).slice(0, 3))
+
+      // Fetch latest blog posts
+      const postsRes = await fetch('/api/blog')
+      const postsData = await postsRes.json()
+      setLatestPosts(postsData.filter((p: any) => p.published).slice(0, 3))
+
+      // Fetch testimonials
+      const testimonialsRes = await fetch('/api/dynamic/testimonials')
+      const testimonialsData = await testimonialsRes.json()
+      setTestimonials(testimonialsData)
+
+      setLoading(false)
+    } catch (error) {
+      console.error('Error fetching homepage data:', error)
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-amber-500">Loading...</div>
+      </div>
+    )
+  }
+
+  // Default values if no data in CMS
+  const displayHero = hero || {
+    title: 'Joel George Kaudzu',
+    subtitle: 'Dental Surgery Student • Healthcare Systems Thinker • Digital Health Builder',
+    description: 'Building scalable healthcare systems for Africa. Creator of MoyoWanga — multilingual chronic disease support for low-resource environments.',
+    cta_text: 'Explore Work',
+    cta_link: '/projects',
+  }
+
+  const valueIcons = [Target, Globe, Heart, TrendingUp, Users]
+  const iconColors = ['text-amber-500', 'text-blue-500', 'text-red-500', 'text-green-500', 'text-purple-500']
 
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center">
-        {/* Animated Background Blobs */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="blob top-20 -left-20 animate-pulse"></div>
           <div className="blob bottom-20 -right-20 animate-pulse delay-1000"></div>
-          <div className="blob top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent-gold/10 animate-pulse delay-2000"></div>
+          <div className="blob top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-amber-500/10 animate-pulse delay-2000"></div>
         </div>
 
         <div className="container-custom text-center relative z-10">
@@ -47,28 +150,45 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <div className="inline-block px-4 py-1.5 rounded-full bg-accent-gold/10 border border-accent-gold/30 mb-6">
-              <span className="text-accent-gold text-sm font-medium tracking-wide">Dental Surgery Student • Healthcare Systems Builder</span>
+            {/* Profile Image */}
+            {displayHero.profile_image_url && (
+              <div className="flex justify-center mb-8">
+                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-amber-500/30 shadow-xl">
+                  <img src={displayHero.profile_image_url} alt={displayHero.title} className="w-full h-full object-cover" />
+                </div>
+              </div>
+            )}
+            
+            <div className="inline-block px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 mb-6">
+              <span className="text-amber-500 text-sm font-medium tracking-wide">{displayHero.subtitle}</span>
             </div>
             
             <h1 className="mb-6">
-              Joel George <span className="gradient-text-gold">Kaudzu</span>
+              {displayHero.title.split(' ').map((word, i) => (
+                i === displayHero.title.split(' ').length - 1 ? (
+                  <span key={i} className="gradient-text-gold">{word} </span>
+                ) : (
+                  <span key={i}>{word} </span>
+                )
+              ))}
             </h1>
             
-            <p className="text-xl md:text-2xl text-text-secondary max-w-3xl mx-auto mb-8 leading-relaxed">
-              Building scalable healthcare systems for Africa. Creator of <span className="text-accent-gold font-semibold">MoyoWanga</span> — multilingual chronic disease support.
+            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-8 leading-relaxed">
+              {displayHero.description}
             </p>
 
             {/* Rotating Quote */}
-            <div className="max-w-3xl mx-auto mb-12 p-8 glass-card">
-              <p className="text-lg italic text-text-secondary animate-fade-in leading-relaxed">
-                "{quotes[currentQuote]}"
-              </p>
-            </div>
+            {quotes.length > 0 && (
+              <div className="max-w-3xl mx-auto mb-12 p-8 glass-card">
+                <p className="text-lg italic text-gray-700 dark:text-gray-300 animate-fade-in leading-relaxed">
+                  "{quotes[currentQuote]?.quote}"
+                </p>
+              </div>
+            )}
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/projects" className="btn-primary inline-flex items-center gap-2 group">
-                Explore Work <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              <Link href={displayHero.cta_link} className="btn-primary inline-flex items-center gap-2 group">
+                {displayHero.cta_text} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link href="/about" className="btn-outline">
                 Learn More
@@ -77,51 +197,55 @@ export default function Home() {
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 rounded-full border-2 border-text-muted flex justify-center">
-            <div className="w-1 h-3 bg-accent-gold rounded-full mt-2 animate-pulse"></div>
+          <div className="w-6 h-10 rounded-full border-2 border-gray-400 flex justify-center">
+            <div className="w-1 h-3 bg-amber-500 rounded-full mt-2 animate-pulse"></div>
           </div>
         </div>
       </section>
 
-      {/* Values Section */}
-      <section className="section bg-background/50">
-        <div className="container-custom">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <span className="text-accent-gold text-sm font-semibold tracking-wide uppercase">Core Principles</span>
-            <h2 className="text-3xl md:text-4xl font-bold mt-2">
-              Values That <span className="gradient-text-gold">Guide Me</span>
-            </h2>
-            <p className="text-text-secondary max-w-2xl mx-auto mt-4">
-              Principles that shape every project I build and every problem I solve.
-            </p>
-          </motion.div>
+      {/* Core Values Section */}
+      {values.length > 0 && (
+        <section className="section bg-gray-50/50 dark:bg-gray-950/30">
+          <div className="container-custom">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">Core Principles</span>
+              <h2 className="text-3xl md:text-4xl font-bold mt-2">
+                Values That <span className="gradient-text-gold">Guide Me</span>
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mt-4">
+                Principles that shape every project I build and every problem I solve.
+              </p>
+            </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {values.map((value, index) => (
-              <motion.div
-                key={value.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="glass-card-hover p-6"
-              >
-                <value.icon size={40} className="text-accent-gold mb-4" />
-                <h3 className="text-xl font-bold mb-2">{value.title}</h3>
-                <p className="text-text-secondary leading-relaxed">{value.description}</p>
-              </motion.div>
-            ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {values.map((value, index) => {
+                const IconComponent = valueIcons[index % valueIcons.length]
+                return (
+                  <motion.div
+                    key={value.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    className="glass-card-hover p-6"
+                  >
+                    <IconComponent size={40} className={iconColors[index % iconColors.length]} />
+                    <h3 className="text-xl font-bold mb-2 mt-3">{value.title}</h3>
+                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{value.description}</p>
+                  </motion.div>
+                )
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Mission Statement */}
       <section className="section">
@@ -131,20 +255,174 @@ export default function Home() {
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-accent-gold/5 via-accent-gold/10 to-transparent p-8 md:p-12 text-center border border-accent-gold/20"
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500/5 via-amber-500/10 to-transparent p-8 md:p-12 text-center border border-amber-500/20"
           >
             <div className="relative z-10">
-              <span className="text-accent-gold text-sm font-semibold tracking-wide uppercase">Personal Mission</span>
+              <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">Personal Mission</span>
               <h2 className="text-2xl md:text-3xl font-bold mt-4 mb-6 gradient-text-gold">
                 To build systems that improve lives, strengthen communities, and increase human capability across Africa.
               </h2>
-              <p className="text-text-secondary max-w-2xl mx-auto leading-relaxed">
+              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
                 Technology becomes meaningful when it solves real problems, respects human realities, and remains accessible to ordinary people.
               </p>
             </div>
           </motion.div>
         </div>
       </section>
+
+      {/* Featured Projects */}
+      {featuredProjects.length > 0 && (
+        <section className="section bg-gray-50/50 dark:bg-gray-950/30">
+          <div className="container-custom">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">Featured Work</span>
+              <h2 className="text-3xl md:text-4xl font-bold mt-2">
+                Featured <span className="gradient-text-gold">Projects</span>
+              </h2>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredProjects.map((project, index) => (
+                <motion.div
+                  key={project.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <Link href={`/projects/${project.slug}`}>
+                    <div className="glass-card-hover overflow-hidden h-full">
+                      {project.image_url && (
+                        <div className="h-48 overflow-hidden">
+                          <img src={project.image_url} alt={project.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                        </div>
+                      )}
+                      <div className="p-6">
+                        <h3 className="text-xl font-bold mb-2 group-hover:text-amber-500 transition-colors">{project.title}</h3>
+                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">{project.description}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {project.technologies?.slice(0, 3).map((tech, i) => (
+                            <span key={i} className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">{tech}</span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="text-center mt-8">
+              <Link href="/projects" className="inline-flex items-center gap-2 text-amber-500 hover:gap-3 transition-all">
+                View All Projects <ArrowRight size={18} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Latest Blog Posts */}
+      {latestPosts.length > 0 && (
+        <section className="section">
+          <div className="container-custom">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">Latest Insights</span>
+              <h2 className="text-3xl md:text-4xl font-bold mt-2">
+                From My <span className="gradient-text-gold">Blog</span>
+              </h2>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {latestPosts.map((post, index) => (
+                <motion.article
+                  key={post.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <Link href={`/blog/${post.slug}`}>
+                    <div className="glass-card-hover overflow-hidden h-full">
+                      {post.featured_image && (
+                        <div className="h-48 overflow-hidden">
+                          <img src={post.featured_image} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                        </div>
+                      )}
+                      <div className="p-6">
+                        <div className="flex items-center gap-3 text-xs text-gray-500 mb-2">
+                          <span className="flex items-center gap-1"><Calendar size={12} /> {new Date(post.created_at).toLocaleDateString()}</span>
+                          <span className="flex items-center gap-1"><User size={12} /> Joel Kaudzu</span>
+                        </div>
+                        <h3 className="text-lg font-bold mb-2 group-hover:text-amber-500 transition-colors line-clamp-2">{post.title}</h3>
+                        <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-3">{post.excerpt}</p>
+                        <div className="mt-3 text-amber-500 text-sm font-medium">Read more →</div>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.article>
+              ))}
+            </div>
+
+            <div className="text-center mt-8">
+              <Link href="/blog" className="inline-flex items-center gap-2 text-amber-500 hover:gap-3 transition-all">
+                Read All Posts <ArrowRight size={18} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Testimonials */}
+      {testimonials.length > 0 && (
+        <section className="section bg-gray-50/50 dark:bg-gray-950/30">
+          <div className="container-custom">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">Kind Words</span>
+              <h2 className="text-3xl md:text-4xl font-bold mt-2">
+                What People <span className="gradient-text-gold">Say</span>
+              </h2>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {testimonials.map((testimonial, index) => (
+                <motion.div
+                  key={testimonial.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="glass-card p-6"
+                >
+                  <Star size={24} className="text-amber-500 mb-3" />
+                  <p className="text-gray-700 dark:text-gray-300 italic leading-relaxed">"{testimonial.content}"</p>
+                  <div className="mt-4">
+                    <p className="font-semibold">{testimonial.name}</p>
+                    {testimonial.role && <p className="text-sm text-gray-500">{testimonial.role}</p>}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   )
 }

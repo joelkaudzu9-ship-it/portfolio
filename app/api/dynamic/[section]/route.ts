@@ -1,0 +1,136 @@
+import { NextResponse } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
+
+const TABLE_MAP: Record<string, string> = {
+  'hero': 'hero_section',
+  'executive': 'executive_identity',
+  'professional': 'professional_profile',
+  'values': 'core_values',
+  'education': 'education',
+  'skills': 'skills',
+  'strengths': 'personal_strengths',
+  'growth': 'areas_of_growth',
+  'leadership': 'leadership_roles',
+  'teaching': 'teaching_experience',
+  'conferences': 'conferences',
+  'mentors': 'mentors',
+  'timeline': 'timeline_events',
+  'quotes': 'personal_quotes',
+  'vision': 'long_term_vision',
+  'roadmap': 'roadmap_items',
+  'testimonials': 'testimonials',
+  'achievements': 'achievements'
+}
+
+async function isAdmin() {
+  const cookieStore = await cookies()
+  return cookieStore.get('admin_auth')?.value === 'true'
+}
+
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ section: string }> }
+) {
+  const { section } = await params
+  const table = TABLE_MAP[section]
+  
+  if (!table) {
+    return NextResponse.json({ error: 'Invalid section' }, { status: 400 })
+  }
+  
+  const { data, error } = await supabaseAdmin
+    .from(table)
+    .select('*')
+    .order('order_index', { ascending: true, nullsLast: true })
+  
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(data)
+}
+
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ section: string }> }
+) {
+  const admin = await isAdmin()
+  if (!admin) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  
+  const { section } = await params
+  const table = TABLE_MAP[section]
+  
+  if (!table) {
+    return NextResponse.json({ error: 'Invalid section' }, { status: 400 })
+  }
+  
+  const body = await request.json()
+  const { data, error } = await supabaseAdmin
+    .from(table)
+    .insert(body)
+    .select()
+  
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(data?.[0])
+}
+
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ section: string }> }
+) {
+  const admin = await isAdmin()
+  if (!admin) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  
+  const { section } = await params
+  const table = TABLE_MAP[section]
+  
+  if (!table) {
+    return NextResponse.json({ error: 'Invalid section' }, { status: 400 })
+  }
+  
+  const body = await request.json()
+  const { id, ...dataToUpdate } = body
+  
+  const { data, error } = await supabaseAdmin
+    .from(table)
+    .update(dataToUpdate)
+    .eq('id', id)
+    .select()
+  
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(data?.[0])
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ section: string }> }
+) {
+  const admin = await isAdmin()
+  if (!admin) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  
+  const { section } = await params
+  const table = TABLE_MAP[section]
+  
+  if (!table) {
+    return NextResponse.json({ error: 'Invalid section' }, { status: 400 })
+  }
+  
+  const url = new URL(request.url)
+  const id = url.searchParams.get('id')
+  
+  if (!id) {
+    return NextResponse.json({ error: 'ID required' }, { status: 400 })
+  }
+  
+  const { error } = await supabaseAdmin
+    .from(table)
+    .delete()
+    .eq('id', id)
+  
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
