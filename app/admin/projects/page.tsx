@@ -45,26 +45,29 @@ export default function AdminProjectsPage() {
     }
   }
 
-  const toggleFeatured = async (id: number, currentFeatured: boolean) => {
+  const toggleFeatured = async (slug: string, currentFeatured: boolean) => {
     try {
-      const res = await fetch(`/api/projects/${id}`, {
+      const res = await fetch(`/api/projects/${slug}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ featured: !currentFeatured }),
       })
+      
+      const data = await res.json()
+      
       if (res.ok) {
         fetchProjects()
       } else {
-        const error = await res.json()
-        alert(error.error || 'Failed to update featured status')
+        alert(data.error || 'Failed to update featured status')
       }
     } catch (error) {
+      console.error('Error:', error)
       alert('Error updating featured status')
     }
   }
 
-  const deleteProject = async (id: number, slug: string) => {
-    if (!confirm(`Delete "${slug}"? This cannot be undone.`)) return
+  const deleteProject = async (slug: string, title: string) => {
+    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return
     try {
       const res = await fetch(`/api/projects/${slug}`, { method: 'DELETE' })
       if (res.ok) {
@@ -140,7 +143,7 @@ export default function AdminProjectsPage() {
                 </div>
                 <div className="flex gap-2 ml-4">
                   <button
-                    onClick={() => toggleFeatured(project.id, project.featured)}
+                    onClick={() => toggleFeatured(project.slug, project.featured)}
                     className={`p-2 rounded-lg transition-colors ${
                       project.featured 
                         ? 'text-amber-500 bg-amber-500/10' 
@@ -157,7 +160,7 @@ export default function AdminProjectsPage() {
                     <Edit size={18} className="text-text-secondary" />
                   </Link>
                   <button 
-                    onClick={() => deleteProject(project.id, project.slug)} 
+                    onClick={() => deleteProject(project.slug, project.title)} 
                     className="p-2 rounded-lg hover:bg-red-500/10 transition-colors"
                   >
                     <Trash2 size={18} className="text-red-400" />

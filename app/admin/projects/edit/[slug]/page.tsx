@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Upload, X, Plus, Save } from 'lucide-react'
+import { ArrowLeft, Upload, X, Plus, Save, Eye, GripVertical } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 type Project = {
   id: number
@@ -22,6 +24,154 @@ type Project = {
   created_at: string
 }
 
+// Image compression utility
+const compressImage = async (file: File): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = (event) => {
+      const img = new Image()
+      img.src = event.target?.result as string
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        let width = img.width
+        let height = img.height
+        const maxWidth = 1920
+        const maxHeight = 1080
+        
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width
+            width = maxWidth
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height
+            height = maxHeight
+          }
+        }
+        
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        ctx?.drawImage(img, 0, 0, width, height)
+        
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+              })
+              resolve(compressedFile)
+            } else {
+              reject(new Error('Compression failed'))
+            }
+          },
+          'image/jpeg',
+          0.8
+        )
+      }
+      img.onerror = reject
+    }
+    reader.onerror = reject
+  })
+}
+
+// Upload Progress Component
+const UploadProgress = ({ progress, isVisible }: { progress: number; isVisible: boolean }) => {
+  if (!isVisible) return null
+  
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+      <div className="glass-card p-8 w-80 text-center">
+        <div className="relative w-32 h-32 mx-auto mb-4">
+          <svg className="w-32 h-32 transform -rotate-90">
+            <circle
+              cx="64"
+              cy="64"
+              r="58"
+              stroke="currentColor"
+              strokeWidth="8"
+              fill="none"
+              className="text-gray-700"
+            />
+            <circle
+              cx="64"
+              cy="64"
+              r="58"
+              stroke="currentColor"
+              strokeWidth="8"
+              fill="none"
+              className="text-amber-500"
+              strokeDasharray={`${2 * Math.PI * 58}`}
+              strokeDashoffset={`${2 * Math.PI * 58 * (1 - progress / 100)}`}
+              style={{ transition: 'stroke-dashoffset 0.3s ease' }}
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-2xl font-bold gradient-text-gold">{progress}%</span>
+          </div>
+        </div>
+        <p className="text-text-secondary mt-2">Uploading to Cloudinary...</p>
+        <p className="text-text-muted text-sm mt-1">Please wait</p>
+      </div>
+    </div>
+  )
+}
+
+// Markdown Preview Component
+const MarkdownPreview = ({ content }: { content: string }) => {
+  const [isPreview, setIsPreview] = useState(false)
+  
+  if (!isPreview) {
+    return (
+      <button
+        type="button"
+        onClick={() => setIsPreview(true)}
+        className="mb-3 px-3 py-1.5 bg-accent-gold/20 text-accent-gold rounded-lg text-sm flex items-center gap-2"
+      >
+        <Eye size={14} /> Preview Markdown
+      </button>
+    )
+  }
+  
+  return (
+    <div className="mb-4">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-medium text-text-secondary">Preview</h4>
+        <button
+          type="button"
+          onClick={() => setIsPreview(false)}
+          className="px-3 py-1.5 bg-surface border border-border rounded-lg text-sm hover:bg-surface-hover"
+        >
+          Back to Edit
+        </button>
+      </div>
+      <div className="prose prose-invert prose-sm max-w-none p-4 rounded-lg bg-surface border border-border">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {content || '*No content yet*'}
+        </ReactMarkdown>
+      </div>
+    </div>
+  )
+}
+
+// Unsaved Changes Warning
+const useUnsavedChanges = (hasChanges: boolean) => {
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasChanges) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+    
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [hasChanges])
+}
+
 export default function EditProjectPage() {
   const [title, setTitle] = useState('')
   const [subtitle, setSubtitle] = useState('')
@@ -37,23 +187,47 @@ export default function EditProjectPage() {
   const [featured, setFeatured] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isUploading, setIsUploading] = useState(false)
   const [newGalleryUrl, setNewGalleryUrl] = useState('')
+  const [slug, setSlug] = useState('')
+  const [originalSlug, setOriginalSlug] = useState('')
+  const [checkingSlug, setCheckingSlug] = useState(false)
+  const [slugError, setSlugError] = useState('')
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const galleryInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const params = useParams()
-  const slug = params?.slug as string
+  const slugParam = params?.slug as string
+
+  // Check if there are unsaved changes
+  const hasUnsavedChanges = title !== '' || content !== '' || description !== '' || technologies.length > 0
+  useUnsavedChanges(hasUnsavedChanges && !loading)
 
   useEffect(() => {
-    if (slug) {
+    if (slugParam) {
       fetchProject()
     }
-  }, [slug])
+  }, [slugParam])
+
+  // Check slug uniqueness when title changes
+  useEffect(() => {
+    if (title && originalSlug) {
+      const generated = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+      setSlug(generated)
+      if (generated !== originalSlug) {
+        checkSlugUniqueness(generated, originalSlug)
+      } else {
+        setSlugError('')
+      }
+    }
+  }, [title, originalSlug])
 
   const fetchProject = async () => {
     try {
-      const res = await fetch(`/api/projects/${slug}`)
+      const res = await fetch(`/api/projects/${slugParam}`)
       if (!res.ok) throw new Error('Project not found')
       const data: Project = await res.json()
       
@@ -68,6 +242,8 @@ export default function EditProjectPage() {
       setLiveUrl(data.live_url || '')
       setStatus(data.status || 'active')
       setFeatured(data.featured || false)
+      setSlug(data.slug || '')
+      setOriginalSlug(data.slug || '')
     } catch (error) {
       console.error('Error fetching project:', error)
       alert('Project not found')
@@ -77,32 +253,109 @@ export default function EditProjectPage() {
     }
   }
 
-  const uploadImage = async (file: File) => {
-    const formData = new FormData()
-    formData.append('file', file)
+  const checkSlugUniqueness = async (slugToCheck: string, currentSlug: string) => {
+    if (!slugToCheck || slugToCheck === currentSlug) return
     
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-      method: 'POST',
-      body: formData,
+    setCheckingSlug(true)
+    try {
+      const res = await fetch(`/api/projects/check-slug?slug=${slugToCheck}&exclude=${currentSlug}`)
+      const data = await res.json()
+      if (data.exists) {
+        setSlugError(`Slug "${slugToCheck}" already exists. Consider changing the title.`)
+      } else {
+        setSlugError('')
+      }
+    } catch (error) {
+      console.error('Error checking slug:', error)
+    } finally {
+      setCheckingSlug(false)
+    }
+  }
+
+  // Direct upload to Cloudinary with progress tracking
+  const uploadDirectToCloudinary = async (file: File, folder: string = 'portfolio/projects'): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('upload_preset', 'portfolio_unsigned')
+      formData.append('folder', folder)
+      
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+      const xhr = new XMLHttpRequest()
+      
+      xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, true)
+      
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100)
+          setUploadProgress(percent)
+        }
+      })
+      
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const result = JSON.parse(xhr.responseText)
+          resolve(result.secure_url)
+        } else {
+          reject(new Error('Upload failed'))
+        }
+      }
+      
+      xhr.onerror = () => reject(new Error('Network error'))
+      
+      xhr.send(formData)
     })
-    const result = await res.json()
-    return result.secure_url
   }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     
-    setUploading(true)
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file')
+      return
+    }
+    
+    setIsUploading(true)
+    setUploadProgress(0)
+    
     try {
-      const url = await uploadImage(file)
+      const compressedFile = await compressImage(file)
+      const url = await uploadDirectToCloudinary(compressedFile, 'portfolio/projects')
       setImageUrl(url)
     } catch (error) {
       console.error('Upload error:', error)
       alert('Failed to upload image')
     } finally {
-      setUploading(false)
+      setIsUploading(false)
+      setUploadProgress(0)
+    }
+  }
+
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file')
+      return
+    }
+    
+    setIsUploading(true)
+    setUploadProgress(0)
+    
+    try {
+      const compressedFile = await compressImage(file)
+      const url = await uploadDirectToCloudinary(compressedFile, 'portfolio/projects/gallery')
+      if (!galleryUrls.includes(url)) {
+        setGalleryUrls([...galleryUrls, url])
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Failed to upload image')
+    } finally {
+      setIsUploading(false)
+      setUploadProgress(0)
     }
   }
 
@@ -128,15 +381,42 @@ export default function EditProjectPage() {
     setGalleryUrls(galleryUrls.filter(u => u !== url))
   }
 
+  // Drag and drop reordering for gallery
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index)
+  }
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    if (draggedIndex === null || draggedIndex === index) return
+    
+    const newGallery = [...galleryUrls]
+    const draggedItem = newGallery[draggedIndex]
+    newGallery.splice(draggedIndex, 1)
+    newGallery.splice(index, 0, draggedItem)
+    setGalleryUrls(newGallery)
+    setDraggedIndex(index)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSaving(true)
     
-    const newSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    if (slugError) {
+      alert('Please fix the slug issue before saving')
+      return
+    }
+    
+    if (!confirm('Save changes to this project?')) return
+    
+    setSaving(true)
     
     const projectData = {
       title,
-      slug: newSlug,
+      slug,
       subtitle,
       description,
       content,
@@ -150,7 +430,7 @@ export default function EditProjectPage() {
     }
     
     try {
-      const res = await fetch(`/api/projects/${slug}`, {
+      const res = await fetch(`/api/projects/${slugParam}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(projectData),
@@ -178,52 +458,65 @@ export default function EditProjectPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black py-8">
-      <div className="container-custom max-w-4xl">
-        <Link href="/admin/projects" className="inline-flex items-center gap-2 text-amber-500 mb-6">
+    <div className="min-h-screen bg-white dark:bg-black py-4 sm:py-8">
+      <UploadProgress progress={uploadProgress} isVisible={isUploading} />
+      
+      <div className="container-custom max-w-4xl px-4 sm:px-6">
+        <Link href="/admin/projects" className="inline-flex items-center gap-2 text-amber-500 mb-6 hover:gap-3 transition-all">
           <ArrowLeft size={18} /> Back to Projects
         </Link>
         
-        <h1 className="text-3xl font-bold mb-8 gradient-text-gold">Edit Project: {title}</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 gradient-text-gold">Edit Project: {title}</h1>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Project Title *</label>
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">Project Title *</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+              className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
               required
             />
+            {slug && (
+              <div className="mt-2">
+                <p className="text-xs text-text-muted">
+                  URL: <span className="text-accent-gold">/projects/{slug}</span>
+                  {originalSlug !== slug && ' (will update)'}
+                </p>
+                {checkingSlug && <p className="text-xs text-text-muted mt-1">Checking availability...</p>}
+                {slugError && <p className="text-xs text-red-500 mt-1">{slugError}</p>}
+              </div>
+            )}
           </div>
           
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Subtitle / Tagline</label>
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">Subtitle / Tagline</label>
             <input
               type="text"
               value={subtitle}
               onChange={(e) => setSubtitle(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+              className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
+              placeholder="e.g., Multilingual Chronic Disease Support Ecosystem"
             />
           </div>
           
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Featured Image</label>
-            <div className="flex gap-2">
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">Featured Image</label>
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
-                className="flex-1 px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                className="flex-1 px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary text-sm"
                 placeholder="Image URL"
               />
-              <label className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600">
-                <Upload size={16} />
+              <label className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 text-center">
+                <Upload size={16} className="inline mr-1" /> Upload
                 <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
               </label>
             </div>
-            {uploading && <p className="text-sm text-gray-500 mt-2">Uploading...</p>}
+            {isUploading && <p className="text-sm text-text-muted mt-2">Uploading... {uploadProgress}%</p>}
             {imageUrl && (
               <div className="relative mt-2 inline-block">
                 <img src={imageUrl} alt="Preview" className="h-32 rounded-lg object-cover" />
@@ -238,24 +531,24 @@ export default function EditProjectPage() {
             )}
           </div>
           
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Technologies Used</label>
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">Technologies Used</label>
             <div className="flex gap-2 mb-2">
               <input
                 type="text"
                 value={currentTech}
                 onChange={(e) => setCurrentTech(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTechnology())}
-                className="flex-1 px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                className="flex-1 px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
                 placeholder="e.g., Python, Flask, PostgreSQL"
               />
-              <button type="button" onClick={addTechnology} className="px-4 py-2 bg-green-500 text-white rounded-lg">
+              <button type="button" onClick={addTechnology} className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
                 <Plus size={16} />
               </button>
             </div>
             <div className="flex flex-wrap gap-2">
               {technologies.map((tech) => (
-                <span key={tech} className="px-2 py-1 bg-amber-500/20 text-amber-500 rounded-full text-sm flex items-center gap-1">
+                <span key={tech} className="px-2 py-1 bg-accent-gold/20 text-accent-gold rounded-full text-sm flex items-center gap-1">
                   {tech}
                   <button type="button" onClick={() => removeTechnology(tech)} className="hover:text-red-500">
                     <X size={12} />
@@ -265,50 +558,72 @@ export default function EditProjectPage() {
             </div>
           </div>
           
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Short Description</label>
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">Short Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+              className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
+              placeholder="Brief description of the project"
             />
           </div>
           
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Full Content (Markdown)</label>
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">Full Content (Markdown)</label>
+            <MarkdownPreview content={content} />
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={10}
-              className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 font-mono text-sm"
+              className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary font-mono text-sm"
               placeholder="## Project Overview&#10;&#10;Write your project description in Markdown..."
             />
+            <p className="text-xs text-text-muted mt-2">
+              Supports Markdown: # headings, **bold**, *italic*, - lists, [links](url), ![images](url)
+            </p>
           </div>
           
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Image Gallery (one URL per line)</label>
-            <div className="flex gap-2 mb-3">
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">
+              Image Gallery
+              <span className="text-xs text-text-muted ml-2">(Drag to reorder)</span>
+            </label>
+            <div className="flex flex-col sm:flex-row gap-2 mb-3">
               <input
                 type="text"
                 value={newGalleryUrl}
                 onChange={(e) => setNewGalleryUrl(e.target.value)}
-                className="flex-1 px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                className="flex-1 px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary text-sm"
                 placeholder="Image URL"
               />
-              <button type="button" onClick={addToGallery} className="px-4 py-2 bg-green-500 text-white rounded-lg">
-                <Plus size={16} />
+              <button type="button" onClick={addToGallery} className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                <Plus size={16} /> Add URL
               </button>
+              <label className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 text-center">
+                <Upload size={16} className="inline mr-1" /> Upload
+                <input ref={galleryInputRef} type="file" accept="image/*" className="hidden" onChange={handleGalleryUpload} />
+              </label>
             </div>
             {galleryUrls.length > 0 && (
-              <div className="grid grid-cols-3 gap-3 mt-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-3">
                 {galleryUrls.map((url, index) => (
-                  <div key={index} className="relative">
+                  <div
+                    key={index}
+                    draggable
+                    onDragStart={() => handleDragStart(index)}
+                    onDragOver={(e) => handleDragOver(e, index)}
+                    onDragEnd={handleDragEnd}
+                    className="relative cursor-move group"
+                  >
                     <img src={url} alt={`Gallery ${index + 1}`} className="h-24 w-full object-cover rounded-lg" />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                      <GripVertical size={20} className="text-white" />
+                    </div>
                     <button
                       type="button"
                       onClick={() => removeFromGallery(url)}
-                      className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white hover:bg-red-600"
+                      className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <X size={12} />
                     </button>
@@ -318,41 +633,41 @@ export default function EditProjectPage() {
             )}
           </div>
           
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">GitHub URL</label>
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">GitHub URL</label>
             <input
               type="url"
               value={githubUrl}
               onChange={(e) => setGithubUrl(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+              className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
               placeholder="https://github.com/..."
             />
           </div>
           
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Live Demo URL</label>
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">Live Demo URL</label>
             <input
               type="url"
               value={liveUrl}
               onChange={(e) => setLiveUrl(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+              className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
               placeholder="https://..."
             />
           </div>
           
-          <div className="glass-card p-6">
-            <div className="flex flex-wrap gap-6">
+          <div className="glass-card p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row gap-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Status</label>
+                <label className="block text-sm font-medium mb-2 text-text-secondary">Status</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                  className="px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
                 >
-                  <option value="active">Active</option>
-                  <option value="concept">Concept</option>
-                  <option value="planning">Planning</option>
-                  <option value="experiment">Experiment</option>
+                  <option value="active">Active - Currently maintained</option>
+                  <option value="concept">Concept - Idea stage</option>
+                  <option value="planning">Planning - In development</option>
+                  <option value="experiment">Experiment - Research/Test</option>
                 </select>
               </div>
               <div className="flex items-center gap-2">
@@ -360,23 +675,28 @@ export default function EditProjectPage() {
                   type="checkbox"
                   checked={featured}
                   onChange={(e) => setFeatured(e.target.checked)}
-                  className="w-4 h-4 rounded"
+                  className="w-4 h-4 rounded border-border text-accent-gold focus:ring-accent-gold/50"
                   id="featured"
                 />
-                <label htmlFor="featured" className="text-sm">Featured on homepage</label>
+                <label htmlFor="featured" className="text-sm cursor-pointer text-text-secondary">
+                  Featured on homepage
+                </label>
               </div>
             </div>
           </div>
           
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 pb-8">
             <button
               type="submit"
-              disabled={saving || uploading}
-              className="btn-primary flex items-center gap-2 disabled:opacity-50"
+              disabled={saving || isUploading || !!slugError}
+              className="btn-primary flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              <Save size={16} /> {saving ? 'Saving...' : 'Save Changes'}
+              <Save size={16} /> {saving ? 'Saving...' : isUploading ? 'Uploading...' : 'Save Changes'}
             </button>
-            <Link href="/admin/projects" className="px-6 py-3 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+            <Link
+              href="/admin/projects"
+              className="px-6 py-3 border border-border rounded-lg hover:bg-surface transition-colors text-center"
+            >
               Cancel
             </Link>
           </div>

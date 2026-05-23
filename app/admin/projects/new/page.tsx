@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Upload, X, Plus, Save } from 'lucide-react'
+import { ArrowLeft, Upload, X, Plus, Save, Eye, GripVertical } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 // Image compression utility
 const compressImage = async (file: File): Promise<File> => {
@@ -101,6 +103,58 @@ const UploadProgress = ({ progress, isVisible }: { progress: number; isVisible: 
   )
 }
 
+// Markdown Preview Component
+const MarkdownPreview = ({ content }: { content: string }) => {
+  const [isPreview, setIsPreview] = useState(false)
+  
+  if (!isPreview) {
+    return (
+      <button
+        type="button"
+        onClick={() => setIsPreview(true)}
+        className="mb-3 px-3 py-1.5 bg-accent-gold/20 text-accent-gold rounded-lg text-sm flex items-center gap-2"
+      >
+        <Eye size={14} /> Preview Markdown
+      </button>
+    )
+  }
+  
+  return (
+    <div className="mb-4">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-medium text-text-secondary">Preview</h4>
+        <button
+          type="button"
+          onClick={() => setIsPreview(false)}
+          className="px-3 py-1.5 bg-surface border border-border rounded-lg text-sm hover:bg-surface-hover"
+        >
+          Back to Edit
+        </button>
+      </div>
+      <div className="prose prose-invert prose-sm max-w-none p-4 rounded-lg bg-surface border border-border">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {content || '*No content yet*'}
+        </ReactMarkdown>
+      </div>
+    </div>
+  )
+}
+
+// Unsaved Changes Warning
+const useUnsavedChanges = (hasChanges: boolean) => {
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasChanges) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+    
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [hasChanges])
+}
+
 export default function NewProjectPage() {
   const [title, setTitle] = useState('')
   const [subtitle, setSubtitle] = useState('')
@@ -115,13 +169,48 @@ export default function NewProjectPage() {
   const [status, setStatus] = useState('active')
   const [featured, setFeatured] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isUploading, setIsUploading] = useState(false)
   const [newGalleryUrl, setNewGalleryUrl] = useState('')
+  const [slug, setSlug] = useState('')
+  const [checkingSlug, setCheckingSlug] = useState(false)
+  const [slugError, setSlugError] = useState('')
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+  
+  // Check if there are unsaved changes
+  const hasUnsavedChanges = !!title || !!content || !!description || technologies.length > 0 || galleryUrls.length > 0
+  useUnsavedChanges(hasUnsavedChanges)
+  
+  // Generate slug from title
+  useEffect(() => {
+    if (title) {
+      const generated = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+      setSlug(generated)
+      checkSlugUniqueness(generated)
+    }
+  }, [title])
+  
+  const checkSlugUniqueness = async (slugToCheck: string) => {
+    if (!slugToCheck) return
+    
+    setCheckingSlug(true)
+    try {
+      const res = await fetch(`/api/projects/check-slug?slug=${slugToCheck}`)
+      const data = await res.json()
+      if (data.exists) {
+        setSlugError(`Slug "${slugToCheck}" already exists. Consider changing the title.`)
+      } else {
+        setSlugError('')
+      }
+    } catch (error) {
+      console.error('Error checking slug:', error)
+    } finally {
+      setCheckingSlug(false)
+    }
+  }
 
   // Direct upload to Cloudinary with progress tracking
   const uploadDirectToCloudinary = async (file: File, folder: string = 'portfolio/projects'): Promise<string> => {
@@ -136,7 +225,6 @@ export default function NewProjectPage() {
       
       xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, true)
       
-      // Track progress
       xhr.upload.addEventListener('progress', (e) => {
         if (e.lengthComputable) {
           const percent = Math.round((e.loaded / e.total) * 100)
@@ -233,11 +321,38 @@ export default function NewProjectPage() {
     setGalleryUrls(galleryUrls.filter(u => u !== url))
   }
 
+  // Drag and drop reordering for gallery
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index)
+  }
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    if (draggedIndex === null || draggedIndex === index) return
+    
+    const newGallery = [...galleryUrls]
+    const draggedItem = newGallery[draggedIndex]
+    newGallery.splice(draggedIndex, 1)
+    newGallery.splice(index, 0, draggedItem)
+    setGalleryUrls(newGallery)
+    setDraggedIndex(index)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
     
-    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    if (slugError) {
+      alert('Please fix the slug issue before submitting')
+      return
+    }
+    
+    if (!confirm('Create this project?')) return
+    
+    setLoading(true)
     
     const projectData = {
       title,
@@ -271,7 +386,6 @@ export default function NewProjectPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-black py-4 sm:py-8">
-      {/* Upload Progress Modal */}
       <UploadProgress progress={uploadProgress} isVisible={isUploading} />
       
       <div className="container-custom max-w-4xl px-4 sm:px-6">
@@ -291,6 +405,15 @@ export default function NewProjectPage() {
               className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
               required
             />
+            {slug && (
+              <div className="mt-2">
+                <p className="text-xs text-text-muted">
+                  URL: <span className="text-accent-gold">/projects/{slug}</span>
+                </p>
+                {checkingSlug && <p className="text-xs text-text-muted mt-1">Checking availability...</p>}
+                {slugError && <p className="text-xs text-red-500 mt-1">{slugError}</p>}
+              </div>
+            )}
           </div>
           
           <div className="glass-card p-4 sm:p-6">
@@ -374,6 +497,7 @@ export default function NewProjectPage() {
           
           <div className="glass-card p-4 sm:p-6">
             <label className="block text-sm font-medium mb-2 text-text-secondary">Full Content (Markdown supported)</label>
+            <MarkdownPreview content={content} />
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -387,7 +511,10 @@ export default function NewProjectPage() {
           </div>
           
           <div className="glass-card p-4 sm:p-6">
-            <label className="block text-sm font-medium mb-2 text-text-secondary">Image Gallery</label>
+            <label className="block text-sm font-medium mb-2 text-text-secondary">
+              Image Gallery 
+              <span className="text-xs text-text-muted ml-2">(Drag to reorder)</span>
+            </label>
             <div className="flex flex-col sm:flex-row gap-2 mb-3">
               <input
                 type="text"
@@ -407,12 +534,22 @@ export default function NewProjectPage() {
             {galleryUrls.length > 0 && (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-3">
                 {galleryUrls.map((url, index) => (
-                  <div key={index} className="relative">
+                  <div
+                    key={index}
+                    draggable
+                    onDragStart={() => handleDragStart(index)}
+                    onDragOver={(e) => handleDragOver(e, index)}
+                    onDragEnd={handleDragEnd}
+                    className="relative cursor-move group"
+                  >
                     <img src={url} alt={`Gallery ${index + 1}`} className="h-24 w-full object-cover rounded-lg" />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                      <GripVertical size={20} className="text-white" />
+                    </div>
                     <button
                       type="button"
                       onClick={() => removeFromGallery(url)}
-                      className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white hover:bg-red-600"
+                      className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <X size={12} />
                     </button>
@@ -477,7 +614,7 @@ export default function NewProjectPage() {
           <div className="flex flex-col sm:flex-row gap-4 pb-8">
             <button
               type="submit"
-              disabled={loading || isUploading}
+              disabled={loading || isUploading || !!slugError}
               className="btn-primary flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <Save size={16} /> {loading ? 'Creating...' : isUploading ? 'Uploading...' : 'Create Project'}
