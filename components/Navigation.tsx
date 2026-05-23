@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTheme } from './ThemeProvider'
+import BlogSearch from './BlogSearch'
 import { Sun, Moon, X } from 'lucide-react'
 
 const navItems = [
@@ -103,6 +104,7 @@ export default function Navigation() {
               >
                 {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
               </button>
+              <BlogSearch />
             </div>
 
             {/* Mobile Menu Button - Animated Hamburger */}

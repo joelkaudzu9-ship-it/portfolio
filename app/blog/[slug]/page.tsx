@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { Calendar, User, ArrowLeft, Video, Play, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import SocialShare from '@/components/SocialShare'
 
 type MediaItem = {
   url: string
@@ -173,29 +174,19 @@ export default function BlogPostPage() {
                 )}
                 
                 {post.media_gallery[galleryIndex].type === 'video' && (
-                  <div className="rounded-2xl overflow-hidden bg-black/20">
+                  <div className="rounded-2xl overflow-hidden bg-black">
                     <video 
                       controls 
-                      className="w-full rounded-lg"
-                      onError={(e) => {
-                        console.error('Video failed to load:', post.media_gallery[galleryIndex].url)
-                        e.currentTarget.style.display = 'none'
-                        // Show fallback message
-                        const parent = e.currentTarget.parentElement
-                        if (parent) {
-                          const fallback = document.createElement('div')
-                          fallback.className = 'p-8 text-center bg-red-500/10 rounded-lg'
-                          fallback.innerHTML = `
-                            <p class="text-red-400">⚠️ Video failed to load</p>
-                            <p class="text-text-muted text-sm mt-2">URL: ${post.media_gallery[galleryIndex].url.substring(0, 100)}...</p>
-                            <a href="${post.media_gallery[galleryIndex].url}" target="_blank" class="text-amber-500 underline mt-2 inline-block">Download video</a>
-                          `
-                          parent.appendChild(fallback)
-                        }
-                      }}
+                      className="w-full"
+                      preload="metadata"
                     >
                       <source src={post.media_gallery[galleryIndex].url} type="video/mp4" />
-                      Your browser does not support the video tag.
+                      <source src={post.media_gallery[galleryIndex].url} type="video/webm" />
+                      <source src={post.media_gallery[galleryIndex].url} type="video/ogg" />
+                      <p className="p-4 text-center text-text-secondary">
+                        Your browser doesn't support video playback.
+                        <a href={post.media_gallery[galleryIndex].url} download className="text-amber-500 block mt-2">Download video</a>
+                      </p>
                     </video>
                   </div>
                 )}
@@ -268,6 +259,8 @@ export default function BlogPostPage() {
             >
               {post.content}
             </ReactMarkdown>
+            <SocialShare title={post.title} url={`https://joelkaudzu.vercel.app/blog/${post.slug}`} />
+
           </div>
         </motion.article>
       </div>

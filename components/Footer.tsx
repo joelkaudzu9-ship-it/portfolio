@@ -1,11 +1,34 @@
 import Link from 'next/link'
+import Newsletter from './Newsletter'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
     <footer className="border-t border-border mt-auto">
-      <div className="container-custom py-6">
+      <div className="container-custom py-8">
+        {/* Top section with newsletter */}
+        <div className="flex flex-col md:flex-row justify-between gap-8 pb-8 border-b border-border mb-6">
+          {/* Brand / About */}
+          <div className="flex-1">
+            <h3 className="text-lg font-bold gradient-text-gold mb-3">Joel George Kaudzu</h3>
+            <p className="text-text-secondary text-sm max-w-md">
+              Dental Surgery Student at KUHeS building healthcare technology for Africa. 
+              Creator of MoyoWanga — multilingual chronic disease support for low-resource environments.
+            </p>
+          </div>
+          
+          {/* Newsletter Section */}
+          <div className="flex-1">
+            <h4 className="font-semibold mb-3 text-text-primary">Stay Updated</h4>
+            <p className="text-text-muted text-sm mb-3">
+              Get the latest insights on healthcare tech and innovation in Africa.
+            </p>
+            <Newsletter />
+          </div>
+        </div>
+        
+        {/* Bottom section with navigation */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
           {/* Left - Simple credit */}
           <p className="text-text-muted order-2 md:order-1">

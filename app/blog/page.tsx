@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Calendar, User, Video, Image as ImageIcon, Play } from 'lucide-react'
+import BlogSidebar from '@/components/BlogSidebar'
 
 type MediaItem = {
   url: string
@@ -130,114 +131,125 @@ export default function BlogPage() {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {sortedPosts.map((post, index) => {
-            const featuredImage = getFeaturedImage(post)
-            const galleryPreview = getGalleryPreview(post)
-            const mediaType = getMediaType(post)
-            const displayImage = featuredImage || galleryPreview
-            
-            return (
-              <motion.article
-                key={post.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="glass-card-hover overflow-hidden relative group"
-              >
-                <Link href={`/blog/${post.slug}`}>
-                  {/* Featured Image / Thumbnail */}
-                  <div className="relative h-56 overflow-hidden bg-gradient-to-br from-amber-500/20 to-amber-500/5">
-                    {displayImage ? (
-                      <>
-                        <img 
-                          src={displayImage} 
-                          alt={post.title}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          onError={(e) => {
-                            console.error('Image failed to load:', displayImage)
-                            e.currentTarget.style.display = 'none'
-                            const parent = e.currentTarget.parentElement
-                            if (parent) {
-                              const fallback = document.createElement('div')
-                              fallback.className = 'w-full h-full flex items-center justify-center'
-                              fallback.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-text-muted"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"></path></svg>'
-                              parent.appendChild(fallback)
-                            }
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      </>
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <ImageIcon size={48} className="text-text-muted" />
+        {/* Main Content Area with Sidebar */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Blog Posts Grid - 2 columns on large screens */}
+          <div className="lg:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {sortedPosts.map((post, index) => {
+                const featuredImage = getFeaturedImage(post)
+                const galleryPreview = getGalleryPreview(post)
+                const mediaType = getMediaType(post)
+                const displayImage = featuredImage || galleryPreview
+                
+                return (
+                  <motion.article
+                    key={post.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="glass-card-hover overflow-hidden relative group"
+                  >
+                    <Link href={`/blog/${post.slug}`}>
+                      {/* Featured Image / Thumbnail */}
+                      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-amber-500/20 to-amber-500/5">
+                        {displayImage ? (
+                          <>
+                            <img 
+                              src={displayImage} 
+                              alt={post.title}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              onError={(e) => {
+                                console.error('Image failed to load:', displayImage)
+                                e.currentTarget.style.display = 'none'
+                                const parent = e.currentTarget.parentElement
+                                if (parent) {
+                                  const fallback = document.createElement('div')
+                                  fallback.className = 'w-full h-full flex items-center justify-center'
+                                  fallback.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-text-muted"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"></path></svg>'
+                                  parent.appendChild(fallback)
+                                }
+                              }}
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          </>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <ImageIcon size={48} className="text-text-muted" />
+                          </div>
+                        )}
+                        
+                        {/* Media Type Badge */}
+                        {mediaType === 'youtube' && (
+                          <div className="absolute top-3 right-3 bg-red-600/90 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 text-xs z-10">
+                            <Play size={12} /> YouTube
+                          </div>
+                        )}
+                        {mediaType === 'video' && (
+                          <div className="absolute top-3 right-3 bg-amber-500/90 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 text-xs z-10">
+                            <Video size={12} /> Video
+                          </div>
+                        )}
+                        
+                        {/* Play button overlay for YouTube/video */}
+                        {(mediaType === 'youtube' || mediaType === 'video') && (
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
+                              <Play size={20} className="text-black ml-0.5" />
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    )}
-                    
-                    {/* Media Type Badge */}
-                    {mediaType === 'youtube' && (
-                      <div className="absolute top-4 right-4 bg-red-600/90 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center gap-1.5 text-sm z-10">
-                        <Play size={14} /> YouTube
-                      </div>
-                    )}
-                    {mediaType === 'video' && (
-                      <div className="absolute top-4 right-4 bg-amber-500/90 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center gap-1.5 text-sm z-10">
-                        <Video size={14} /> Video
-                      </div>
-                    )}
-                    
-                    {/* Play button overlay for YouTube/video */}
-                    {(mediaType === 'youtube' || mediaType === 'video') && (
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center">
-                          <Play size={28} className="text-black ml-1" />
+                      
+                      <div className="p-4">
+                        {/* Date and Author */}
+                        <div className="flex items-center gap-3 text-xs text-text-muted mb-2">
+                          <span className="flex items-center gap-1">
+                            <Calendar size={12} /> 
+                            {new Date(post.created_at).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <User size={12} /> Joel Kaudzu
+                          </span>
+                        </div>
+                        
+                        {/* Title */}
+                        <h2 className="text-lg font-bold mb-2 group-hover:text-amber-500 transition-colors line-clamp-2">
+                          {post.title}
+                        </h2>
+                        
+                        {/* Excerpt */}
+                        <p className="text-text-secondary text-sm line-clamp-2 leading-relaxed">
+                          {post.excerpt || (post.content ? post.content.substring(0, 100).replace(/[#*`]/g, '') + '...' : '')}
+                        </p>
+                        
+                        {/* Read More */}
+                        <div className="mt-3 text-amber-500 font-medium text-sm group-hover:gap-2 inline-flex items-center gap-1 transition-all">
+                          Read more <span>→</span>
                         </div>
                       </div>
-                    )}
-                  </div>
-                  
-                  <div className="p-6">
-                    {/* Date and Author */}
-                    <div className="flex items-center gap-4 text-sm text-text-muted mb-3">
-                      <span className="flex items-center gap-1">
-                        <Calendar size={14} /> 
-                        {new Date(post.created_at).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <User size={14} /> Joel Kaudzu
-                      </span>
-                    </div>
-                    
-                    {/* Title */}
-                    <h2 className="text-xl font-bold mb-3 group-hover:text-amber-500 transition-colors line-clamp-2">
-                      {post.title}
-                    </h2>
-                    
-                    {/* Excerpt */}
-                    <p className="text-text-secondary line-clamp-3 leading-relaxed">
-                      {post.excerpt || (post.content ? post.content.substring(0, 150).replace(/[#*`]/g, '') + '...' : '')}
-                    </p>
-                    
-                    {/* Read More */}
-                    <div className="mt-4 text-amber-500 font-medium group-hover:gap-2 inline-flex items-center gap-1 transition-all">
-                      Read more <span>→</span>
-                    </div>
-                  </div>
-                </Link>
-              </motion.article>
-            )
-          })}
-        </div>
-
-        {posts.length === 0 && (
-          <div className="glass-card p-12 text-center">
-            <p className="text-text-secondary">No posts yet. Check back soon!</p>
+                    </Link>
+                  </motion.article>
+                )
+              })}
+            </div>
+            
+            {posts.length === 0 && (
+              <div className="glass-card p-12 text-center">
+                <p className="text-text-secondary">No posts yet. Check back soon!</p>
+              </div>
+            )}
           </div>
-        )}
+          
+          {/* Sidebar */}
+          <div className="lg:col-span-1">
+            <BlogSidebar posts={posts} />
+          </div>
+        </div>
       </div>
     </div>
   )
