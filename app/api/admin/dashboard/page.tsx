@@ -5,10 +5,39 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Plus, Edit, Trash2, Eye, LogOut } from 'lucide-react'
 
-type Post = { id: number; title: string; published: boolean; created_at: string }
-type Event = { id: number; title: string; date: string }
-type Project = { id: number; title: string; status: string }
-type Message = { id: number; name: string; email: string; read: boolean }
+type Post = { 
+  id: number; 
+  title: string; 
+  published: boolean; 
+  created_at: string;
+  slug?: string;
+  excerpt?: string;
+}
+
+type Event = { 
+  id: number; 
+  title: string; 
+  date: string;
+  description?: string;
+  location?: string;
+}
+
+type Project = { 
+  id: number; 
+  title: string; 
+  status: string;
+  subtitle?: string;
+  description?: string;
+}
+
+type Message = { 
+  id: number; 
+  name: string; 
+  email: string; 
+  message: string;
+  read: boolean;
+  created_at?: string;
+}
 
 export default function AdminDashboard() {
   const [posts, setPosts] = useState<Post[]>([])
@@ -30,28 +59,34 @@ export default function AdminDashboard() {
   }
 
   const fetchData = async () => {
-    const [postsRes, eventsRes, projectsRes, messagesRes] = await Promise.all([
-      fetch('/api/blog'),
-      fetch('/api/events'),
-      fetch('/api/projects'),
-      fetch('/api/messages'),
-    ])
-    
-    if (postsRes.ok) setPosts(await postsRes.json())
-    if (eventsRes.ok) setEvents(await eventsRes.json())
-    if (projectsRes.ok) setProjects(await projectsRes.json())
-    if (messagesRes.ok) setMessages(await messagesRes.json())
+    try {
+      const [postsRes, eventsRes, projectsRes, messagesRes] = await Promise.all([
+        fetch('/api/blog'),
+        fetch('/api/events'),
+        fetch('/api/projects'),
+        fetch('/api/messages'),
+      ])
+      
+      if (postsRes.ok) setPosts(await postsRes.json())
+      if (eventsRes.ok) setEvents(await eventsRes.json())
+      if (projectsRes.ok) setProjects(await projectsRes.json())
+      if (messagesRes.ok) setMessages(await messagesRes.json())
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
   }
 
   const handleLogout = async () => {
-    await fetch('/api/admin/login', { method: 'POST' }) // logout
+    await fetch('/api/admin/login', { method: 'GET' })
     router.push('/admin')
   }
 
   const deleteItem = async (type: string, id: number) => {
     if (!confirm('Delete this item?')) return
-    await fetch(`/api/${type}/${id}`, { method: 'DELETE' })
-    fetchData()
+    const res = await fetch(`/api/${type}/${id}`, { method: 'DELETE' })
+    if (res.ok) {
+      fetchData()
+    }
   }
 
   return (
@@ -82,7 +117,7 @@ export default function AdminDashboard() {
                   : 'bg-gray-100 dark:bg-gray-800 hover:bg-teal-500/20'
               }`}
             >
-              {tab} ({tab === 'posts' ? posts.length : tab === 'events' ? events.length : tab === 'projects' ? projects.length : messages.length})
+              {tab} ({tab === 'posts' ? posts.length : tab === 'events' ? events.length : tab === 'projects' ? projects.length : tab === 'messages' ? messages.length : 0})
             </button>
           ))}
           <Link
@@ -107,7 +142,7 @@ export default function AdminDashboard() {
                   </span>
                 </div>
                 <div className="flex gap-2">
-                  <Link href={`/blog/${post.id}`} target="_blank" className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                  <Link href={`/blog/${post.slug || post.id}`} target="_blank" className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
                     <Eye size={18} />
                   </Link>
                   <Link href={`/admin/edit-post/${post.id}`} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
@@ -119,6 +154,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
             ))}
+            {posts.length === 0 && <p className="text-gray-500 text-center py-8">No posts yet. Create your first post!</p>}
           </div>
         )}
 
@@ -140,6 +176,15 @@ export default function AdminDashboard() {
                 <p className="mt-2 text-gray-600 dark:text-gray-400">{msg.message}</p>
               </div>
             ))}
+            {messages.length === 0 && <p className="text-gray-500 text-center py-8">No messages yet.</p>}
+          </div>
+        )}
+
+        {/* Other tabs placeholder */}
+        {(activeTab === 'events' || activeTab === 'projects' || activeTab === 'poems') && (
+          <div className="text-center py-12 text-gray-500">
+            <p>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} management coming soon.</p>
+            <p className="text-sm mt-2">Create tables for {activeTab} in Supabase first.</p>
           </div>
         )}
       </div>
