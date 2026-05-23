@@ -30,57 +30,15 @@ export default function AdminDashboard() {
     router.push('/admin')
   }
 
-  const sections = [
-    { 
-      title: 'Content Management', 
-      icon: FileText, 
-      href: '/admin/cms',
-      description: 'Manage hero, values, skills, mentors, timeline, quotes',
-      color: 'text-amber-500'
-    },
-    { 
-      title: 'Blog Posts', 
-      icon: BookOpen, 
-      href: '/admin/blog',
-      description: 'Create, edit, and manage blog posts',
-      color: 'text-blue-500'
-    },
-    { 
-      title: 'Projects', 
-      icon: Briefcase, 
-      href: '/admin/projects',
-      description: 'Manage featured projects and portfolio',
-      color: 'text-green-500'
-    },
-    { 
-      title: 'Testimonials', 
-      icon: Users, 
-      href: '/admin/testimonials',
-      description: 'Manage what people say about you',
-      color: 'text-purple-500'
-    },
-    { 
-      title: 'Achievements', 
-      icon: Award, 
-      href: '/admin/achievements',
-      description: 'Certificates, awards, and recognition',
-      color: 'text-yellow-500'
-    },
-    { 
-      title: 'Messages', 
-      icon: Heart, 
-      href: '/admin/messages',
-      description: 'View contact form submissions',
-      color: 'text-red-500'
-    },
-    { 
-      title: 'Site Settings', 
-      icon: Settings, 
-      href: '/admin/settings',
-      description: 'SEO, social links, global settings',
-      color: 'text-gray-500'
-    },
-  ]
+const sections = [
+  { title: 'Blog Posts', icon: BookOpen, href: '/admin/blog', description: 'Create, edit, and manage blog posts' },
+  { title: 'Projects', icon: Briefcase, href: '/admin/projects', description: 'Manage featured projects and portfolio' },
+  { title: 'Testimonials', icon: Users, href: '/admin/testimonials', description: 'Manage what people say about you' },
+  { title: 'Achievements', icon: Award, href: '/admin/achievements', description: 'Certificates, awards, and recognition' },
+  { title: 'Messages', icon: Heart, href: '/admin/messages', description: 'View contact form submissions' },
+  { title: 'Content Management', icon: FileText, href: '/admin/cms', description: 'Manage hero, values, skills, mentors, timeline, quotes' },
+  { title: 'Site Settings', icon: Settings, href: '/admin/settings', description: 'SEO, social links, global settings' },
+]
 
   if (loading) {
     return (

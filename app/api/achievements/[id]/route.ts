@@ -7,17 +7,19 @@ async function isAdmin() {
   return cookieStore.get('admin_auth')?.value === 'true'
 }
 
-export async function GET() {
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const admin = await isAdmin()
-  if (!admin) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   
-  const { data, error } = await supabaseAdmin
-    .from('messages')
-    .select('*')
-    .order('created_at', { ascending: false })
+  const { id } = await params
+  const { error } = await supabaseAdmin
+    .from('achievements')
+    .delete()
+    .eq('id', id)
   
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+  return NextResponse.json({ success: true })
 }
