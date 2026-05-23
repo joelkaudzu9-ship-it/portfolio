@@ -23,6 +23,9 @@ export default function Footer() {
             <Link href="/blog" className="text-text-secondary hover:text-accent-gold transition-colors text-xs sm:text-sm">
               Insights
             </Link>
+            <Link href="/testimonials" className="text-text-secondary hover:text-accent-gold transition-colors text-xs sm:text-sm">
+              Testimonials
+            </Link>
             <Link href="/contact" className="text-text-secondary hover:text-accent-gold transition-colors text-xs sm:text-sm">
               Contact
             </Link>
