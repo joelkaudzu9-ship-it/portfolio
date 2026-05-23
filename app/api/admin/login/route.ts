@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     cookieStore.set('admin_auth', 'true', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24, // 24 hours
+      maxAge: 60 * 60 * 24,
       path: '/',
     })
     return NextResponse.json({ success: true })
@@ -20,8 +20,15 @@ export async function POST(request: Request) {
   return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
 }
 
-export async function POSTlogout() {
+export async function GET() {
   const cookieStore = await cookies()
-  cookieStore.delete('admin_auth')
-  return NextResponse.json({ success: true })
+  const isAdmin = cookieStore.get('admin_auth')?.value === 'true'
+  
+  if (isAdmin) {
+    const response = NextResponse.json({ success: true })
+    response.cookies.delete('admin_auth')
+    return response
+  }
+  
+  return NextResponse.json({ error: 'Not logged in' }, { status: 401 })
 }
