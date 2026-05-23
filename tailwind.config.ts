@@ -10,40 +10,23 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Light mode colors
-        light: {
-          background: '#FFFFFF',
-          surface: '#F5F5F5',
-          surfaceHover: '#EEEEEE',
-          text: {
-            primary: '#1A1A1A',
-            secondary: '#666666',
-            muted: '#999999',
-          },
-          border: '#E5E5E5',
-        },
-        // Dark mode colors
-        dark: {
-          background: '#0F1115',
-          surface: '#171A21',
-          surfaceHover: '#1E222A',
-          text: {
-            primary: '#EAEAEA',
-            secondary: '#A8B0B9',
-            muted: '#6B7280',
-          },
-          border: '#2A2D35',
-        },
-        accent: {
-          gold: '#D4A017',
-          goldLight: '#E8B43C',
-          goldDark: '#B8860B',
+        amber: {
+          50: '#fffbeb',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#f59e0b',
+          600: '#d97706',
+          700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
         },
       },
       fontFamily: {
-        heading: ['Sora', 'Outfit', 'Space Grotesk', 'system-ui', 'sans-serif'],
-        body: ['Inter', 'Manrope', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        heading: ['system-ui', 'sans-serif'],
+        body: ['system-ui', 'sans-serif'],
+        mono: ['monospace'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',

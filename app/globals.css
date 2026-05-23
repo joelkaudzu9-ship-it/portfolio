@@ -3,26 +3,8 @@
 @tailwind utilities;
 
 @layer base {
-  /* Light mode (default) */
-  :root {
-    --background: 255 255 255;
-    --surface: 245 245 245;
-    --text-primary: 26 26 26;
-    --text-secondary: 102 102 102;
-    --border: 229 229 229;
-  }
-  
-  /* Dark mode */
-  .dark {
-    --background: 15 17 21;
-    --surface: 23 26 33;
-    --text-primary: 234 234 234;
-    --text-secondary: 168 176 185;
-    --border: 42 45 53;
-  }
-  
   * {
-    @apply border-border;
+    @apply border-gray-200 dark:border-gray-800;
   }
   
   html {
@@ -30,7 +12,7 @@
   }
   
   body {
-    @apply bg-background text-text-primary font-body antialiased transition-colors duration-300;
+    @apply bg-white dark:bg-black text-gray-900 dark:text-gray-100 font-body antialiased transition-colors duration-300;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -50,7 +32,7 @@
   }
   
   ::selection {
-    @apply bg-accent-gold/30 text-text-primary;
+    @apply bg-amber-500/30 text-gray-900 dark:text-gray-100;
   }
   
   /* Scrollbar */
@@ -59,31 +41,31 @@
   }
   
   ::-webkit-scrollbar-track {
-    @apply bg-background;
+    @apply bg-gray-100 dark:bg-gray-900;
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-surface-hover rounded-full;
+    @apply bg-gray-300 dark:bg-gray-700 rounded-full;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-accent-gold/50;
+    @apply bg-amber-500/50;
   }
 }
 
 @layer components {
-  /* Glassmorphism Card - adapts to theme */
+  /* Glassmorphism Card */
   .glass-card {
-    @apply bg-surface/80 backdrop-blur-sm border border-border rounded-2xl transition-colors duration-300;
+    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200 dark:border-gray-800 rounded-2xl transition-colors duration-300;
   }
   
   .glass-card-hover {
-    @apply glass-card transition-all duration-300 hover:border-accent-gold/30 hover:shadow-lg hover:shadow-accent-gold/5;
+    @apply glass-card transition-all duration-300 hover:border-amber-500/30 hover:shadow-lg hover:shadow-amber-500/5;
   }
   
   /* Gradient Text - gold accent */
   .gradient-text-gold {
-    @apply bg-gradient-to-r from-accent-gold via-accent-goldLight to-accent-gold bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 bg-clip-text text-transparent;
   }
   
   /* Container */
@@ -96,23 +78,23 @@
     @apply py-20 md:py-28 lg:py-32;
   }
   
-  /* Button styles - adapt to theme */
+  /* Button styles */
   .btn-primary {
-    @apply px-6 py-3 bg-accent-gold text-background font-semibold rounded-lg transition-all duration-300 hover:bg-accent-goldLight hover:shadow-lg hover:shadow-accent-gold/20;
+    @apply px-6 py-3 bg-amber-500 text-white font-semibold rounded-lg transition-all duration-300 hover:bg-amber-400 hover:shadow-lg hover:shadow-amber-500/20;
   }
   
   .btn-outline {
-    @apply px-6 py-3 border border-accent-gold text-accent-gold font-semibold rounded-lg transition-all duration-300 hover:bg-accent-gold/10;
+    @apply px-6 py-3 border border-amber-500 text-amber-500 font-semibold rounded-lg transition-all duration-300 hover:bg-amber-500/10;
   }
   
   /* Link styles */
   .link-gold {
-    @apply text-accent-gold hover:text-accent-goldLight transition-colors;
+    @apply text-amber-500 hover:text-amber-400 transition-colors;
   }
   
   /* Animated background blob */
   .blob {
-    @apply absolute -z-10 h-[600px] w-[600px] rounded-full bg-accent-gold/5 blur-3xl;
+    @apply absolute -z-10 h-[600px] w-[600px] rounded-full bg-amber-500/5 blur-3xl;
   }
 }
 
@@ -121,23 +103,23 @@
     text-wrap: balance;
   }
   
-  .bg-background {
-    background-color: rgb(var(--background));
-  }
-  
   .bg-surface {
-    background-color: rgb(var(--surface));
+    @apply bg-gray-50 dark:bg-gray-900/50;
   }
   
-  .text-text-primary {
-    color: rgb(var(--text-primary));
+  .bg-elevated {
+    @apply bg-white dark:bg-gray-900;
   }
   
-  .text-text-secondary {
-    color: rgb(var(--text-secondary));
+  .text-primary {
+    @apply text-gray-900 dark:text-gray-100;
+  }
+  
+  .text-secondary {
+    @apply text-gray-600 dark:text-gray-400;
   }
   
   .border-border {
-    border-color: rgb(var(--border));
+    @apply border-gray-200 dark:border-gray-800;
   }
 }
