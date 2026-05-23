@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Plus, Edit, Trash2, ArrowLeft, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react'
+import { Plus, Edit, Trash2, ArrowLeft, Eye, EyeOff, CheckCircle, XCircle, Clock } from 'lucide-react'
 
 type Testimonial = {
   id: number
@@ -57,7 +57,7 @@ export default function AdminTestimonialsPage() {
   }
 
   const toggleActive = async (id: number, currentActive: boolean) => {
-    const res = await fetch(`/api/dynamic/testimonials`, {
+    const res = await fetch('/api/dynamic/testimonials', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, is_active: !currentActive }),
@@ -177,7 +177,7 @@ export default function AdminTestimonialsPage() {
           </div>
         </div>
 
-        {/* Edit Modal (simplified) */}
+        {/* Edit Modal */}
         {editing && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
             <div className="glass-card p-6 w-full max-w-lg">
@@ -220,15 +220,5 @@ export default function AdminTestimonialsPage() {
         )}
       </div>
     </div>
-  )
-}
-
-// Clock icon component
-function Clock(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="10" strokeWidth="2" />
-      <polyline points="12 6 12 12 16 14" strokeWidth="2" />
-    </svg>
   )
 }
