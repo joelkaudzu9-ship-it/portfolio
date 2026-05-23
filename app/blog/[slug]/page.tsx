@@ -28,7 +28,7 @@ export default function BlogPostPage() {
 
   useEffect(() => {
     if (slug) {
-      fetch(`/api/blog/${slug}`)
+      fetch(`/api/blog/slug/${slug}`)
         .then(res => res.json())
         .then(data => {
           setPost(data)
