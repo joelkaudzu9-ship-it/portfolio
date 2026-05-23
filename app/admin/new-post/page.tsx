@@ -3,7 +3,8 @@
 import { useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Upload, Image, X, Video, Youtube, FileText, Eye, Save, Trash2, Plus } from 'lucide-react'
+import { ArrowLeft, Upload, Image as ImageIcon, X, Video, Play, FileText, Eye, Save, Trash2, Plus } from 'lucide-react'
+import { supabase } from '@/lib/supabase/client'  // Remove this if you're not using supabase for uploads anymore
 
 type MediaItem = {
   url: string
@@ -310,7 +311,7 @@ export default function NewPost() {
                   onClick={() => setShowYouTubeModal(true)}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface border border-border hover:border-accent-gold/30 transition-colors text-sm"
                 >
-                  <Youtube size={14} /> Add YouTube
+                  <Play size={14} /> Add YouTube
                 </button>
               </div>
             </div>
