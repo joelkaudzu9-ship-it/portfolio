@@ -17,21 +17,25 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true)
+    // Check localStorage first, then system preference
     const savedTheme = localStorage.getItem('theme') as Theme | null
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     
+    let initialTheme: Theme = 'dark' // default to dark
+    
     if (savedTheme) {
-      setTheme(savedTheme)
-      if (savedTheme === 'dark') {
-        document.documentElement.classList.add('dark')
-      } else {
-        document.documentElement.classList.remove('dark')
-      }
+      initialTheme = savedTheme
     } else if (prefersDark) {
-      setTheme('dark')
+      initialTheme = 'dark'
+    } else {
+      initialTheme = 'light'
+    }
+    
+    setTheme(initialTheme)
+    
+    if (initialTheme === 'dark') {
       document.documentElement.classList.add('dark')
     } else {
-      setTheme('light')
       document.documentElement.classList.remove('dark')
     }
   }, [])
@@ -40,6 +44,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const newTheme = theme === 'light' ? 'dark' : 'light'
     setTheme(newTheme)
     localStorage.setItem('theme', newTheme)
+    
     if (newTheme === 'dark') {
       document.documentElement.classList.add('dark')
     } else {
@@ -47,7 +52,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // Don't render until mounted to avoid hydration mismatch
+  // Prevent flash of wrong theme
   if (!mounted) {
     return null
   }

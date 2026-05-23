@@ -3,6 +3,24 @@
 @tailwind utilities;
 
 @layer base {
+  /* Light mode (default) */
+  :root {
+    --background: 255 255 255;
+    --surface: 245 245 245;
+    --text-primary: 26 26 26;
+    --text-secondary: 102 102 102;
+    --border: 229 229 229;
+  }
+  
+  /* Dark mode */
+  .dark {
+    --background: 15 17 21;
+    --surface: 23 26 33;
+    --text-primary: 234 234 234;
+    --text-secondary: 168 176 185;
+    --border: 42 45 53;
+  }
+  
   * {
     @apply border-border;
   }
@@ -12,7 +30,7 @@
   }
   
   body {
-    @apply bg-background text-text-primary font-body antialiased overflow-x-hidden w-full;
+    @apply bg-background text-text-primary font-body antialiased transition-colors duration-300;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -35,6 +53,7 @@
     @apply bg-accent-gold/30 text-text-primary;
   }
   
+  /* Scrollbar */
   ::-webkit-scrollbar {
     @apply w-2;
   }
@@ -53,16 +72,16 @@
 }
 
 @layer components {
-  /* Glassmorphism Card */
+  /* Glassmorphism Card - adapts to theme */
   .glass-card {
-    @apply bg-surface/80 backdrop-blur-sm border border-border rounded-2xl;
+    @apply bg-surface/80 backdrop-blur-sm border border-border rounded-2xl transition-colors duration-300;
   }
   
   .glass-card-hover {
     @apply glass-card transition-all duration-300 hover:border-accent-gold/30 hover:shadow-lg hover:shadow-accent-gold/5;
   }
   
-  /* Gradient Text */
+  /* Gradient Text - gold accent */
   .gradient-text-gold {
     @apply bg-gradient-to-r from-accent-gold via-accent-goldLight to-accent-gold bg-clip-text text-transparent;
   }
@@ -77,12 +96,7 @@
     @apply py-20 md:py-28 lg:py-32;
   }
   
-  /* Gold accent border */
-  .gold-border {
-    @apply border-accent-gold/30;
-  }
-  
-  /* Button styles */
+  /* Button styles - adapt to theme */
   .btn-primary {
     @apply px-6 py-3 bg-accent-gold text-background font-semibold rounded-lg transition-all duration-300 hover:bg-accent-goldLight hover:shadow-lg hover:shadow-accent-gold/20;
   }
@@ -100,11 +114,6 @@
   .blob {
     @apply absolute -z-10 h-[600px] w-[600px] rounded-full bg-accent-gold/5 blur-3xl;
   }
-  
-  /* Timeline dot */
-  .timeline-dot {
-    @apply w-3 h-3 rounded-full bg-accent-gold ring-4 ring-accent-gold/20;
-  }
 }
 
 @layer utilities {
@@ -112,38 +121,23 @@
     text-wrap: balance;
   }
   
-  .delay-1000 {
-    animation-delay: 1s;
+  .bg-background {
+    background-color: rgb(var(--background));
   }
   
-  .delay-2000 {
-    animation-delay: 2s;
-  }
-
-  /* Mobile responsive utilities */
-  .responsive-container {
-    @apply w-full px-3 sm:px-4 md:px-6 lg:px-8;
+  .bg-surface {
+    background-color: rgb(var(--surface));
   }
   
-  .responsive-text {
-    @apply text-sm sm:text-base;
+  .text-text-primary {
+    color: rgb(var(--text-primary));
   }
   
-  .responsive-heading {
-    @apply text-xl sm:text-2xl md:text-3xl;
+  .text-text-secondary {
+    color: rgb(var(--text-secondary));
   }
   
-  /* Better touch targets on mobile */
-  button, 
-  a,
-  [role="button"] {
-    @apply min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0;
-  }
-  
-  /* Form inputs better on mobile - prevents zoom on iOS */
-  input, 
-  textarea, 
-  select {
-    @apply text-base;
+  .border-border {
+    border-color: rgb(var(--border));
   }
 }
