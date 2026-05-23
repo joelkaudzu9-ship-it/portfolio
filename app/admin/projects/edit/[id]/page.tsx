@@ -225,7 +225,7 @@ export default function EditProjectPage() {
                 <button
                   type="button"
                   onClick={() => setImageUrl('')}
- className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white hover:bg-red-600"
+                  className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white hover:bg-red-600"
                 >
                   <X size={12} />
                 </button>
