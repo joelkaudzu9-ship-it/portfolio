@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Calendar, Code, ExternalLink, GitHub, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Calendar, Code, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+
+// No GitHub icon import - use text instead
 
 type Project = {
   id: number
@@ -208,7 +210,7 @@ export default function SingleProjectPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-surface border border-border rounded-lg hover:border-amber-500/30 transition-colors"
                 >
-                  <GitHub size={18} /> View on GitHub
+                  <span>📂</span> View on GitHub
                 </a>
               )}
               {project.live_url && (

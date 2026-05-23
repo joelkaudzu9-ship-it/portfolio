@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, Calendar, Code, ExternalLink, GitHub } from 'lucide-react'
+import { ArrowRight, Calendar, Code, ExternalLink } from 'lucide-react'
+
+// Remove GitHub import - we'll use text instead
 
 type Project = {
   id: number
@@ -166,10 +168,10 @@ export default function ProjectsPage() {
                             href={project.github_url} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-text-muted hover:text-amber-500 transition-colors"
+                            className="text-text-muted hover:text-amber-500 transition-colors text-sm"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <GitHub size={18} />
+                            GitHub
                           </a>
                         )}
                         {project.live_url && (
@@ -180,7 +182,7 @@ export default function ProjectsPage() {
                             className="text-text-muted hover:text-amber-500 transition-colors"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <ExternalLink size={18} />
+                            <ExternalLink size={16} />
                           </a>
                         )}
                       </div>
