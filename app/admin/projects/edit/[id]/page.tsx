@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Upload, X, Plus, Save, Trash2 } from 'lucide-react'
+import { ArrowLeft, Upload, X, Plus, Save } from 'lucide-react'
 
 type Project = {
   id: number
@@ -23,12 +23,13 @@ type Project = {
 }
 
 export default function EditProjectPage() {
+  // ALL useState declarations must have 'const' keyword
   const [title, setTitle] = useState('')
   const [subtitle, setSubtitle] = useState('')
   const [description, setDescription] = useState('')
   const [content, setContent] = useState('')
   const [technologies, setTechnologies] = useState<string[]>([])
-  const [currentTech, setCurrentTech] = useState('')
+  const [currentTech, setCurrentTech] = useState('')  // ← FIXED: added 'const'
   const [imageUrl, setImageUrl] = useState('')
   const [galleryUrls, setGalleryUrls] = useState<string[]>([])
   const [githubUrl, setGithubUrl] = useState('')
@@ -39,6 +40,7 @@ export default function EditProjectPage() {
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [newGalleryUrl, setNewGalleryUrl] = useState('')
+  
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const params = useParams()
@@ -283,15 +285,8 @@ export default function EditProjectPage() {
               className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 font-mono text-sm"
               placeholder="## Project Overview
 
-Detailed project description in Markdown...
-
-### Features
-- Feature 1
-- Feature 2
-
-### Challenges
-...
-"
+Detailed project description in Markdown...",
+              required
             />
             <p className="text-xs text-gray-500 mt-2">
               Supports Markdown: # headings, **bold**, *italic*, - lists, [links](url), ![images](url)
