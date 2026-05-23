@@ -5,13 +5,109 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Upload, X, Plus, Save } from 'lucide-react'
 
+// Image compression utility
+const compressImage = async (file: File): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = (event) => {
+      const img = new Image()
+      img.src = event.target?.result as string
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        let width = img.width
+        let height = img.height
+        const maxWidth = 1920
+        const maxHeight = 1080
+        
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width
+            width = maxWidth
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height
+            height = maxHeight
+          }
+        }
+        
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        ctx?.drawImage(img, 0, 0, width, height)
+        
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+              })
+              resolve(compressedFile)
+            } else {
+              reject(new Error('Compression failed'))
+            }
+          },
+          'image/jpeg',
+          0.8
+        )
+      }
+      img.onerror = reject
+    }
+    reader.onerror = reject
+  })
+}
+
+// Upload Progress Component
+const UploadProgress = ({ progress, isVisible }: { progress: number; isVisible: boolean }) => {
+  if (!isVisible) return null
+  
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+      <div className="glass-card p-8 w-80 text-center">
+        <div className="relative w-32 h-32 mx-auto mb-4">
+          <svg className="w-32 h-32 transform -rotate-90">
+            <circle
+              cx="64"
+              cy="64"
+              r="58"
+              stroke="currentColor"
+              strokeWidth="8"
+              fill="none"
+              className="text-gray-700"
+            />
+            <circle
+              cx="64"
+              cy="64"
+              r="58"
+              stroke="currentColor"
+              strokeWidth="8"
+              fill="none"
+              className="text-amber-500"
+              strokeDasharray={`${2 * Math.PI * 58}`}
+              strokeDashoffset={`${2 * Math.PI * 58 * (1 - progress / 100)}`}
+              style={{ transition: 'stroke-dashoffset 0.3s ease' }}
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-2xl font-bold gradient-text-gold">{progress}%</span>
+          </div>
+        </div>
+        <p className="text-text-secondary mt-2">Uploading to Cloudinary...</p>
+        <p className="text-text-muted text-sm mt-1">Please wait</p>
+      </div>
+    </div>
+  )
+}
+
 export default function NewProjectPage() {
   const [title, setTitle] = useState('')
   const [subtitle, setSubtitle] = useState('')
   const [description, setDescription] = useState('')
   const [content, setContent] = useState('')
   const [technologies, setTechnologies] = useState<string[]>([])
-  const [currentTech, setCurrentTech] = useState('')  // ← MUST have 'const'
+  const [currentTech, setCurrentTech] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [galleryUrls, setGalleryUrls] = useState<string[]>([])
   const [githubUrl, setGithubUrl] = useState('')
@@ -20,33 +116,99 @@ export default function NewProjectPage() {
   const [featured, setFeatured] = useState(false)
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isUploading, setIsUploading] = useState(false)
   const [newGalleryUrl, setNewGalleryUrl] = useState('')
   
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
-  const uploadImage = async (file: File) => {
-    const formData = new FormData()
-    formData.append('file', file)
-    
-    const res = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
+  // Direct upload to Cloudinary with progress tracking
+  const uploadDirectToCloudinary = async (file: File, folder: string = 'portfolio/projects'): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('upload_preset', 'portfolio_unsigned')
+      formData.append('folder', folder)
+      
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+      const xhr = new XMLHttpRequest()
+      
+      xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, true)
+      
+      // Track progress
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100)
+          setUploadProgress(percent)
+        }
+      })
+      
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const result = JSON.parse(xhr.responseText)
+          resolve(result.secure_url)
+        } else {
+          reject(new Error('Upload failed'))
+        }
+      }
+      
+      xhr.onerror = () => reject(new Error('Network error'))
+      
+      xhr.send(formData)
     })
-    const result = await res.json()
-    return result.url
   }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     
-    setUploading(true)
-    const url = await uploadImage(file)
-    if (url) {
-      setImageUrl(url)
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file')
+      return
     }
-    setUploading(false)
+    
+    setIsUploading(true)
+    setUploadProgress(0)
+    
+    try {
+      const compressedFile = await compressImage(file)
+      const url = await uploadDirectToCloudinary(compressedFile, 'portfolio/projects')
+      setImageUrl(url)
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Failed to upload image')
+    } finally {
+      setIsUploading(false)
+      setUploadProgress(0)
+    }
+  }
+
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file')
+      return
+    }
+    
+    setIsUploading(true)
+    setUploadProgress(0)
+    
+    try {
+      const compressedFile = await compressImage(file)
+      const url = await uploadDirectToCloudinary(compressedFile, 'portfolio/projects/gallery')
+      if (!galleryUrls.includes(url)) {
+        setGalleryUrls([...galleryUrls, url])
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Failed to upload image')
+    } finally {
+      setIsUploading(false)
+      setUploadProgress(0)
+    }
   }
 
   const addTechnology = () => {
@@ -101,59 +263,63 @@ export default function NewProjectPage() {
     if (res.ok) {
       router.push('/admin/projects')
     } else {
-      alert('Failed to create project')
+      const error = await res.json()
+      alert(error.error || 'Failed to create project')
     }
     setLoading(false)
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black py-8">
-      <div className="container-custom max-w-4xl">
-        <Link href="/admin/projects" className="inline-flex items-center gap-2 text-amber-500 mb-6">
+    <div className="min-h-screen bg-white dark:bg-black py-4 sm:py-8">
+      {/* Upload Progress Modal */}
+      <UploadProgress progress={uploadProgress} isVisible={isUploading} />
+      
+      <div className="container-custom max-w-4xl px-4 sm:px-6">
+        <Link href="/admin/projects" className="inline-flex items-center gap-2 text-amber-500 mb-6 hover:gap-3 transition-all">
           <ArrowLeft size={18} /> Back to Projects
         </Link>
         
-        <h1 className="text-3xl font-bold mb-8 gradient-text-gold">New Project</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 gradient-text-gold">New Project</h1>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Project Title *</label>
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">Project Title *</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+              className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
               required
             />
           </div>
           
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Subtitle / Tagline</label>
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">Subtitle / Tagline</label>
             <input
               type="text"
               value={subtitle}
               onChange={(e) => setSubtitle(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+              className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
               placeholder="e.g., Multilingual Chronic Disease Support Ecosystem"
             />
           </div>
           
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Featured Image</label>
-            <div className="flex gap-2">
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">Featured Image</label>
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
-                className="flex-1 px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                className="flex-1 px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary text-sm"
                 placeholder="Image URL"
               />
-              <label className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600">
-                <Upload size={16} />
+              <label className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 text-center">
+                <Upload size={16} className="inline mr-1" /> Upload
                 <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
               </label>
             </div>
-            {uploading && <p className="text-sm text-gray-500 mt-2">Uploading...</p>}
+            {isUploading && <p className="text-sm text-text-muted mt-2">Uploading... {uploadProgress}%</p>}
             {imageUrl && (
               <div className="relative mt-2 inline-block">
                 <img src={imageUrl} alt="Preview" className="h-32 rounded-lg object-cover" />
@@ -168,24 +334,24 @@ export default function NewProjectPage() {
             )}
           </div>
           
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Technologies Used</label>
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">Technologies Used</label>
             <div className="flex gap-2 mb-2">
               <input
                 type="text"
                 value={currentTech}
                 onChange={(e) => setCurrentTech(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTechnology())}
-                className="flex-1 px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                className="flex-1 px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
                 placeholder="e.g., Python, Flask, PostgreSQL"
               />
-              <button type="button" onClick={addTechnology} className="px-4 py-2 bg-green-500 text-white rounded-lg">
+              <button type="button" onClick={addTechnology} className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
                 <Plus size={16} />
               </button>
             </div>
             <div className="flex flex-wrap gap-2">
               {technologies.map((tech) => (
-                <span key={tech} className="px-2 py-1 bg-amber-500/20 text-amber-500 rounded-full text-sm flex items-center gap-1">
+                <span key={tech} className="px-2 py-1 bg-accent-gold/20 text-accent-gold rounded-full text-sm flex items-center gap-1">
                   {tech}
                   <button type="button" onClick={() => removeTechnology(tech)} className="hover:text-red-500">
                     <X size={12} />
@@ -195,47 +361,51 @@ export default function NewProjectPage() {
             </div>
           </div>
           
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Short Description</label>
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">Short Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+              className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
               placeholder="Brief description of the project"
             />
           </div>
           
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Full Content (Markdown supported)</label>
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">Full Content (Markdown supported)</label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={12}
-              className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 font-mono text-sm"
+              className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary font-mono text-sm"
               placeholder="## Project Overview&#10;&#10;Write your project description in Markdown here..."
             />
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-text-muted mt-2">
               Supports Markdown: # headings, **bold**, *italic*, - lists, [links](url), ![images](url)
             </p>
           </div>
           
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Image Gallery</label>
-            <div className="flex gap-2 mb-3">
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">Image Gallery</label>
+            <div className="flex flex-col sm:flex-row gap-2 mb-3">
               <input
                 type="text"
                 value={newGalleryUrl}
                 onChange={(e) => setNewGalleryUrl(e.target.value)}
-                className="flex-1 px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                className="flex-1 px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary text-sm"
                 placeholder="Image URL"
               />
-              <button type="button" onClick={addToGallery} className="px-4 py-2 bg-green-500 text-white rounded-lg">
-                <Plus size={16} />
+              <button type="button" onClick={addToGallery} className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                <Plus size={16} /> Add URL
               </button>
+              <label className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 text-center">
+                <Upload size={16} className="inline mr-1" /> Upload
+                <input type="file" accept="image/*" className="hidden" onChange={handleGalleryUpload} />
+              </label>
             </div>
             {galleryUrls.length > 0 && (
-              <div className="grid grid-cols-3 gap-3 mt-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-3">
                 {galleryUrls.map((url, index) => (
                   <div key={index} className="relative">
                     <img src={url} alt={`Gallery ${index + 1}`} className="h-24 w-full object-cover rounded-lg" />
@@ -252,36 +422,36 @@ export default function NewProjectPage() {
             )}
           </div>
           
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">GitHub Repository URL</label>
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">GitHub Repository URL</label>
             <input
               type="url"
               value={githubUrl}
               onChange={(e) => setGithubUrl(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+              className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
               placeholder="https://github.com/username/repo"
             />
           </div>
           
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Live Demo URL</label>
+          <div className="glass-card p-4 sm:p-6">
+            <label className="block text-sm font-medium mb-2 text-text-secondary">Live Demo URL</label>
             <input
               type="url"
               value={liveUrl}
               onChange={(e) => setLiveUrl(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+              className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
               placeholder="https://project-demo.com"
             />
           </div>
           
-          <div className="glass-card p-6">
-            <div className="flex flex-wrap gap-6">
+          <div className="glass-card p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row gap-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Project Status</label>
+                <label className="block text-sm font-medium mb-2 text-text-secondary">Project Status</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                  className="px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
                 >
                   <option value="active">Active - Currently maintained</option>
                   <option value="concept">Concept - Idea stage</option>
@@ -294,27 +464,27 @@ export default function NewProjectPage() {
                   type="checkbox"
                   checked={featured}
                   onChange={(e) => setFeatured(e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300 text-amber-500 focus:ring-amber-500"
+                  className="w-4 h-4 rounded border-border text-accent-gold focus:ring-accent-gold/50"
                   id="featured"
                 />
-                <label htmlFor="featured" className="text-sm cursor-pointer">
+                <label htmlFor="featured" className="text-sm cursor-pointer text-text-secondary">
                   Feature this project on homepage
                 </label>
               </div>
             </div>
           </div>
           
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 pb-8">
             <button
               type="submit"
-              disabled={loading || uploading}
-              className="btn-primary flex items-center gap-2 disabled:opacity-50"
+              disabled={loading || isUploading}
+              className="btn-primary flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              <Save size={16} /> {loading ? 'Creating...' : 'Create Project'}
+              <Save size={16} /> {loading ? 'Creating...' : isUploading ? 'Uploading...' : 'Create Project'}
             </button>
             <Link
               href="/admin/projects"
-              className="px-6 py-3 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="px-6 py-3 border border-border rounded-lg hover:bg-surface transition-colors text-center"
             >
               Cancel
             </Link>
