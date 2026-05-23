@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Save, Globe, Mail, Github, Linkedin, Twitter, Eye } from 'lucide-react'
+import { ArrowLeft, Save, Globe, Mail, Eye } from 'lucide-react'
 
 export default function SettingsPage() {
   const [seo, setSeo] = useState({
@@ -19,7 +19,6 @@ export default function SettingsPage() {
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const router = useRouter()
 
   useEffect(() => {
     fetchSettings()
@@ -118,7 +117,7 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1 flex items-center gap-1"><Github size={14} /> GitHub</label>
+                <label className="block text-sm font-medium mb-1">📂 GitHub URL</label>
                 <input
                   type="url"
                   value={social.github}
@@ -128,7 +127,7 @@ export default function SettingsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 flex items-center gap-1"><Linkedin size={14} /> LinkedIn</label>
+                <label className="block text-sm font-medium mb-1">🔗 LinkedIn URL</label>
                 <input
                   type="url"
                   value={social.linkedin}
@@ -138,7 +137,17 @@ export default function SettingsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 flex items-center gap-1"><Mail size={14} /> Email</label>
+                <label className="block text-sm font-medium mb-1">🐦 Twitter/X URL</label>
+                <input
+                  type="url"
+                  value={social.twitter}
+                  onChange={(e) => setSocial({ ...social, twitter: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                  placeholder="https://twitter.com/username"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">✉️ Email</label>
                 <input
                   type="email"
                   value={social.email}
