@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Calendar, Code, ExternalLink, Github as GitHubIcon, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Calendar, Code, ExternalLink, GitHub, ChevronLeft, ChevronRight } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
@@ -93,7 +93,6 @@ export default function SingleProjectPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-4">
               <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${
@@ -122,7 +121,6 @@ export default function SingleProjectPage() {
             )}
           </div>
 
-          {/* Featured Image */}
           {project.image_url && (
             <div className="mb-8 rounded-2xl overflow-hidden">
               <img 
@@ -133,7 +131,6 @@ export default function SingleProjectPage() {
             </div>
           )}
 
-          {/* Image Gallery */}
           {allImages.length > 1 && (
             <div className="mb-8">
               <div className="relative">
@@ -181,7 +178,6 @@ export default function SingleProjectPage() {
             </div>
           )}
 
-          {/* Technologies */}
           {project.technologies && project.technologies.length > 0 && (
             <div className="mb-8">
               <h2 className="text-xl font-bold mb-3">Technologies Used</h2>
@@ -195,7 +191,6 @@ export default function SingleProjectPage() {
             </div>
           )}
 
-          {/* Content */}
           {project.content && (
             <div className="prose prose-invert prose-lg max-w-none mb-8">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -204,7 +199,6 @@ export default function SingleProjectPage() {
             </div>
           )}
 
-          {/* Links */}
           {(project.github_url || project.live_url) && (
             <div className="flex gap-4 pt-4 border-t border-border">
               {project.github_url && (
@@ -214,7 +208,7 @@ export default function SingleProjectPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-surface border border-border rounded-lg hover:border-amber-500/30 transition-colors"
                 >
-                  <GitHubIcon size={18} /> View on GitHub
+                  <GitHub size={18} /> View on GitHub
                 </a>
               )}
               {project.live_url && (
