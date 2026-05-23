@@ -10,6 +10,7 @@ type Post = {
   slug: string
   excerpt: string
   created_at: string
+  published: boolean  // Add this line
 }
 
 export default function BlogSearch() {
@@ -23,7 +24,7 @@ export default function BlogSearch() {
     // Fetch all posts for search
     fetch('/api/blog')
       .then(res => res.json())
-      .then(data => setAllPosts(data.filter((p: Post) => p.published)))
+      .then(data => setAllPosts(data.filter((p: Post) => p.published === true))) // Explicit true check
   }, [])
 
   useEffect(() => {
