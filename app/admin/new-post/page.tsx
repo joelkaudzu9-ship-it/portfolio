@@ -4,7 +4,6 @@ import { useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Upload, Image as ImageIcon, X, Video, Play, FileText, Eye, Save, Trash2, Plus } from 'lucide-react'
-import { supabase } from '@/lib/supabase/client'  // Remove this if you're not using supabase for uploads anymore
 
 type MediaItem = {
   url: string
@@ -23,7 +22,7 @@ export default function NewPost() {
   const [loading, setLoading] = useState(false)
   
   // Media
-  const [featuredImage, setFeaturedImage] = useState<MediaItem | null>(null)
+  const [featuredImage as ImageIcon, setFeaturedImage] = useState<MediaItem | null>(null)
   const [mediaGallery, setMediaGallery] = useState<MediaItem[]>([])
   const [uploading, setUploading] = useState(false)
   const [showYouTubeModal, setShowYouTubeModal] = useState(false)
@@ -281,7 +280,7 @@ export default function NewPost() {
                 onClick={() => fileInputRef.current?.click()}
                 className="w-full h-40 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 hover:border-accent-gold/50 transition-colors"
               >
-                <Image size={32} className="text-text-muted" />
+                <ImageIcon size={32} className="text-text-muted" />
                 <span className="text-text-secondary">Click to upload featured image</span>
               </button>
             )}
