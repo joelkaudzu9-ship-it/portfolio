@@ -39,10 +39,11 @@ export async function GET(
     return NextResponse.json({ error: 'Invalid section' }, { status: 400 })
   }
   
+  // Fix: Use only ascending, remove nullsLast
   const { data, error } = await supabaseAdmin
     .from(table)
     .select('*')
-    .order('order_index', { ascending: true, nullsLast: true })
+    .order('order_index', { ascending: true })
   
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
