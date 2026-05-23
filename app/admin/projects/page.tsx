@@ -53,12 +53,12 @@ export default function AdminProjectsPage() {
         body: JSON.stringify({ featured: !currentFeatured }),
       })
       
-      const data = await res.json()
-      
       if (res.ok) {
+        // Refresh the list
         fetchProjects()
       } else {
-        alert(data.error || 'Failed to update featured status')
+        const error = await res.json()
+        alert(error.error || 'Failed to update featured status')
       }
     } catch (error) {
       console.error('Error:', error)

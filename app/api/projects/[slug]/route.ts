@@ -7,7 +7,7 @@ async function isAdmin() {
   return cookieStore.get('admin_auth')?.value === 'true'
 }
 
-// GET single project by slug (public)
+// GET single project by slug
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ slug: string }> }
@@ -21,14 +21,13 @@ export async function GET(
     .single()
   
   if (error) {
-    console.error('Project fetch error:', error)
     return NextResponse.json({ error: 'Project not found' }, { status: 404 })
   }
   
   return NextResponse.json(data)
 }
 
-// UPDATE project by slug (admin only)
+// UPDATE project by slug - allows partial updates
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ slug: string }> }
@@ -41,47 +40,25 @@ export async function PUT(
   const { slug } = await params
   const body = await request.json()
   
-  // Validate required fields
-  if (!body.title || body.title.trim() === '') {
-    return NextResponse.json({ error: 'Title is required' }, { status: 400 })
-  }
-  
-  if (!body.slug || body.slug.trim() === '') {
-    return NextResponse.json({ error: 'Slug is required' }, { status: 400 })
-  }
-  
-  // Check for duplicate slug (excluding current project)
-  if (body.slug !== slug) {
-    const { data: existingProject, error: checkError } = await supabaseAdmin
-      .from('projects')
-      .select('id')
-      .eq('slug', body.slug)
-      .maybeSingle()
-    
-    if (existingProject) {
-      return NextResponse.json({ 
-        error: `Slug "${body.slug}" already exists. Please choose a different slug.` 
-      }, { status: 409 })
-    }
-  }
-  
-  // Build update object with only the fields that are provided
+  // Only update the fields that are provided
+  // Don't require all fields
   const updateData: any = {
-    updated_at: new Date().toISOString(),
+    updated_at: new Date(),
   }
   
-  if (body.title !== undefined) updateData.title = body.title.trim()
-  if (body.slug !== undefined) updateData.slug = body.slug.trim()
-  if (body.subtitle !== undefined) updateData.subtitle = body.subtitle || null
-  if (body.description !== undefined) updateData.description = body.description || null
-  if (body.content !== undefined) updateData.content = body.content || null
-  if (body.technologies !== undefined) updateData.technologies = body.technologies || []
-  if (body.image_url !== undefined) updateData.image_url = body.image_url || null
-  if (body.gallery_urls !== undefined) updateData.gallery_urls = body.gallery_urls || []
-  if (body.github_url !== undefined) updateData.github_url = body.github_url || null
-  if (body.live_url !== undefined) updateData.live_url = body.live_url || null
-  if (body.status !== undefined) updateData.status = body.status || 'active'
-  if (body.featured !== undefined) updateData.featured = body.featured || false
+  // Only add fields that exist in the request body
+  if (body.featured !== undefined) updateData.featured = body.featured
+  if (body.title !== undefined) updateData.title = body.title
+  if (body.slug !== undefined) updateData.slug = body.slug
+  if (body.subtitle !== undefined) updateData.subtitle = body.subtitle
+  if (body.description !== undefined) updateData.description = body.description
+  if (body.content !== undefined) updateData.content = body.content
+  if (body.technologies !== undefined) updateData.technologies = body.technologies
+  if (body.image_url !== undefined) updateData.image_url = body.image_url
+  if (body.gallery_urls !== undefined) updateData.gallery_urls = body.gallery_urls
+  if (body.github_url !== undefined) updateData.github_url = body.github_url
+  if (body.live_url !== undefined) updateData.live_url = body.live_url
+  if (body.status !== undefined) updateData.status = body.status
   
   const { data, error } = await supabaseAdmin
     .from('projects')
@@ -94,15 +71,10 @@ export async function PUT(
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
   
-  if (!data || data.length === 0) {
-    return NextResponse.json({ error: 'Project not found' }, { status: 404 })
-  }
-  
-  // Return the first item (single object) instead of array
-  return NextResponse.json(data[0])
+  return NextResponse.json(data?.[0] || {})
 }
 
-// DELETE project by slug (admin only)
+// DELETE project by slug
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ slug: string }> }
@@ -114,24 +86,12 @@ export async function DELETE(
   
   const { slug } = await params
   
-  // Check if project exists before deleting
-  const { data: existing, error: fetchError } = await supabaseAdmin
-    .from('projects')
-    .select('id')
-    .eq('slug', slug)
-    .single()
-  
-  if (fetchError || !existing) {
-    return NextResponse.json({ error: 'Project not found' }, { status: 404 })
-  }
-  
   const { error } = await supabaseAdmin
     .from('projects')
     .delete()
     .eq('slug', slug)
   
   if (error) {
-    console.error('Project delete error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
   
