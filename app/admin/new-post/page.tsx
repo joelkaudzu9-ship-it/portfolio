@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Upload, Image as ImageIcon, X, Youtube } from 'lucide-react'
+import { ArrowLeft, Upload, Image as ImageIcon, X, Video } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 
 export default function NewPost() {
@@ -46,7 +46,7 @@ export default function NewPost() {
     const fileName = `${Date.now()}.${fileExt}`
     const filePath = `posts/${fileName}`
 
-    const { error: uploadError, data } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from('blog-images')
       .upload(filePath, file)
 
@@ -77,7 +77,6 @@ export default function NewPost() {
     const url = await uploadImage(file)
     if (url) {
       setFeaturedImage(url)
-      // Insert image into content
       const imageMarkdown = `\n\n![${title}](${url})\n\n`
       setContent(prev => prev + imageMarkdown)
     }
@@ -125,7 +124,6 @@ export default function NewPost() {
         <h1 className="text-3xl font-bold mb-8 gradient-text-gold">New Blog Post</h1>
         
         <form onSubmit={handleSubmit} className="max-w-5xl space-y-6">
-          {/* Title */}
           <div>
             <label className="block text-sm font-medium mb-2 text-text-secondary">Title</label>
             <input
@@ -139,7 +137,6 @@ export default function NewPost() {
             />
           </div>
           
-          {/* Slug */}
           <div>
             <label className="block text-sm font-medium mb-2 text-text-secondary">Slug (URL)</label>
             <input
@@ -153,7 +150,6 @@ export default function NewPost() {
             <p className="text-xs text-text-muted mt-1">URL: /blog/{slug || '...'}</p>
           </div>
 
-          {/* Featured Image */}
           <div>
             <label className="block text-sm font-medium mb-2 text-text-secondary">Featured Image</label>
             <div className="flex items-center gap-4">
@@ -187,7 +183,6 @@ export default function NewPost() {
             </div>
           </div>
 
-          {/* YouTube Video */}
           <div>
             <label className="block text-sm font-medium mb-2 text-text-secondary">YouTube Video URL (Optional)</label>
             <div className="flex gap-4">
@@ -200,15 +195,14 @@ export default function NewPost() {
               />
               {youtubeId && (
                 <div className="flex items-center text-accent-gold text-sm">
-                  <Youtube size={20} className="mr-1" /> Video will be embedded
+                  <Video size={20} className="mr-1" /> Video will be embedded
                 </div>
               )}
             </div>
           </div>
 
-          {/* Excerpt */}
           <div>
-            <label className="block text-sm font-medium mb-2 text-text-secondary">Excerpt (Short summary)</label>
+            <label className="block text-sm font-medium mb-2 text-text-secondary">Excerpt</label>
             <textarea
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
@@ -218,11 +212,9 @@ export default function NewPost() {
             />
           </div>
           
-          {/* Content Editor with Toolbar */}
           <div>
             <label className="block text-sm font-medium mb-2 text-text-secondary">Content</label>
             
-            {/* Toolbar */}
             <div className="flex gap-2 mb-3 p-2 rounded-lg bg-surface border border-border">
               <button
                 type="button"
@@ -287,39 +279,11 @@ export default function NewPost() {
               onChange={(e) => setContent(e.target.value)}
               rows={15}
               className="w-full px-4 py-3 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary font-mono text-sm"
-              placeholder="Write your post in Markdown...
-
-# Heading
-## Subheading
-
-**Bold text** and *italic text*
-
-- Bullet points
-- Another point
-
-[Link text](https://example.com)
-
-![Image alt text](image-url.jpg)
-
-> Blockquote for emphasis"
+              placeholder="Write your post in Markdown..."
               required
             />
-            <p className="text-xs text-text-muted mt-2">
-              Supports Markdown formatting. Images uploaded will be inserted automatically.
-            </p>
           </div>
           
-          {/* Preview Section */}
-          {content && (
-            <div>
-              <label className="block text-sm font-medium mb-2 text-text-secondary">Preview</label>
-              <div className="p-4 rounded-lg bg-surface/50 border border-border prose prose-invert max-w-none">
-                <div className="text-text-secondary whitespace-pre-wrap">{content.substring(0, 300)}...</div>
-              </div>
-            </div>
-          )}
-          
-          {/* Publish Options */}
           <div className="flex items-center gap-4">
             <label className="flex items-center gap-2 cursor-pointer">
               <input

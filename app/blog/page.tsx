@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Calendar, User, Youtube } from 'lucide-react'
+import { Calendar, User, Video } from 'lucide-react'
 
 type Post = {
   id: number
@@ -61,10 +61,9 @@ export default function BlogPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="glass-card-hover overflow-hidden"
+              className="glass-card-hover overflow-hidden relative"
             >
               <Link href={`/blog/${post.slug}`}>
-                {/* Featured Image */}
                 {post.image_url && (
                   <div className="h-48 overflow-hidden">
                     <img 
@@ -75,10 +74,9 @@ export default function BlogPage() {
                   </div>
                 )}
                 
-                {/* Video Badge */}
                 {post.video_id && (
-                  <div className="absolute top-4 right-4 bg-accent-gold/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 text-sm">
-                    <Youtube size={14} /> Video
+                  <div className="absolute top-4 right-4 bg-accent-gold/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 text-sm text-background">
+                    <Video size={14} /> Video
                   </div>
                 )}
                 
