@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Plus, Edit, Trash2, Save, X } from 'lucide-react'
 
@@ -23,12 +24,23 @@ const SECTIONS = [
   { id: 'testimonials', name: 'Testimonials', description: 'What others say' },
   { id: 'achievements', name: 'Achievements', description: 'Certificates, awards' },
 ]
-export default function CMSPage() {
+
+function CMSContent() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const [activeSection, setActiveSection] = useState('hero')
   const [data, setData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<any>(null)
   const [saving, setSaving] = useState(false)
+
+  // Get section from URL on mount
+  useEffect(() => {
+    const sectionParam = searchParams?.get('section')
+    if (sectionParam && SECTIONS.some(s => s.id === sectionParam)) {
+      setActiveSection(sectionParam)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     fetchData()
@@ -36,242 +48,178 @@ export default function CMSPage() {
 
   const fetchData = async () => {
     setLoading(true)
-    const res = await fetch(`/api/dynamic/${activeSection}`)
-    const result = await res.json()
-    setData(Array.isArray(result) ? result : [result])
-    setLoading(false)
+    try {
+      const res = await fetch(`/api/dynamic/${activeSection}`)
+      const result = await res.json()
+      setData(Array.isArray(result) ? result : result.id ? [result] : [])
+    } catch (error) {
+      console.error('Error fetching data:', error)
+      setData([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleSave = async (item: any) => {
     setSaving(true)
-    const method = item.id ? 'PUT' : 'POST'
-    const res = await fetch(`/api/dynamic/${activeSection}`, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(item),
-    })
-    if (res.ok) {
-      fetchData()
-      setEditing(null)
+    try {
+      const method = item.id ? 'PUT' : 'POST'
+      const res = await fetch(`/api/dynamic/${activeSection}`, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item),
+      })
+      if (res.ok) {
+        await fetchData()
+        setEditing(null)
+      } else {
+        const error = await res.json()
+        alert(error.error || 'Failed to save')
+      }
+    } catch (error) {
+      alert('Error saving item')
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
   }
 
   const handleDelete = async (id: number) => {
     if (!confirm('Delete this item?')) return
-    const res = await fetch(`/api/dynamic/${activeSection}?id=${id}`, {
-      method: 'DELETE',
-    })
-    if (res.ok) fetchData()
+    try {
+      const res = await fetch(`/api/dynamic/${activeSection}?id=${id}`, {
+        method: 'DELETE',
+      })
+      if (res.ok) {
+        await fetchData()
+      } else {
+        alert('Failed to delete')
+      }
+    } catch (error) {
+      alert('Error deleting item')
+    }
   }
 
   const renderForm = (item: any, onChange: (field: string, value: any) => void) => {
-    switch (activeSection) {
-      case 'hero':
-        return (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Title</label>
-              <input
-                type="text"
-                value={item.title || ''}
-                onChange={(e) => onChange('title', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Subtitle</label>
-              <input
-                type="text"
-                value={item.subtitle || ''}
-                onChange={(e) => onChange('subtitle', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Description</label>
-              <textarea
-                value={item.description || ''}
-                onChange={(e) => onChange('description', e.target.value)}
-                rows={3}
-                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Profile Image URL</label>
-              <input
-                type="text"
-                value={item.profile_image_url || ''}
-                onChange={(e) => onChange('profile_image_url', e.target.value)}
-                placeholder="Upload to Cloudinary first"
-                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
+    if (activeSection === 'hero') {
+      return (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Title</label>
+            <input
+              type="text"
+              value={item.title || ''}
+              onChange={(e) => onChange('title', e.target.value)}
+              className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+            />
           </div>
-        )
-      
-      case 'values':
-        return (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Title</label>
-              <input
-                type="text"
-                value={item.title || ''}
-                onChange={(e) => onChange('title', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Description</label>
-              <textarea
-                value={item.description || ''}
-                onChange={(e) => onChange('description', e.target.value)}
-                rows={3}
-                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Order Index</label>
-              <input
-                type="number"
-                value={item.order_index || 0}
-                onChange={(e) => onChange('order_index', parseInt(e.target.value))}
-                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Subtitle</label>
+            <input
+              type="text"
+              value={item.subtitle || ''}
+              onChange={(e) => onChange('subtitle', e.target.value)}
+              className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+            />
           </div>
-        )
-      
-      case 'skills':
-        return (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Category</label>
-              <select
-                value={item.category || ''}
-                onChange={(e) => onChange('category', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              >
-                <option value="">Select Category</option>
-                <option value="Programming">Programming</option>
-                <option value="Database">Database</option>
-                <option value="Tools">Tools</option>
-                <option value="Design">Design</option>
-                <option value="Research">Research</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Skill Name</label>
-              <input
-                type="text"
-                value={item.name || ''}
-                onChange={(e) => onChange('name', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Proficiency (1-5)</label>
-              <input
-                type="range"
-                min="1"
-                max="5"
-                value={item.proficiency || 3}
-                onChange={(e) => onChange('proficiency', parseInt(e.target.value))}
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>Beginner</span><span>Intermediate</span><span>Advanced</span>
-              </div>
-            </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Description</label>
+            <textarea
+              value={item.description || ''}
+              onChange={(e) => onChange('description', e.target.value)}
+              rows={3}
+              className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+            />
           </div>
-        )
-      
-      case 'mentors':
-        return (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Name</label>
-              <input
-                type="text"
-                value={item.name || ''}
-                onChange={(e) => onChange('name', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Role/Title</label>
-              <input
-                type="text"
-                value={item.role || ''}
-                onChange={(e) => onChange('role', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Contribution</label>
-              <textarea
-                value={item.contribution || ''}
-                onChange={(e) => onChange('contribution', e.target.value)}
-                rows={2}
-                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Profile Image URL</label>
+            <input
+              type="text"
+              value={item.profile_image_url || ''}
+              onChange={(e) => onChange('profile_image_url', e.target.value)}
+              placeholder="Cloudinary URL"
+              className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+            />
           </div>
-        )
-      
-      default:
-        return (
-          <div className="space-y-4">
-            {Object.keys(item).filter(k => !['id', 'created_at', 'updated_at'].includes(k)).map((key) => (
-              <div key={key}>
-                <label className="block text-sm font-medium mb-1 capitalize">{key.replace(/_/g, ' ')}</label>
-                {typeof item[key] === 'string' && (item[key]?.length > 100 ? (
-                  <textarea
-                    value={item[key] || ''}
-                    onChange={(e) => onChange(key, e.target.value)}
-                    rows={3}
-                    className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-                  />
-                ) : (
-                  <input
-                    type="text"
-                    value={item[key] || ''}
-                    onChange={(e) => onChange(key, e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-                  />
-                ))}
-              </div>
-            ))}
+          <div>
+            <label className="block text-sm font-medium mb-1">CTA Text</label>
+            <input
+              type="text"
+              value={item.cta_text || 'Explore Work'}
+              onChange={(e) => onChange('cta_text', e.target.value)}
+              className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+            />
           </div>
-        )
+          <div>
+            <label className="block text-sm font-medium mb-1">CTA Link</label>
+            <input
+              type="text"
+              value={item.cta_link || '/projects'}
+              onChange={(e) => onChange('cta_link', e.target.value)}
+              className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+            />
+          </div>
+        </div>
+      )
     }
+    
+    // Default form for other sections
+    return (
+      <div className="space-y-4">
+        {Object.keys(item).filter(k => !['id', 'created_at', 'updated_at'].includes(k)).map((key) => (
+          <div key={key}>
+            <label className="block text-sm font-medium mb-1 capitalize">{key.replace(/_/g, ' ')}</label>
+            {typeof item[key] === 'string' && item[key]?.length > 100 ? (
+              <textarea
+                value={item[key] || ''}
+                onChange={(e) => onChange(key, e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+              />
+            ) : (
+              <input
+                type="text"
+                value={item[key] || ''}
+                onChange={(e) => onChange(key, e.target.value)}
+                className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    )
   }
+
+  const currentSection = SECTIONS.find(s => s.id === activeSection)
 
   return (
     <div className="min-h-screen bg-white dark:bg-black">
       <div className="container-custom py-8">
-        <Link href="/admin/dashboard" className="inline-flex items-center gap-2 text-amber-500 mb-6">
-          <ArrowLeft size={18} /> Back to Dashboard
-        </Link>
+        <div className="flex items-center justify-between mb-6">
+          <Link href="/admin/dashboard" className="inline-flex items-center gap-2 text-amber-500 hover:gap-3 transition-all">
+            <ArrowLeft size={18} /> Back to Dashboard
+          </Link>
+          <h1 className="text-2xl font-bold gradient-text-gold">Content Management</h1>
+        </div>
         
-        <h1 className="text-3xl font-bold mb-8 gradient-text-gold">Content Management System</h1>
-        
-        <div className="flex gap-8">
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}
-          <div className="w-64 flex-shrink-0">
-            <div className="sticky top-20 space-y-1">
+          <div className="lg:w-64 flex-shrink-0">
+            <div className="sticky top-20 space-y-1 max-h-[calc(100vh-100px)] overflow-y-auto">
               {SECTIONS.map((section) => (
                 <button
                   key={section.id}
-                  onClick={() => setActiveSection(section.id)}
+                  onClick={() => {
+                    setActiveSection(section.id)
+                    setEditing(null)
+                    router.push(`/admin/cms?section=${section.id}`, { scroll: false })
+                  }}
                   className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
                     activeSection === section.id
                       ? 'bg-amber-500 text-white'
                       : 'hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
                 >
-                  <div className="font-medium">{section.name}</div>
+                  <div className="font-medium text-sm">{section.name}</div>
                   <div className="text-xs opacity-75">{section.description}</div>
                 </button>
               ))}
@@ -282,7 +230,7 @@ export default function CMSPage() {
           <div className="flex-1">
             <div className="glass-card p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">{SECTIONS.find(s => s.id === activeSection)?.name}</h2>
+                <h2 className="text-xl font-bold">{currentSection?.name || activeSection}</h2>
                 <button
                   onClick={() => setEditing({})}
                   className="flex items-center gap-2 px-3 py-1.5 bg-amber-500 text-white rounded-lg text-sm"
@@ -292,7 +240,11 @@ export default function CMSPage() {
               </div>
               
               {loading ? (
-                <div className="text-center py-12">Loading...</div>
+                <div className="text-center py-12 text-gray-500">Loading...</div>
+              ) : data.length === 0 && !editing ? (
+                <div className="text-center py-12 text-gray-500">
+                  No content yet. Click "Add New" to create.
+                </div>
               ) : (
                 <div className="space-y-4">
                   {data.map((item) => (
@@ -321,14 +273,17 @@ export default function CMSPage() {
                       ) : (
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
-                            {Object.keys(item).filter(k => !['id', 'created_at', 'updated_at'].includes(k)).map((key) => (
-                              <div key={key} className="mb-1">
-                                <span className="text-xs text-gray-500 capitalize">{key.replace(/_/g, ' ')}: </span>
-                                <span className="text-sm">
-                                  {typeof item[key] === 'object' ? JSON.stringify(item[key]) : item[key]}
-                                </span>
-                              </div>
-                            ))}
+                            {Object.entries(item)
+                              .filter(([key]) => !['id', 'created_at', 'updated_at'].includes(key))
+                              .slice(0, 3)
+                              .map(([key, value]) => (
+                                <div key={key} className="mb-1">
+                                  <span className="text-xs text-gray-500 capitalize">{key.replace(/_/g, ' ')}: </span>
+                                  <span className="text-sm break-words">
+                                    {typeof value === 'object' ? JSON.stringify(value).slice(0, 100) : String(value).slice(0, 100)}
+                                  </span>
+                                </div>
+                              ))}
                           </div>
                           <div className="flex gap-1 ml-4">
                             <button
@@ -348,12 +303,6 @@ export default function CMSPage() {
                       )}
                     </div>
                   ))}
-                  
-                  {data.length === 0 && (
-                    <div className="text-center py-12 text-gray-500">
-                      No content yet. Click "Add New" to create.
-                    </div>
-                  )}
                 </div>
               )}
             </div>
@@ -361,5 +310,13 @@ export default function CMSPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function CMSPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <CMSContent />
+    </Suspense>
   )
 }
