@@ -11,7 +11,7 @@ const SECTIONS = [
   { id: 'education', name: 'Education', description: 'Schools, degrees, courses' },
   { id: 'skills', name: 'Skills', description: 'Technical and soft skills' },
   { id: 'strengths', name: 'Personal Strengths', description: 'What makes you unique' },
-  { id: 'growth', name: 'Areas of Growth', description: 'What you''re improving' },
+  { id: 'growth', name: 'Areas of Growth', description: 'What you are improving' },
   { id: 'leadership', name: 'Leadership Roles', description: 'Positions held' },
   { id: 'teaching', name: 'Teaching Experience', description: 'Mentorship and teaching' },
   { id: 'conferences', name: 'Conferences', description: 'Events attended' },
@@ -19,11 +19,10 @@ const SECTIONS = [
   { id: 'timeline', name: 'Journey Timeline', description: 'Your story' },
   { id: 'quotes', name: 'Personal Quotes', description: 'Your words' },
   { id: 'vision', name: 'Long Term Vision', description: 'Future goals' },
-  { id: 'roadmap', name: 'Development Roadmap', description: 'What you''re learning' },
+  { id: 'roadmap', name: 'Development Roadmap', description: 'What you are learning' },
   { id: 'testimonials', name: 'Testimonials', description: 'What others say' },
   { id: 'achievements', name: 'Achievements', description: 'Certificates, awards' },
 ]
-
 export default function CMSPage() {
   const [activeSection, setActiveSection] = useState('hero')
   const [data, setData] = useState<any[]>([])

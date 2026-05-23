@@ -3,26 +3,19 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Save, Plus, Trash2, Edit, Eye } from 'lucide-react'
-
-type SettingSection = 'hero' | 'featured' | 'testimonials' | 'achievements' | 'seo'
+import { ArrowLeft, Save, Globe, Mail, Github, Linkedin, Twitter, Eye } from 'lucide-react'
 
 export default function SettingsPage() {
-  const [activeSection, setActiveSection] = useState<SettingSection>('hero')
-  const [hero, setHero] = useState({
-    title: '',
-    subtitle: '',
-    description: '',
-    cta_text: '',
-    cta_link: '',
-  })
-  const [featured, setFeatured] = useState<any[]>([])
-  const [testimonials, setTestimonials] = useState<any[]>([])
-  const [achievements, setAchievements] = useState<any[]>([])
   const [seo, setSeo] = useState({
     title: '',
     description: '',
     keywords: '',
+  })
+  const [social, setSocial] = useState({
+    github: '',
+    linkedin: '',
+    email: '',
+    twitter: '',
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -30,78 +23,25 @@ export default function SettingsPage() {
 
   useEffect(() => {
     fetchSettings()
-    fetchFeatured()
-    fetchTestimonials()
-    fetchAchievements()
   }, [])
 
   const fetchSettings = async () => {
     const res = await fetch('/api/site-settings')
     const data = await res.json()
-    if (data.hero) setHero(data.hero)
     if (data.seo) setSeo(data.seo)
+    if (data.social) setSocial(data.social)
     setLoading(false)
   }
 
-  const fetchFeatured = async () => {
-    const res = await fetch('/api/featured')
-    const data = await res.json()
-    setFeatured(data)
-  }
-
-  const fetchTestimonials = async () => {
-    const res = await fetch('/api/testimonials')
-    const data = await res.json()
-    setTestimonials(data)
-  }
-
-  const fetchAchievements = async () => {
-    const res = await fetch('/api/achievements')
-    const data = await res.json()
-    setAchievements(data)
-  }
-
-  const saveHero = async () => {
+  const saveSettings = async (key: string, value: any) => {
     setSaving(true)
     await fetch('/api/site-settings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key: 'hero', value: hero }),
+      body: JSON.stringify({ key, value }),
     })
     setSaving(false)
-    alert('Hero section saved!')
-  }
-
-  const saveSEO = async () => {
-    setSaving(true)
-    await fetch('/api/site-settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key: 'seo', value: seo }),
-    })
-    setSaving(false)
-    alert('SEO settings saved!')
-  }
-
-  const addFeatured = async () => {
-    const title = prompt('Enter featured item title:')
-    if (!title) return
-    
-    const type = prompt('Type: project, blog, or custom:')
-    if (!type) return
-    
-    await fetch('/api/featured', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type, title, is_active: true }),
-    })
-    fetchFeatured()
-  }
-
-  const deleteFeatured = async (id: number) => {
-    if (!confirm('Delete this featured item?')) return
-    await fetch(`/api/featured/${id}`, { method: 'DELETE' })
-    fetchFeatured()
+    alert(`${key} settings saved!`)
   }
 
   if (loading) {
@@ -121,155 +61,121 @@ export default function SettingsPage() {
         
         <h1 className="text-3xl font-bold mb-8 gradient-text-gold">Site Settings</h1>
         
-        {/* Navigation Tabs */}
-        <div className="flex flex-wrap gap-2 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4">
-          {['hero', 'featured', 'testimonials', 'achievements', 'seo'].map((section) => (
-            <button
-              key={section}
-              onClick={() => setActiveSection(section as SettingSection)}
-              className={`px-4 py-2 rounded-lg capitalize transition-colors ${
-                activeSection === section
-                  ? 'bg-amber-500 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 hover:bg-amber-500/20'
-              }`}
-            >
-              {section}
-            </button>
-          ))}
-        </div>
-        
-        {/* Hero Section Editor */}
-        {activeSection === 'hero' && (
-          <div className="glass-card p-6 space-y-4">
-            <h2 className="text-xl font-bold mb-4">Hero Section</h2>
-            <div>
-              <label className="block text-sm font-medium mb-1">Title</label>
-              <input
-                type="text"
-                value={hero.title}
-                onChange={(e) => setHero({ ...hero, title: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Subtitle</label>
-              <input
-                type="text"
-                value={hero.subtitle}
-                onChange={(e) => setHero({ ...hero, subtitle: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Description</label>
-              <textarea
-                value={hero.description}
-                onChange={(e) => setHero({ ...hero, description: e.target.value })}
-                rows={3}
-                className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">CTA Button Text</label>
-                <input
-                  type="text"
-                  value={hero.cta_text}
-                  onChange={(e) => setHero({ ...hero, cta_text: e.target.value })}
-                  className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">CTA Button Link</label>
-                <input
-                  type="text"
-                  value={hero.cta_link}
-                  onChange={(e) => setHero({ ...hero, cta_link: e.target.value })}
-                  className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-                />
-              </div>
-            </div>
-            <button
-              onClick={saveHero}
-              disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600"
-            >
-              <Save size={16} /> {saving ? 'Saving...' : 'Save Hero Section'}
-            </button>
-          </div>
-        )}
-        
-        {/* Featured Items Editor */}
-        {activeSection === 'featured' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* SEO Settings */}
           <div className="glass-card p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Featured Items</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <Globe size={20} className="text-amber-500" />
+              <h2 className="text-xl font-bold">SEO Settings</h2>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Meta Title</label>
+                <input
+                  type="text"
+                  value={seo.title}
+                  onChange={(e) => setSeo({ ...seo, title: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                  placeholder="Your site title for search engines"
+                />
+                <p className="text-xs text-gray-500 mt-1">Preview: {seo.title || 'Your Title'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Meta Description</label>
+                <textarea
+                  value={seo.description}
+                  onChange={(e) => setSeo({ ...seo, description: e.target.value })}
+                  rows={3}
+                  className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                  placeholder="Brief description for search results"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Keywords</label>
+                <input
+                  type="text"
+                  value={seo.keywords}
+                  onChange={(e) => setSeo({ ...seo, keywords: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                  placeholder="healthcare, technology, africa, innovation"
+                />
+              </div>
               <button
-                onClick={addFeatured}
-                className="flex items-center gap-2 px-3 py-1.5 bg-amber-500 text-white rounded-lg text-sm"
+                onClick={() => saveSettings('seo', seo)}
+                disabled={saving}
+                className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600"
               >
-                <Plus size={14} /> Add Featured
+                <Save size={16} /> {saving ? 'Saving...' : 'Save SEO Settings'}
               </button>
             </div>
-            <div className="space-y-2">
-              {featured.map((item) => (
-                <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                  <div>
-                    <span className="text-xs text-amber-500 uppercase">{item.type}</span>
-                    <p className="font-medium">{item.title}</p>
-                  </div>
-                  <button onClick={() => deleteFeatured(item.id)} className="p-1 text-red-500 hover:text-red-600">
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
-              {featured.length === 0 && (
-                <p className="text-gray-500 text-center py-8">No featured items. Add some!</p>
-              )}
+          </div>
+
+          {/* Social Media Links */}
+          <div className="glass-card p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Mail size={20} className="text-amber-500" />
+              <h2 className="text-xl font-bold">Social & Contact</h2>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1 flex items-center gap-1"><Github size={14} /> GitHub</label>
+                <input
+                  type="url"
+                  value={social.github}
+                  onChange={(e) => setSocial({ ...social, github: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                  placeholder="https://github.com/username"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1 flex items-center gap-1"><Linkedin size={14} /> LinkedIn</label>
+                <input
+                  type="url"
+                  value={social.linkedin}
+                  onChange={(e) => setSocial({ ...social, linkedin: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                  placeholder="https://linkedin.com/in/username"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1 flex items-center gap-1"><Mail size={14} /> Email</label>
+                <input
+                  type="email"
+                  value={social.email}
+                  onChange={(e) => setSocial({ ...social, email: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                  placeholder="your@email.com"
+                />
+              </div>
+              <button
+                onClick={() => saveSettings('social', social)}
+                disabled={saving}
+                className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600"
+              >
+                <Save size={16} /> {saving ? 'Saving...' : 'Save Social Links'}
+              </button>
             </div>
           </div>
-        )}
-        
-        {/* SEO Editor */}
-        {activeSection === 'seo' && (
-          <div className="glass-card p-6 space-y-4">
-            <h2 className="text-xl font-bold mb-4">SEO Settings</h2>
-            <div>
-              <label className="block text-sm font-medium mb-1">Meta Title</label>
-              <input
-                type="text"
-                value={seo.title}
-                onChange={(e) => setSeo({ ...seo, title: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Meta Description</label>
-              <textarea
-                value={seo.description}
-                onChange={(e) => setSeo({ ...seo, description: e.target.value })}
-                rows={3}
-                className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Keywords (comma separated)</label>
-              <input
-                type="text"
-                value={seo.keywords}
-                onChange={(e) => setSeo({ ...seo, keywords: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-              />
-            </div>
-            <button
-              onClick={saveSEO}
-              disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600"
-            >
-              <Save size={16} /> {saving ? 'Saving...' : 'Save SEO Settings'}
-            </button>
+        </div>
+
+        {/* Preview Section */}
+        <div className="mt-8 glass-card p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Eye size={20} className="text-amber-500" />
+            <h2 className="text-xl font-bold">Live Preview</h2>
           </div>
-        )}
+          <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <div className="text-sm">
+              <p className="font-medium">{seo.title || 'Joel George Kaudzu'}</p>
+              <p className="text-gray-500">{seo.description || 'Healthcare Systems Builder'}</p>
+              <div className="flex gap-3 mt-2">
+                {social.github && <span className="text-xs text-gray-400">GitHub ✓</span>}
+                {social.linkedin && <span className="text-xs text-gray-400">LinkedIn ✓</span>}
+                {social.email && <span className="text-xs text-gray-400">Email ✓</span>}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
