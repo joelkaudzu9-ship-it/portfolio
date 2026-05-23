@@ -1,6 +1,6 @@
 'use client'
 
-import { Twitter, Linkedin, Link2, Check } from 'lucide-react'
+import { X, Linkedin, Link2, Check } from 'lucide-react'  // Changed Twitter to X
 import { useState } from 'react'
 
 interface SocialShareProps {
@@ -33,9 +33,9 @@ export default function SocialShare({ title, url }: SocialShareProps) {
         target="_blank"
         rel="noopener noreferrer"
         className="p-2 rounded-lg bg-surface border border-border hover:border-amber-500/30 transition-colors"
-        aria-label="Share on Twitter"
+        aria-label="Share on X (Twitter)"
       >
-        <Twitter size={16} className="text-text-secondary" />
+        <X size={16} className="text-text-secondary" />
       </a>
       <a
         href={shareLinks.linkedin}
