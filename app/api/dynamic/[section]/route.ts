@@ -39,25 +39,31 @@ export async function GET(
     return NextResponse.json({ error: 'Invalid section' }, { status: 400 })
   }
   
-  // For hero section, get the first row (should only be one)
-  if (section === 'hero') {
+  try {
+    // For sections that should have a single record
+    if (section === 'hero' || section === 'executive' || section === 'professional') {
+      const { data, error } = await supabaseAdmin
+        .from(table)
+        .select('*')
+        .limit(1)
+      
+      if (error) throw error
+      return NextResponse.json(data || [])
+    }
+    
+    // For sections with multiple records
     const { data, error } = await supabaseAdmin
       .from(table)
       .select('*')
-      .limit(1)
+      .order('order_index', { ascending: true, nullsLast: true })
     
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) throw error
     return NextResponse.json(data || [])
+  } catch (error) {
+    console.error(`Error fetching ${section}:`, error)
+    // Return empty array instead of error to prevent UI crash
+    return NextResponse.json([])
   }
-  
-  // For other sections, get all ordered by order_index
-  const { data, error } = await supabaseAdmin
-    .from(table)
-    .select('*')
-    .order('order_index', { ascending: true })
-  
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data || [])
 }
 
 export async function POST(
