@@ -1,22 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   * {
-    @apply border-gray-200 dark:border-gray-800;
+    @apply border-border;
+  }
+  
+  html {
+    @apply scroll-smooth;
   }
   
   body {
-    @apply bg-white dark:bg-black text-gray-800 dark:text-gray-200 transition-colors duration-300;
+    @apply bg-background text-text-primary font-body antialiased;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight;
+    @apply font-heading font-bold tracking-tight;
   }
   
   h1 {
-    @apply text-4xl sm:text-5xl md:text-6xl lg:text-7xl;
+    @apply text-5xl sm:text-6xl md:text-7xl lg:text-8xl;
   }
   
   h2 {
@@ -28,67 +34,83 @@
   }
   
   ::selection {
-    @apply bg-teal-500/30 text-teal-900 dark:text-teal-100;
+    @apply bg-accent-gold/30 text-text-primary;
+  }
+  
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-hover rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-accent-gold/50;
   }
 }
 
 @layer components {
-  .gradient-text {
-    @apply bg-gradient-to-r from-teal-500 via-teal-400 to-amber-500 bg-clip-text text-transparent;
-    background-size: 300% 300%;
-    animation: gradient 8s linear infinite;
+  /* Glassmorphism Card */
+  .glass-card {
+    @apply bg-surface/80 backdrop-blur-sm border border-border rounded-2xl;
   }
   
-  .card-hover {
-    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-xl;
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300 hover:border-accent-gold/30 hover:shadow-lg hover:shadow-accent-gold/5;
   }
   
+  /* Gradient Text */
+  .gradient-text-gold {
+    @apply bg-gradient-to-r from-accent-gold via-accent-goldLight to-accent-gold bg-clip-text text-transparent;
+  }
+  
+  /* Container */
   .container-custom {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
   
-  .blob-bg {
-    @apply absolute -z-10 h-[500px] w-[500px] rounded-full bg-teal-500/20 dark:bg-teal-500/10 blur-3xl;
+  /* Section spacing */
+  .section {
+    @apply py-20 md:py-28 lg:py-32;
+  }
+  
+  /* Gold accent border */
+  .gold-border {
+    @apply border-accent-gold/30;
+  }
+  
+  /* Button styles */
+  .btn-primary {
+    @apply px-6 py-3 bg-accent-gold text-background font-semibold rounded-lg transition-all duration-300 hover:bg-accent-goldLight hover:shadow-lg hover:shadow-accent-gold/20;
+  }
+  
+  .btn-outline {
+    @apply px-6 py-3 border border-accent-gold text-accent-gold font-semibold rounded-lg transition-all duration-300 hover:bg-accent-gold/10;
+  }
+  
+  /* Link styles */
+  .link-gold {
+    @apply text-accent-gold hover:text-accent-goldLight transition-colors;
+  }
+  
+  /* Animated background blob */
+  .blob {
+    @apply absolute -z-10 h-[600px] w-[600px] rounded-full bg-accent-gold/5 blur-3xl;
+  }
+  
+  /* Timeline dot */
+  .timeline-dot {
+    @apply w-3 h-3 rounded-full bg-accent-gold ring-4 ring-accent-gold/20;
   }
 }
 
-@keyframes gradient {
-  0%, 100% {
-    background-position: 0% 50%;
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-@keyframes blob {
-  0%, 100% {
-    transform: translate(0px, 0px) scale(1);
-  }
-  33% {
-    transform: translate(30px, -50px) scale(1.1);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
-  }
-}
-
-.animate-blob {
-  animation: blob 7s infinite;
-}
-
-.animation-delay-2000 {
-  animation-delay: 2s;
-}
-
-.animation-delay-4000 {
-  animation-delay: 4s;
-}
-
-.bg-300\% {
-  background-size: 300% 300%;
-}
-
-.animate-gradient {
-  animation: gradient 8s linear infinite;
 }

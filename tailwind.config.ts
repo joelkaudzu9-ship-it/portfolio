@@ -10,33 +10,43 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        teal: {
-          50: '#f0fdfa',
-          100: '#ccfbf1',
-          200: '#99f6e4',
-          300: '#5eead4',
-          400: '#2dd4bf',
-          500: '#14b8a6',
-          600: '#0d9488',
-          700: '#0f766e',
-          800: '#115e59',
-          900: '#134e4a',
+        // Professional dark theme
+        background: {
+          DEFAULT: '#0F1115',
+          card: '#171A21',
+          elevated: '#1E222A',
         },
-        amber: {
-          500: '#f59e0b',
-          600: '#d97706',
+        surface: {
+          DEFAULT: '#1A1D24',
+          hover: '#232730',
+        },
+        accent: {
+          gold: '#D4A017',
+          goldLight: '#E8B43C',
+          goldDark: '#B8860B',
+        },
+        text: {
+          primary: '#EAEAEA',
+          secondary: '#A8B0B9',
+          muted: '#6B7280',
+        },
+        border: {
+          DEFAULT: '#2A2D35',
+          light: '#3A3E47',
         },
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        mono: ['var(--font-jetbrains)', 'monospace'],
+        heading: ['Sora', 'Outfit', 'Space Grotesk', 'system-ui', 'sans-serif'],
+        body: ['Inter', 'Manrope', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
+      backdropBlur: {
+        xs: '2px',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
         'slide-up': 'slideUp 0.5s ease-out',
-        'float': 'float 6s ease-in-out infinite',
-        'gradient': 'gradient 8s linear infinite',
-        'blob': 'blob 7s infinite',
+        'glow': 'glow 2s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -47,23 +57,10 @@ const config: Config = {
           '0%': { transform: 'translateY(20px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
         },
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-10px)' },
+        glow: {
+          '0%, 100%': { opacity: '0.5' },
+          '50%': { opacity: '1' },
         },
-        gradient: {
-          '0%, 100%': { backgroundPosition: '0% 50%' },
-          '50%': { backgroundPosition: '100% 50%' },
-        },
-        blob: {
-          '0%': { transform: 'translate(0px, 0px) scale(1)' },
-          '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
-          '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
-          '100%': { transform: 'translate(0px, 0px) scale(1)' },
-        },
-      },
-      backgroundSize: {
-        '300%': '300% 300%',
       },
     },
   },
