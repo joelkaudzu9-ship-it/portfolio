@@ -47,7 +47,6 @@ export async function GET(
       .limit(1)
     
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    // Return as array for consistency with other sections
     return NextResponse.json(data || [])
   }
   
@@ -55,7 +54,7 @@ export async function GET(
   const { data, error } = await supabaseAdmin
     .from(table)
     .select('*')
-    .order('order_index', { ascending: true, nullsLast: true })
+    .order('order_index', { ascending: true })
   
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data || [])
