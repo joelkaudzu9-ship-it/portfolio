@@ -275,7 +275,7 @@ export default function EditProjectPage() {
               onChange={(e) => setContent(e.target.value)}
               rows={12}
               className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 font-mono text-sm"
-              placeholder="## Project Overview&#10;&#10;Write your project description in Markdown here...&#10;&#10;### Features&#10;- Feature 1&#10;- Feature 2&#10;&#10;### Challenges overcome&#10;- Challenge 1&#10;- Challenge 2"
+              placeholder="## Project Overview&#10;&#10;Write your project description in Markdown here..."
               required
             />
             <p className="text-xs text-gray-500 mt-2">
