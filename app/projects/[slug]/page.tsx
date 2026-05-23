@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Calendar, Code, ExternalLink, Github, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Calendar, Code, ExternalLink, Github as GitHubIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
@@ -214,7 +214,7 @@ export default function SingleProjectPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-surface border border-border rounded-lg hover:border-amber-500/30 transition-colors"
                 >
-                  <Github size={18} /> View on GitHub
+                  <GitHubIcon size={18} /> View on GitHub
                 </a>
               )}
               {project.live_url && (

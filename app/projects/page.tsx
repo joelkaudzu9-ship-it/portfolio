@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, Calendar, User, Code, ExternalLink, Github as GitHubIcon } from 'lucide-react'
+import { ArrowRight, Calendar, Code, ExternalLink, Github as GitHubIcon } from 'lucide-react'
 
 type Project = {
   id: number
@@ -65,7 +65,6 @@ export default function ProjectsPage() {
   return (
     <div className="min-h-screen py-20">
       <div className="container-custom">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -80,7 +79,6 @@ export default function ProjectsPage() {
           </p>
         </motion.div>
 
-        {/* Filter Buttons */}
         <div className="flex flex-wrap justify-center gap-3 mb-12">
           {['all', 'active', 'concept', 'planning', 'experiment'].map((category) => (
             <button
@@ -97,7 +95,6 @@ export default function ProjectsPage() {
           ))}
         </div>
 
-        {/* Projects Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {filteredProjects.map((project, index) => (
             <motion.div
@@ -109,7 +106,6 @@ export default function ProjectsPage() {
             >
               <Link href={`/projects/${project.slug}`}>
                 <div className="glass-card-hover overflow-hidden h-full flex flex-col">
-                  {/* Featured Image */}
                   <div className="relative h-56 overflow-hidden bg-gradient-to-br from-amber-500/20 to-amber-500/5">
                     {project.image_url ? (
                       <>
@@ -126,7 +122,6 @@ export default function ProjectsPage() {
                       </div>
                     )}
                     
-                    {/* Status Badge */}
                     <div className="absolute top-4 right-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
                         {project.status}
@@ -135,24 +130,20 @@ export default function ProjectsPage() {
                   </div>
                   
                   <div className="p-6 flex-1 flex flex-col">
-                    {/* Title */}
                     <h2 className="text-xl font-bold mb-2 group-hover:text-amber-500 transition-colors">
                       {project.title}
                     </h2>
                     
-                    {/* Subtitle */}
                     {project.subtitle && (
                       <p className="text-amber-500 text-sm mb-3">
                         {project.subtitle}
                       </p>
                     )}
                     
-                    {/* Description */}
                     <p className="text-text-secondary mb-4 leading-relaxed flex-1">
                       {project.description}
                     </p>
                     
-                    {/* Technologies */}
                     {project.technologies && project.technologies.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-4">
                         {project.technologies.slice(0, 4).map((tech, i) => (
@@ -168,7 +159,6 @@ export default function ProjectsPage() {
                       </div>
                     )}
                     
-                    {/* Links */}
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center gap-3">
                         {project.github_url && (
