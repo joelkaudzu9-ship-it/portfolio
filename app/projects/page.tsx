@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, Calendar, User, Code, ExternalLink, Github } from 'lucide-react'
+import { ArrowRight, Calendar, User, Code, ExternalLink, Github as GitHubIcon } from 'lucide-react'
 
 type Project = {
   id: number
@@ -179,7 +179,7 @@ export default function ProjectsPage() {
                             className="text-text-muted hover:text-amber-500 transition-colors"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <Github size={18} />
+                            <GitHubIcon size={18} />
                           </a>
                         )}
                         {project.live_url && (
