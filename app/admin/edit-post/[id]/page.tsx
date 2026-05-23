@@ -25,6 +25,102 @@ type Post = {
   created_at: string
 }
 
+// Image compression utility
+const compressImage = async (file: File): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = (event) => {
+      const img = new Image()
+      img.src = event.target?.result as string
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        let width = img.width
+        let height = img.height
+        const maxWidth = 1920
+        const maxHeight = 1080
+        
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width
+            width = maxWidth
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height
+            height = maxHeight
+          }
+        }
+        
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        ctx?.drawImage(img, 0, 0, width, height)
+        
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+              })
+              resolve(compressedFile)
+            } else {
+              reject(new Error('Compression failed'))
+            }
+          },
+          'image/jpeg',
+          0.8
+        )
+      }
+      img.onerror = reject
+    }
+    reader.onerror = reject
+  })
+}
+
+// Upload Progress Component
+const UploadProgress = ({ progress, isVisible }: { progress: number; isVisible: boolean }) => {
+  if (!isVisible) return null
+  
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+      <div className="glass-card p-8 w-80 text-center">
+        <div className="relative w-32 h-32 mx-auto mb-4">
+          <svg className="w-32 h-32 transform -rotate-90">
+            <circle
+              cx="64"
+              cy="64"
+              r="58"
+              stroke="currentColor"
+              strokeWidth="8"
+              fill="none"
+              className="text-gray-700"
+            />
+            <circle
+              cx="64"
+              cy="64"
+              r="58"
+              stroke="currentColor"
+              strokeWidth="8"
+              fill="none"
+              className="text-amber-500"
+              strokeDasharray={`${2 * Math.PI * 58}`}
+              strokeDashoffset={`${2 * Math.PI * 58 * (1 - progress / 100)}`}
+              style={{ transition: 'stroke-dashoffset 0.3s ease' }}
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-2xl font-bold gradient-text-gold">{progress}%</span>
+          </div>
+        </div>
+        <p className="text-text-secondary mt-2">Uploading to Cloudinary...</p>
+        <p className="text-text-muted text-sm mt-1">Please wait</p>
+      </div>
+    </div>
+  )
+}
+
 export default function EditPost() {
   // Post data
   const [title, setTitle] = useState('')
@@ -39,6 +135,8 @@ export default function EditPost() {
   const [featuredImage, setFeaturedImage] = useState<MediaItem | null>(null)
   const [mediaGallery, setMediaGallery] = useState<MediaItem[]>([])
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isUploading, setIsUploading] = useState(false)
   const [showYouTubeModal, setShowYouTubeModal] = useState(false)
   const [youtubeUrl, setYoutubeUrl] = useState('')
   
@@ -92,23 +190,78 @@ export default function EditPost() {
     }
   }, [id])
   
-  // Upload to Cloudinary
-  const uploadToCloudinary = async (file: File, type: 'image' | 'video') => {
-    const formData = new FormData()
-    formData.append('file', file)
-    
-    const endpoint = type === 'image' ? '/api/upload' : '/api/upload/video'
-    
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      body: formData,
+  // Direct upload to Cloudinary with progress tracking
+  const uploadDirectToCloudinary = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('upload_preset', 'portfolio_unsigned')
+      formData.append('folder', 'portfolio/blog')
+      
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+      const xhr = new XMLHttpRequest()
+      
+      xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, true)
+      
+      // Track progress
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100)
+          setUploadProgress(percent)
+        }
+      })
+      
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const result = JSON.parse(xhr.responseText)
+          resolve(result.secure_url)
+        } else {
+          reject(new Error('Upload failed'))
+        }
+      }
+      
+      xhr.onerror = () => reject(new Error('Network error'))
+      
+      xhr.send(formData)
     })
-    
-    if (!res.ok) throw new Error('Upload failed')
-    return res.json()
   }
   
-  // Handle image upload
+  // Video upload with progress tracking
+  const uploadVideoDirectToCloudinary = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('upload_preset', 'portfolio_unsigned')
+      formData.append('folder', 'portfolio/videos')
+      
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+      const xhr = new XMLHttpRequest()
+      
+      xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, true)
+      
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100)
+          setUploadProgress(percent)
+        }
+      })
+      
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const result = JSON.parse(xhr.responseText)
+          resolve(result.secure_url)
+        } else {
+          reject(new Error('Upload failed'))
+        }
+      }
+      
+      xhr.onerror = () => reject(new Error('Network error'))
+      
+      xhr.send(formData)
+    })
+  }
+  
+  // Handle image upload with direct Cloudinary upload and compression
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -118,13 +271,19 @@ export default function EditPost() {
       return
     }
     
-    setUploading(true)
+    setIsUploading(true)
+    setUploadProgress(0)
+    
     try {
-      const result = await uploadToCloudinary(file, 'image')
+      // Compress image first
+      const compressedFile = await compressImage(file)
+      
+      // Upload with progress
+      const url = await uploadDirectToCloudinary(compressedFile)
+      
       const mediaItem: MediaItem = {
-        url: result.url,
+        url: url,
         type: 'image',
-        publicId: result.public_id,
       }
       
       if (!featuredImage) {
@@ -132,18 +291,18 @@ export default function EditPost() {
       }
       setMediaGallery(prev => [...prev, mediaItem])
       
-      // Insert markdown for image
-      const imageMarkdown = `\n\n![Image](${result.url})\n\n`
+      const imageMarkdown = `\n\n![Image](${url})\n\n`
       setContent(prev => prev + imageMarkdown)
     } catch (error) {
       console.error('Upload error:', error)
       alert('Failed to upload image')
     } finally {
-      setUploading(false)
+      setIsUploading(false)
+      setUploadProgress(0)
     }
   }
   
-  // Handle video upload
+  // Handle video upload with direct Cloudinary upload
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -153,24 +312,26 @@ export default function EditPost() {
       return
     }
     
-    setUploading(true)
+    setIsUploading(true)
+    setUploadProgress(0)
+    
     try {
-      const result = await uploadToCloudinary(file, 'video')
+      const url = await uploadVideoDirectToCloudinary(file)
+      
       const mediaItem: MediaItem = {
-        url: result.url,
+        url: url,
         type: 'video',
-        publicId: result.public_id,
       }
       setMediaGallery(prev => [...prev, mediaItem])
       
-      // Insert video embed
-      const videoEmbed = `\n\n<video controls src="${result.url}" class="w-full rounded-lg"></video>\n\n`
+      const videoEmbed = `\n\n<video controls src="${url}" class="w-full rounded-lg"></video>\n\n`
       setContent(prev => prev + videoEmbed)
     } catch (error) {
       console.error('Upload error:', error)
       alert('Failed to upload video')
     } finally {
-      setUploading(false)
+      setIsUploading(false)
+      setUploadProgress(0)
     }
   }
   
@@ -270,6 +431,9 @@ export default function EditPost() {
   
   return (
     <div className="min-h-screen bg-background py-4 sm:py-8">
+      {/* Upload Progress Modal */}
+      <UploadProgress progress={uploadProgress} isVisible={isUploading} />
+      
       <div className="container-custom px-4 sm:px-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
@@ -388,14 +552,19 @@ export default function EditPost() {
               className="hidden"
             />
             
-            {uploading && (
+            {isUploading ? (
               <div className="text-center py-6 sm:py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-gold mx-auto"></div>
-                <p className="text-text-secondary mt-2 text-sm">Uploading to Cloudinary...</p>
+                <p className="text-text-secondary mt-2 text-sm">Uploading to Cloudinary... {uploadProgress}%</p>
               </div>
-            )}
+            ) : uploading ? (
+              <div className="text-center py-6 sm:py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-gold mx-auto"></div>
+                <p className="text-text-secondary mt-2 text-sm">Processing...</p>
+              </div>
+            ) : null}
             
-            {mediaGallery.length > 0 && (
+            {mediaGallery.length > 0 && !isUploading && !uploading && (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 mt-4">
                 {mediaGallery.map((media, index) => (
                   <div key={index} className="relative group">

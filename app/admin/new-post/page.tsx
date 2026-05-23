@@ -285,7 +285,7 @@ export default function NewPost() {
     }
   }
   
-  // Handle YouTube addition
+  // Handle YouTube addition - also set as featured if no featured image exists
   const addYouTubeVideo = async () => {
     if (!youtubeUrl) return
     
@@ -308,6 +308,12 @@ export default function NewPost() {
           type: 'youtube',
           videoId: result.videoId,
         }
+        
+        // Set as featured if no featured image exists
+        if (!featuredImage) {
+          setFeaturedImage(mediaItem)
+        }
+        
         setMediaGallery(prev => [...prev, mediaItem])
         
         // Insert YouTube embed
