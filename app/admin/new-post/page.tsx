@@ -1,103 +1,198 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Upload, Image as ImageIcon, X, Video } from 'lucide-react'
-import { supabase } from '@/lib/supabase/client'
+import { ArrowLeft, Upload, Image, X, Video, Youtube, FileText, Eye, Save, Trash2, Plus } from 'lucide-react'
+
+type MediaItem = {
+  url: string
+  type: 'image' | 'video' | 'youtube'
+  publicId?: string
+  videoId?: string
+}
 
 export default function NewPost() {
+  // Post data
   const [title, setTitle] = useState('')
   const [slug, setSlug] = useState('')
   const [excerpt, setExcerpt] = useState('')
   const [content, setContent] = useState('')
   const [published, setPublished] = useState(false)
   const [loading, setLoading] = useState(false)
+  
+  // Media
+  const [featuredImage, setFeaturedImage] = useState<MediaItem | null>(null)
+  const [mediaGallery, setMediaGallery] = useState<MediaItem[]>([])
   const [uploading, setUploading] = useState(false)
-  const [featuredImage, setFeaturedImage] = useState<string | null>(null)
-  const [videoUrl, setVideoUrl] = useState('')
-  const [youtubeId, setYoutubeId] = useState('')
+  const [showYouTubeModal, setShowYouTubeModal] = useState(false)
+  const [youtubeUrl, setYoutubeUrl] = useState('')
+  
+  // Refs
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const videoInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
-
-  const generateSlug = () => {
+  
+  // Generate slug from title
+  const generateSlug = useCallback(() => {
     const generated = title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '')
     setSlug(generated)
+  }, [title])
+  
+  // Upload to Cloudinary
+  const uploadToCloudinary = async (file: File, type: 'image' | 'video') => {
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    const endpoint = type === 'image' ? '/api/upload' : '/api/upload/video'
+    
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      body: formData,
+    })
+    
+    if (!res.ok) throw new Error('Upload failed')
+    return res.json()
   }
-
-  const extractYouTubeId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
-    const match = url.match(regExp)
-    return match && match[2].length === 11 ? match[2] : null
-  }
-
-  const handleVideoUrlChange = (url: string) => {
-    setVideoUrl(url)
-    const id = extractYouTubeId(url)
-    setYoutubeId(id || '')
-  }
-
-  const uploadImage = async (file: File) => {
-    setUploading(true)
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${Date.now()}.${fileExt}`
-    const filePath = `posts/${fileName}`
-
-    const { error: uploadError } = await supabase.storage
-      .from('blog-images')
-      .upload(filePath, file)
-
-    if (uploadError) {
-      console.error('Upload error:', uploadError)
-      alert('Failed to upload image')
-      setUploading(false)
-      return null
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('blog-images')
-      .getPublicUrl(filePath)
-
-    setUploading(false)
-    return publicUrl
-  }
-
+  
+  // Handle image upload
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-
+    
     if (!file.type.startsWith('image/')) {
       alert('Please upload an image file')
       return
     }
-
-    const url = await uploadImage(file)
-    if (url) {
-      setFeaturedImage(url)
-      const imageMarkdown = `\n\n![${title}](${url})\n\n`
+    
+    setUploading(true)
+    try {
+      const result = await uploadToCloudinary(file, 'image')
+      const mediaItem: MediaItem = {
+        url: result.url,
+        type: 'image',
+        publicId: result.public_id,
+      }
+      
+      if (!featuredImage) {
+        setFeaturedImage(mediaItem)
+      }
+      setMediaGallery(prev => [...prev, mediaItem])
+      
+      // Insert markdown for image
+      const imageMarkdown = `\n\n![Image](${result.url})\n\n`
       setContent(prev => prev + imageMarkdown)
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Failed to upload image')
+    } finally {
+      setUploading(false)
     }
   }
-
-  const insertImageMarkdown = () => {
-    fileInputRef.current?.click()
+  
+  // Handle video upload
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    if (!file.type.startsWith('video/')) {
+      alert('Please upload a video file')
+      return
+    }
+    
+    setUploading(true)
+    try {
+      const result = await uploadToCloudinary(file, 'video')
+      const mediaItem: MediaItem = {
+        url: result.url,
+        type: 'video',
+        publicId: result.public_id,
+      }
+      setMediaGallery(prev => [...prev, mediaItem])
+      
+      // Insert video embed
+      const videoEmbed = `\n\n<video controls src="${result.url}" class="w-full rounded-lg"></video>\n\n`
+      setContent(prev => prev + videoEmbed)
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Failed to upload video')
+    } finally {
+      setUploading(false)
+    }
   }
-
+  
+  // Handle YouTube addition
+  const addYouTubeVideo = async () => {
+    if (!youtubeUrl) return
+    
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('isYouTube', 'true')
+      formData.append('youtubeUrl', youtubeUrl)
+      
+      const res = await fetch('/api/upload/video', {
+        method: 'POST',
+        body: formData,
+      })
+      
+      const result = await res.json()
+      
+      if (result.type === 'youtube') {
+        const mediaItem: MediaItem = {
+          url: result.embedUrl,
+          type: 'youtube',
+          videoId: result.videoId,
+        }
+        setMediaGallery(prev => [...prev, mediaItem])
+        
+        // Insert YouTube embed
+        const youtubeEmbed = `\n\n<iframe width="100%" height="400" src="${result.embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-lg"></iframe>\n\n`
+        setContent(prev => prev + youtubeEmbed)
+      }
+      
+      setShowYouTubeModal(false)
+      setYoutubeUrl('')
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Failed to add YouTube video')
+    } finally {
+      setUploading(false)
+    }
+  }
+  
+  // Remove media from gallery
+  const removeMedia = (index: number) => {
+    setMediaGallery(prev => prev.filter((_, i) => i !== index))
+  }
+  
+  // Set as featured image
+  const setAsFeatured = (media: MediaItem) => {
+    setFeaturedImage(media)
+  }
+  
+  // Insert markdown helper
+  const insertMarkdown = (markdown: string) => {
+    setContent(prev => prev + markdown)
+  }
+  
+  // Submit post
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     
     const postData = {
       title,
-      slug,
+      slug: slug || generateSlug(),
       excerpt,
       content,
       published,
-      image_url: featuredImage,
-      video_id: youtubeId,
+      featured_image: featuredImage?.url || null,
+      featured_image_type: featuredImage?.type || null,
+      media_gallery: mediaGallery,
     }
     
     const res = await fetch('/api/blog', {
@@ -109,207 +204,293 @@ export default function NewPost() {
     if (res.ok) {
       router.push('/admin/dashboard')
     } else {
-      alert('Failed to create post')
+      const error = await res.json()
+      alert(error.error || 'Failed to create post')
     }
     setLoading(false)
   }
-
+  
   return (
     <div className="min-h-screen bg-background py-8">
       <div className="container-custom">
-        <Link href="/admin/dashboard" className="inline-flex items-center gap-2 text-accent-gold mb-6 hover:gap-3 transition-all">
-          <ArrowLeft size={18} /> Back to Dashboard
-        </Link>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <Link href="/admin/dashboard" className="inline-flex items-center gap-2 text-accent-gold hover:gap-3 transition-all">
+            <ArrowLeft size={18} /> Back to Dashboard
+          </Link>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => window.open(`/blog/${slug}`, '_blank')}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-text-secondary hover:text-accent-gold transition-colors"
+              disabled={!slug}
+            >
+              <Eye size={16} /> Preview
+            </button>
+          </div>
+        </div>
         
-        <h1 className="text-3xl font-bold mb-8 gradient-text-gold">New Blog Post</h1>
+        <h1 className="text-3xl font-bold mb-8 gradient-text-gold">Create New Post</h1>
         
-        <form onSubmit={handleSubmit} className="max-w-5xl space-y-6">
-          <div>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Title Section */}
+          <div className="glass-card p-6">
             <label className="block text-sm font-medium mb-2 text-text-secondary">Title</label>
             <input
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value)
+                if (!slug) generateSlug()
+              }}
               onBlur={generateSlug}
-              className="w-full px-4 py-3 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary text-lg"
-              placeholder="Post title"
+              className="w-full px-4 py-3 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary text-xl"
+              placeholder="Enter post title"
               required
             />
+            {slug && (
+              <p className="text-xs text-text-muted mt-2">
+                URL: <span className="text-accent-gold">/blog/{slug}</span>
+              </p>
+            )}
           </div>
           
-          <div>
-            <label className="block text-sm font-medium mb-2 text-text-secondary">Slug (URL)</label>
-            <input
-              type="text"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary font-mono text-sm"
-              placeholder="post-url-slug"
-              required
-            />
-            <p className="text-xs text-text-muted mt-1">URL: /blog/{slug || '...'}</p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2 text-text-secondary">Featured Image</label>
-            <div className="flex items-center gap-4">
+          {/* Featured Image Section */}
+          <div className="glass-card p-6">
+            <h3 className="text-lg font-semibold mb-4">Featured Image</h3>
+            {featuredImage ? (
+              <div className="relative">
+                {featuredImage.type === 'image' && (
+                  <img src={featuredImage.url} alt="Featured" className="w-full h-64 object-cover rounded-lg" />
+                )}
+                {featuredImage.type === 'youtube' && (
+                  <iframe src={featuredImage.url} className="w-full h-64 rounded-lg" allowFullScreen />
+                )}
+                <button
+                  type="button"
+                  onClick={() => setFeaturedImage(null)}
+                  className="absolute top-2 right-2 p-2 bg-red-500 rounded-full hover:bg-red-600 transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            ) : (
               <button
                 type="button"
-                onClick={insertImageMarkdown}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-surface border border-border hover:border-accent-gold/30 transition-colors"
-                disabled={uploading}
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full h-40 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 hover:border-accent-gold/50 transition-colors"
               >
-                <Upload size={16} /> {uploading ? 'Uploading...' : 'Upload Image'}
+                <Image size={32} className="text-text-muted" />
+                <span className="text-text-secondary">Click to upload featured image</span>
               </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-              {featuredImage && (
-                <div className="relative">
-                  <img src={featuredImage} alt="Preview" className="h-16 w-24 object-cover rounded-lg" />
-                  <button
-                    type="button"
-                    onClick={() => setFeaturedImage(null)}
-                    className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full"
-                  >
-                    <X size={12} />
-                  </button>
-                </div>
-              )}
-            </div>
+            )}
           </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2 text-text-secondary">YouTube Video URL (Optional)</label>
-            <div className="flex gap-4">
-              <input
-                type="url"
-                value={videoUrl}
-                onChange={(e) => handleVideoUrlChange(e.target.value)}
-                className="flex-1 px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
-                placeholder="https://youtube.com/watch?v=..."
-              />
-              {youtubeId && (
-                <div className="flex items-center text-accent-gold text-sm">
-                  <Video size={20} className="mr-1" /> Video will be embedded
-                </div>
-              )}
+          
+          {/* Media Gallery Section */}
+          <div className="glass-card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Media Gallery</h3>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface border border-border hover:border-accent-gold/30 transition-colors text-sm"
+                >
+                  <Upload size={14} /> Upload Image
+                </button>
+                <button
+                  type="button"
+                  onClick={() => videoInputRef.current?.click()}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface border border-border hover:border-accent-gold/30 transition-colors text-sm"
+                >
+                  <Video size={14} /> Upload Video
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowYouTubeModal(true)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface border border-border hover:border-accent-gold/30 transition-colors text-sm"
+                >
+                  <Youtube size={14} /> Add YouTube
+                </button>
+              </div>
             </div>
+            
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+            <input
+              ref={videoInputRef}
+              type="file"
+              accept="video/*"
+              onChange={handleVideoUpload}
+              className="hidden"
+            />
+            
+            {uploading && (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-gold mx-auto"></div>
+                <p className="text-text-secondary mt-2">Uploading to Cloudinary...</p>
+              </div>
+            )}
+            
+            {mediaGallery.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                {mediaGallery.map((media, index) => (
+                  <div key={index} className="relative group">
+                    {media.type === 'image' && (
+                      <img src={media.url} alt="Media" className="w-full h-32 object-cover rounded-lg" />
+                    )}
+                    {media.type === 'video' && (
+                      <video src={media.url} className="w-full h-32 object-cover rounded-lg" />
+                    )}
+                    {media.type === 'youtube' && (
+                      <img src={`https://img.youtube.com/vi/${media.videoId}/mqdefault.jpg`} alt="YouTube" className="w-full h-32 object-cover rounded-lg" />
+                    )}
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setAsFeatured(media)}
+                        className="p-1.5 bg-accent-gold rounded hover:bg-accent-goldLight transition-colors"
+                        title="Set as featured"
+                      >
+                        <Star size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeMedia(index)}
+                        className="p-1.5 bg-red-500 rounded hover:bg-red-600 transition-colors"
+                        title="Remove"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-
-          <div>
+          
+          {/* Excerpt */}
+          <div className="glass-card p-6">
             <label className="block text-sm font-medium mb-2 text-text-secondary">Excerpt</label>
             <textarea
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
-              rows={2}
+              rows={3}
               className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
-              placeholder="Brief summary of your post..."
+              placeholder="A brief summary of your post..."
             />
           </div>
           
-          <div>
+          {/* Content Editor */}
+          <div className="glass-card p-6">
             <label className="block text-sm font-medium mb-2 text-text-secondary">Content</label>
             
-            <div className="flex gap-2 mb-3 p-2 rounded-lg bg-surface border border-border">
-              <button
-                type="button"
-                onClick={insertImageMarkdown}
-                className="p-2 rounded hover:bg-background transition-colors"
-                title="Insert Image"
-              >
-                <ImageIcon size={18} />
-              </button>
-              <button
-                type="button"
-                onClick={() => setContent(prev => prev + '\n**bold text**\n')}
-                className="p-2 rounded hover:bg-background transition-colors font-bold"
-                title="Bold"
-              >
-                B
-              </button>
-              <button
-                type="button"
-                onClick={() => setContent(prev => prev + '\n*italic text*\n')}
-                className="p-2 rounded hover:bg-background transition-colors italic"
-                title="Italic"
-              >
-                I
-              </button>
-              <button
-                type="button"
-                onClick={() => setContent(prev => prev + '\n# Heading\n')}
-                className="p-2 rounded hover:bg-background transition-colors"
-                title="Heading"
-              >
-                H1
-              </button>
-              <button
-                type="button"
-                onClick={() => setContent(prev => prev + '\n## Subheading\n')}
-                className="p-2 rounded hover:bg-background transition-colors"
-                title="Subheading"
-              >
-                H2
-              </button>
-              <button
-                type="button"
-                onClick={() => setContent(prev => prev + '\n- Bullet point\n')}
-                className="p-2 rounded hover:bg-background transition-colors"
-                title="Bullet List"
-              >
-                •
-              </button>
-              <button
-                type="button"
-                onClick={() => setContent(prev => prev + '\n1. Numbered item\n')}
-                className="p-2 rounded hover:bg-background transition-colors"
-                title="Numbered List"
-              >
-                1.
-              </button>
+            {/* Toolbar */}
+            <div className="flex flex-wrap gap-2 mb-3 p-2 rounded-lg bg-surface border border-border">
+              <button type="button" onClick={() => insertMarkdown('\n# Heading\n')} className="p-2 rounded hover:bg-background transition-colors font-bold">H1</button>
+              <button type="button" onClick={() => insertMarkdown('\n## Heading\n')} className="p-2 rounded hover:bg-background transition-colors font-bold">H2</button>
+              <button type="button" onClick={() => insertMarkdown('\n### Heading\n')} className="p-2 rounded hover:bg-background transition-colors font-bold">H3</button>
+              <div className="w-px h-6 bg-border mx-1"></div>
+              <button type="button" onClick={() => insertMarkdown('**bold text**')} className="p-2 rounded hover:bg-background transition-colors font-bold">B</button>
+              <button type="button" onClick={() => insertMarkdown('*italic text*')} className="p-2 rounded hover:bg-background transition-colors italic">I</button>
+              <button type="button" onClick={() => insertMarkdown('[link text](url)')} className="p-2 rounded hover:bg-background transition-colors">🔗</button>
+              <div className="w-px h-6 bg-border mx-1"></div>
+              <button type="button" onClick={() => insertMarkdown('\n- Bullet point\n')} className="p-2 rounded hover:bg-background transition-colors">• List</button>
+              <button type="button" onClick={() => insertMarkdown('\n1. Numbered item\n')} className="p-2 rounded hover:bg-background transition-colors">1. List</button>
+              <button type="button" onClick={() => insertMarkdown('\n> Blockquote\n')} className="p-2 rounded hover:bg-background transition-colors">" Quote</button>
+              <div className="w-px h-6 bg-border mx-1"></div>
+              <button type="button" onClick={() => insertMarkdown('\n```\ncode block\n```\n')} className="p-2 rounded hover:bg-background transition-colors">{`<>`}</button>
+              <button type="button" onClick={() => insertMarkdown('\n---\n')} className="p-2 rounded hover:bg-background transition-colors">—</button>
             </div>
-
+            
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              rows={15}
+              rows={20}
               className="w-full px-4 py-3 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary font-mono text-sm"
               placeholder="Write your post in Markdown..."
               required
             />
+            
+            <div className="mt-3 text-xs text-text-muted flex justify-between">
+              <span>Supports Markdown formatting</span>
+              <span>{content.length} characters</span>
+            </div>
           </div>
           
-          <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={published}
-                onChange={(e) => setPublished(e.target.checked)}
-                className="w-4 h-4 rounded border-border text-accent-gold focus:ring-accent-gold/50"
-              />
-              <span className="text-sm text-text-secondary">Publish immediately</span>
-            </label>
-          </div>
-          
-          <div className="flex gap-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Creating...' : 'Create Post'}
-            </button>
-            <Link href="/admin/dashboard" className="px-6 py-3 rounded-lg border border-border text-text-secondary hover:text-accent-gold transition-colors">
-              Cancel
-            </Link>
+          {/* Publish Options */}
+          <div className="glass-card p-6">
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={published}
+                  onChange={(e) => setPublished(e.target.checked)}
+                  className="w-4 h-4 rounded border-border text-accent-gold focus:ring-accent-gold/50"
+                />
+                <span className="text-text-secondary">Publish immediately</span>
+              </label>
+              
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex items-center gap-2 px-6 py-2 bg-accent-gold text-background rounded-lg font-semibold hover:bg-accent-goldLight transition-colors disabled:opacity-50"
+              >
+                {loading ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-background"></div> : <Save size={16} />}
+                {loading ? 'Publishing...' : 'Publish Post'}
+              </button>
+            </div>
           </div>
         </form>
       </div>
+      
+      {/* YouTube Modal */}
+      {showYouTubeModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="glass-card p-6 w-full max-w-md">
+            <h3 className="text-xl font-bold mb-4">Add YouTube Video</h3>
+            <input
+              type="url"
+              value={youtubeUrl}
+              onChange={(e) => setYoutubeUrl(e.target.value)}
+              placeholder="https://youtube.com/watch?v=..."
+              className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none mb-4"
+              autoFocus
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={addYouTubeVideo}
+                className="flex-1 px-4 py-2 bg-accent-gold text-background rounded-lg hover:bg-accent-goldLight transition-colors"
+              >
+                Add
+              </button>
+              <button
+                onClick={() => {
+                  setShowYouTubeModal(false)
+                  setYoutubeUrl('')
+                }}
+                className="flex-1 px-4 py-2 border border-border rounded-lg hover:bg-surface transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+  )
+}
+
+// Star icon component
+function Star(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...props} fill="currentColor" viewBox="0 0 20 20">
+      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+    </svg>
   )
 }
