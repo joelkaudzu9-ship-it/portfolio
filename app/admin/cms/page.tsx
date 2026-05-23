@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Plus, Edit, Trash2, Save, X } from 'lucide-react'
+import { ArrowLeft, Plus, Edit, Trash2, Save, X, Upload, Image as ImageIcon } from 'lucide-react'
 
 const SECTIONS = [
   { id: 'hero', name: 'Hero Section', description: 'Main banner with profile photo' },
@@ -33,6 +33,7 @@ function CMSContent() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<any>(null)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
 
   // Get section from URL on mount
   useEffect(() => {
@@ -57,6 +58,36 @@ function CMSContent() {
       setData([])
     } finally {
       setLoading(false)
+    }
+  }
+
+  const uploadImage = async (file: File) => {
+    setUploading(true)
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      const result = await res.json()
+      return result.url
+    } catch (error) {
+      console.error('Upload error:', error)
+      return null
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    const url = await uploadImage(file)
+    if (url && editing) {
+      setEditing({ ...editing, [field]: url })
     }
   }
 
@@ -132,13 +163,31 @@ function CMSContent() {
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Profile Image URL</label>
-            <input
-              type="text"
-              value={item.profile_image_url || ''}
-              onChange={(e) => onChange('profile_image_url', e.target.value)}
-              placeholder="Cloudinary URL"
-              className="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
-            />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={item.profile_image_url || ''}
+                onChange={(e) => onChange('profile_image_url', e.target.value)}
+                className="flex-1 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                placeholder="Cloudinary URL"
+              />
+              <label className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600">
+                <Upload size={16} />
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) {
+                    const uploadAndSet = async () => {
+                      const url = await uploadImage(file)
+                      if (url) onChange('profile_image_url', url)
+                    }
+                    uploadAndSet()
+                  }
+                }} />
+              </label>
+            </div>
+            {item.profile_image_url && (
+              <img src={item.profile_image_url} alt="Preview" className="mt-2 h-20 rounded-lg object-cover" />
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">CTA Text</label>
@@ -162,13 +211,34 @@ function CMSContent() {
       )
     }
     
-    // Default form for other sections
     return (
       <div className="space-y-4">
         {Object.keys(item).filter(k => !['id', 'created_at', 'updated_at'].includes(k)).map((key) => (
           <div key={key}>
             <label className="block text-sm font-medium mb-1 capitalize">{key.replace(/_/g, ' ')}</label>
-            {typeof item[key] === 'string' && item[key]?.length > 100 ? (
+            {key.includes('image') || key.includes('url') ? (
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={item[key] || ''}
+                  onChange={(e) => onChange(key, e.target.value)}
+                  className="flex-1 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                />
+                <label className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600">
+                  <Upload size={16} />
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) {
+                      const uploadAndSet = async () => {
+                        const url = await uploadImage(file)
+                        if (url) onChange(key, url)
+                      }
+                      uploadAndSet()
+                    }
+                  }} />
+                </label>
+              </div>
+            ) : typeof item[key] === 'string' && item[key]?.length > 100 ? (
               <textarea
                 value={item[key] || ''}
                 onChange={(e) => onChange(key, e.target.value)}
@@ -188,8 +258,6 @@ function CMSContent() {
       </div>
     )
   }
-
-  const currentSection = SECTIONS.find(s => s.id === activeSection)
 
   return (
     <div className="min-h-screen bg-white dark:bg-black">
@@ -230,7 +298,7 @@ function CMSContent() {
           <div className="flex-1">
             <div className="glass-card p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">{currentSection?.name || activeSection}</h2>
+                <h2 className="text-xl font-bold">{SECTIONS.find(s => s.id === activeSection)?.name}</h2>
                 <button
                   onClick={() => setEditing({})}
                   className="flex items-center gap-2 px-3 py-1.5 bg-amber-500 text-white rounded-lg text-sm"
@@ -241,7 +309,28 @@ function CMSContent() {
               
               {loading ? (
                 <div className="text-center py-12 text-gray-500">Loading...</div>
-              ) : data.length === 0 && !editing ? (
+              ) : editing ? (
+                <div>
+                  {renderForm(editing, (field, value) => {
+                    setEditing({ ...editing, [field]: value })
+                  })}
+                  <div className="flex gap-2 mt-4">
+                    <button
+                      onClick={() => handleSave(editing)}
+                      disabled={saving || uploading}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-green-500 text-white rounded-lg text-sm disabled:opacity-50"
+                    >
+                      <Save size={14} /> {saving ? 'Saving...' : uploading ? 'Uploading...' : 'Save'}
+                    </button>
+                    <button
+                      onClick={() => setEditing(null)}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-gray-500 text-white rounded-lg text-sm"
+                    >
+                      <X size={14} /> Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : data.length === 0 ? (
                 <div className="text-center py-12 text-gray-500">
                   No content yet. Click "Add New" to create.
                 </div>
@@ -249,28 +338,7 @@ function CMSContent() {
                 <div className="space-y-4">
                   {data.map((item) => (
                     <div key={item.id} className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                      {editing?.id === item.id ? (
-                        <div>
-                          {renderForm(editing, (field, value) => {
-                            setEditing({ ...editing, [field]: value })
-                          })}
-                          <div className="flex gap-2 mt-4">
-                            <button
-                              onClick={() => handleSave(editing)}
-                              disabled={saving}
-                              className="flex items-center gap-2 px-3 py-1.5 bg-green-500 text-white rounded-lg text-sm"
-                            >
-                              <Save size={14} /> {saving ? 'Saving...' : 'Save'}
-                            </button>
-                            <button
-                              onClick={() => setEditing(null)}
-                              className="flex items-center gap-2 px-3 py-1.5 bg-gray-500 text-white rounded-lg text-sm"
-                            >
-                              <X size={14} /> Cancel
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
+                      {editing?.id === item.id ? null : (
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
                             {Object.entries(item)
