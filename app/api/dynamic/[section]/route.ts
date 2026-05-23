@@ -66,6 +66,38 @@ export async function POST(
   }
   
   const body = await request.json()
+  
+  // Special handling for hero section (single record)
+  if (section === 'hero') {
+    // For hero section, we want to update existing or insert single record
+    const { data: existing } = await supabaseAdmin
+      .from(table)
+      .select('id')
+      .limit(1)
+    
+    if (existing && existing.length > 0) {
+      // Update existing
+      const { data, error } = await supabaseAdmin
+        .from(table)
+        .update(body)
+        .eq('id', existing[0].id)
+        .select()
+      
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json(data?.[0])
+    } else {
+      // Insert new
+      const { data, error } = await supabaseAdmin
+        .from(table)
+        .insert(body)
+        .select()
+      
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json(data?.[0])
+    }
+  }
+  
+  // Default behavior for other sections (allow multiple records)
   const { data, error } = await supabaseAdmin
     .from(table)
     .insert(body)
