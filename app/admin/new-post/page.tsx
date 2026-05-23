@@ -211,10 +211,10 @@ export default function NewPost() {
   }
   
   return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="container-custom">
+    <div className="min-h-screen bg-background py-4 sm:py-8">
+      <div className="container-custom px-4 sm:px-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <Link href="/admin/dashboard" className="inline-flex items-center gap-2 text-accent-gold hover:gap-3 transition-all">
             <ArrowLeft size={18} /> Back to Dashboard
           </Link>
@@ -230,11 +230,11 @@ export default function NewPost() {
           </div>
         </div>
         
-        <h1 className="text-3xl font-bold mb-8 gradient-text-gold">Create New Post</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 gradient-text-gold">Create New Post</h1>
         
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
           {/* Title Section */}
-          <div className="glass-card p-6">
+          <div className="glass-card p-4 sm:p-6">
             <label className="block text-sm font-medium mb-2 text-text-secondary">Title</label>
             <input
               type="text"
@@ -244,7 +244,7 @@ export default function NewPost() {
                 if (!slug) generateSlug()
               }}
               onBlur={generateSlug}
-              className="w-full px-4 py-3 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary text-xl"
+              className="w-full px-4 py-3 rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary text-lg sm:text-xl"
               placeholder="Enter post title"
               required
             />
@@ -256,15 +256,15 @@ export default function NewPost() {
           </div>
           
           {/* Featured Image Section */}
-          <div className="glass-card p-6">
+          <div className="glass-card p-4 sm:p-6">
             <h3 className="text-lg font-semibold mb-4">Featured Image</h3>
             {featuredImage ? (
               <div className="relative">
                 {featuredImage.type === 'image' && (
-                  <img src={featuredImage.url} alt="Featured" className="w-full h-64 object-cover rounded-lg" />
+                  <img src={featuredImage.url} alt="Featured" className="w-full h-48 sm:h-64 object-cover rounded-lg" />
                 )}
                 {featuredImage.type === 'youtube' && (
-                  <iframe src={featuredImage.url} className="w-full h-64 rounded-lg" allowFullScreen />
+                  <iframe src={featuredImage.url} className="w-full h-48 sm:h-64 rounded-lg" allowFullScreen />
                 )}
                 <button
                   type="button"
@@ -278,37 +278,37 @@ export default function NewPost() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full h-40 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 hover:border-accent-gold/50 transition-colors"
+                className="w-full h-32 sm:h-40 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 hover:border-accent-gold/50 transition-colors"
               >
-                <ImageIcon size={32} className="text-text-muted" />
-                <span className="text-text-secondary">Click to upload featured image</span>
+                <ImageIcon size={28} className="text-text-muted" />
+                <span className="text-text-secondary text-sm">Click to upload featured image</span>
               </button>
             )}
           </div>
           
           {/* Media Gallery Section */}
-          <div className="glass-card p-6">
-            <div className="flex items-center justify-between mb-4">
+          <div className="glass-card p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
               <h3 className="text-lg font-semibold">Media Gallery</h3>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface border border-border hover:border-accent-gold/30 transition-colors text-sm"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-lg bg-surface border border-border hover:border-accent-gold/30 transition-colors text-xs sm:text-sm"
                 >
                   <Upload size={14} /> Upload Image
                 </button>
                 <button
                   type="button"
                   onClick={() => videoInputRef.current?.click()}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface border border-border hover:border-accent-gold/30 transition-colors text-sm"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-lg bg-surface border border-border hover:border-accent-gold/30 transition-colors text-xs sm:text-sm"
                 >
                   <Video size={14} /> Upload Video
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowYouTubeModal(true)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface border border-border hover:border-accent-gold/30 transition-colors text-sm"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-lg bg-surface border border-border hover:border-accent-gold/30 transition-colors text-xs sm:text-sm"
                 >
                   <Play size={14} /> Add YouTube
                 </button>
@@ -331,24 +331,24 @@ export default function NewPost() {
             />
             
             {uploading && (
-              <div className="text-center py-8">
+              <div className="text-center py-6 sm:py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-gold mx-auto"></div>
-                <p className="text-text-secondary mt-2">Uploading to Cloudinary...</p>
+                <p className="text-text-secondary mt-2 text-sm">Uploading to Cloudinary...</p>
               </div>
             )}
             
             {mediaGallery.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 mt-4">
                 {mediaGallery.map((media, index) => (
                   <div key={index} className="relative group">
                     {media.type === 'image' && (
-                      <img src={media.url} alt="Media" className="w-full h-32 object-cover rounded-lg" />
+                      <img src={media.url} alt="Media" className="w-full h-24 sm:h-32 object-cover rounded-lg" />
                     )}
                     {media.type === 'video' && (
-                      <video src={media.url} className="w-full h-32 object-cover rounded-lg" />
+                      <video src={media.url} className="w-full h-24 sm:h-32 object-cover rounded-lg" />
                     )}
                     {media.type === 'youtube' && (
-                      <img src={`https://img.youtube.com/vi/${media.videoId}/mqdefault.jpg`} alt="YouTube" className="w-full h-32 object-cover rounded-lg" />
+                      <img src={`https://img.youtube.com/vi/${media.videoId}/mqdefault.jpg`} alt="YouTube" className="w-full h-24 sm:h-32 object-cover rounded-lg" />
                     )}
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
                       <button
@@ -375,7 +375,7 @@ export default function NewPost() {
           </div>
           
           {/* Excerpt */}
-          <div className="glass-card p-6">
+          <div className="glass-card p-4 sm:p-6">
             <label className="block text-sm font-medium mb-2 text-text-secondary">Excerpt</label>
             <textarea
               value={excerpt}
@@ -387,25 +387,25 @@ export default function NewPost() {
           </div>
           
           {/* Content Editor */}
-          <div className="glass-card p-6">
+          <div className="glass-card p-4 sm:p-6">
             <label className="block text-sm font-medium mb-2 text-text-secondary">Content</label>
             
-            {/* Toolbar */}
-            <div className="flex flex-wrap gap-2 mb-3 p-2 rounded-lg bg-surface border border-border">
-              <button type="button" onClick={() => insertMarkdown('\n# Heading\n')} className="p-2 rounded hover:bg-background transition-colors font-bold">H1</button>
-              <button type="button" onClick={() => insertMarkdown('\n## Heading\n')} className="p-2 rounded hover:bg-background transition-colors font-bold">H2</button>
-              <button type="button" onClick={() => insertMarkdown('\n### Heading\n')} className="p-2 rounded hover:bg-background transition-colors font-bold">H3</button>
-              <div className="w-px h-6 bg-border mx-1"></div>
-              <button type="button" onClick={() => insertMarkdown('**bold text**')} className="p-2 rounded hover:bg-background transition-colors font-bold">B</button>
-              <button type="button" onClick={() => insertMarkdown('*italic text*')} className="p-2 rounded hover:bg-background transition-colors italic">I</button>
-              <button type="button" onClick={() => insertMarkdown('[link text](url)')} className="p-2 rounded hover:bg-background transition-colors">🔗</button>
-              <div className="w-px h-6 bg-border mx-1"></div>
-              <button type="button" onClick={() => insertMarkdown('\n- Bullet point\n')} className="p-2 rounded hover:bg-background transition-colors">• List</button>
-              <button type="button" onClick={() => insertMarkdown('\n1. Numbered item\n')} className="p-2 rounded hover:bg-background transition-colors">1. List</button>
-              <button type="button" onClick={() => insertMarkdown('\n> Blockquote\n')} className="p-2 rounded hover:bg-background transition-colors">" Quote</button>
-              <div className="w-px h-6 bg-border mx-1"></div>
-              <button type="button" onClick={() => insertMarkdown('\n```\ncode block\n```\n')} className="p-2 rounded hover:bg-background transition-colors">{`<>`}</button>
-              <button type="button" onClick={() => insertMarkdown('\n---\n')} className="p-2 rounded hover:bg-background transition-colors">—</button>
+            {/* Toolbar - Mobile responsive */}
+            <div className="flex flex-wrap gap-1 sm:gap-2 mb-3 p-2 rounded-lg bg-surface border border-border overflow-x-auto">
+              <button type="button" onClick={() => insertMarkdown('\n# Heading\n')} className="px-2 sm:px-3 py-1 sm:py-2 rounded hover:bg-background transition-colors font-bold text-sm sm:text-base">H1</button>
+              <button type="button" onClick={() => insertMarkdown('\n## Heading\n')} className="px-2 sm:px-3 py-1 sm:py-2 rounded hover:bg-background transition-colors font-bold text-sm sm:text-base">H2</button>
+              <button type="button" onClick={() => insertMarkdown('\n### Heading\n')} className="px-2 sm:px-3 py-1 sm:py-2 rounded hover:bg-background transition-colors font-bold text-sm sm:text-base">H3</button>
+              <div className="w-px h-6 bg-border mx-0 sm:mx-1 hidden sm:block"></div>
+              <button type="button" onClick={() => insertMarkdown('**bold text**')} className="px-2 sm:px-3 py-1 sm:py-2 rounded hover:bg-background transition-colors font-bold text-sm sm:text-base">B</button>
+              <button type="button" onClick={() => insertMarkdown('*italic text*')} className="px-2 sm:px-3 py-1 sm:py-2 rounded hover:bg-background transition-colors italic text-sm sm:text-base">I</button>
+              <button type="button" onClick={() => insertMarkdown('[link text](url)')} className="px-2 sm:px-3 py-1 sm:py-2 rounded hover:bg-background transition-colors text-sm sm:text-base">🔗</button>
+              <div className="w-px h-6 bg-border mx-0 sm:mx-1 hidden sm:block"></div>
+              <button type="button" onClick={() => insertMarkdown('\n- Bullet point\n')} className="px-2 sm:px-3 py-1 sm:py-2 rounded hover:bg-background transition-colors text-sm sm:text-base">• List</button>
+              <button type="button" onClick={() => insertMarkdown('\n1. Numbered item\n')} className="px-2 sm:px-3 py-1 sm:py-2 rounded hover:bg-background transition-colors text-sm sm:text-base">1. List</button>
+              <button type="button" onClick={() => insertMarkdown('\n> Blockquote\n')} className="px-2 sm:px-3 py-1 sm:py-2 rounded hover:bg-background transition-colors text-sm sm:text-base">" Quote</button>
+              <div className="w-px h-6 bg-border mx-0 sm:mx-1 hidden sm:block"></div>
+              <button type="button" onClick={() => insertMarkdown('\n```\ncode block\n```\n')} className="px-2 sm:px-3 py-1 sm:py-2 rounded hover:bg-background transition-colors text-sm sm:text-base">{`<>`}</button>
+              <button type="button" onClick={() => insertMarkdown('\n---\n')} className="px-2 sm:px-3 py-1 sm:py-2 rounded hover:bg-background transition-colors text-sm sm:text-base">—</button>
             </div>
             
             <textarea
@@ -423,9 +423,9 @@ export default function NewPost() {
             </div>
           </div>
           
-          {/* Publish Options */}
-          <div className="glass-card p-6">
-            <div className="flex items-center justify-between">
+          {/* Publish Section - Mobile responsive */}
+          <div className="glass-card p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -433,13 +433,13 @@ export default function NewPost() {
                   onChange={(e) => setPublished(e.target.checked)}
                   className="w-4 h-4 rounded border-border text-accent-gold focus:ring-accent-gold/50"
                 />
-                <span className="text-text-secondary">Publish immediately</span>
+                <span className="text-sm text-text-secondary">Publish immediately</span>
               </label>
               
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 px-6 py-2 bg-accent-gold text-background rounded-lg font-semibold hover:bg-accent-goldLight transition-colors disabled:opacity-50"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 sm:px-6 py-2 bg-accent-gold text-background rounded-lg font-semibold hover:bg-accent-goldLight transition-colors disabled:opacity-50"
               >
                 {loading ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-background"></div> : <Save size={16} />}
                 {loading ? 'Publishing...' : 'Publish Post'}
@@ -451,9 +451,9 @@ export default function NewPost() {
       
       {/* YouTube Modal */}
       {showYouTubeModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className="glass-card p-6 w-full max-w-md">
-            <h3 className="text-xl font-bold mb-4">Add YouTube Video</h3>
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="glass-card p-4 sm:p-6 w-full max-w-md">
+            <h3 className="text-lg sm:text-xl font-bold mb-4">Add YouTube Video</h3>
             <input
               type="url"
               value={youtubeUrl}

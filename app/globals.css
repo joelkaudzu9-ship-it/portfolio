@@ -12,7 +12,7 @@
   }
   
   body {
-    @apply bg-background text-text-primary font-body antialiased;
+    @apply bg-background text-text-primary font-body antialiased overflow-x-hidden w-full;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -118,5 +118,32 @@
   
   .delay-2000 {
     animation-delay: 2s;
+  }
+
+  /* Mobile responsive utilities */
+  .responsive-container {
+    @apply w-full px-3 sm:px-4 md:px-6 lg:px-8;
+  }
+  
+  .responsive-text {
+    @apply text-sm sm:text-base;
+  }
+  
+  .responsive-heading {
+    @apply text-xl sm:text-2xl md:text-3xl;
+  }
+  
+  /* Better touch targets on mobile */
+  button, 
+  a,
+  [role="button"] {
+    @apply min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0;
+  }
+  
+  /* Form inputs better on mobile - prevents zoom on iOS */
+  input, 
+  textarea, 
+  select {
+    @apply text-base;
   }
 }

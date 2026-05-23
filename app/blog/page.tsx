@@ -10,6 +10,7 @@ type Post = {
   title: string
   slug: string
   excerpt: string
+  content: string
   published: boolean
   created_at: string
   featured_image: string | null
@@ -77,11 +78,9 @@ export default function BlogPage() {
                       alt={post.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    {/* Dark overlay for text readability on hover */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
                 ) : (
-                  /* Placeholder when no featured image */
                   <div className="h-56 bg-gradient-to-br from-accent-gold/20 to-accent-gold/5 flex items-center justify-center">
                     <span className="text-text-muted text-sm">No image</span>
                   </div>
@@ -107,7 +106,7 @@ export default function BlogPage() {
                     {post.title}
                   </h2>
                   <p className="text-text-secondary line-clamp-3 leading-relaxed">
-                    {post.excerpt || post.content.substring(0, 150).replace(/[#*`]/g, '') + '...'}
+                    {post.excerpt || (post.content ? post.content.substring(0, 150).replace(/[#*`]/g, '') + '...' : '')}
                   </p>
                   <div className="mt-4 text-accent-gold font-medium group-hover:gap-2 inline-flex items-center gap-1 transition-all">
                     Read more <span>→</span>
