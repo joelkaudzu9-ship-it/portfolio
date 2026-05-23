@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 
-function isAdmin() {
-  const cookieStore = cookies()
+async function isAdmin() {
+  const cookieStore = await cookies()
   return cookieStore.get('admin_auth')?.value === 'true'
 }
 
@@ -18,7 +18,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  if (!isAdmin()) {
+  const admin = await isAdmin()
+  if (!admin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   

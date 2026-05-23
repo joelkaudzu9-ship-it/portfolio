@@ -19,16 +19,3 @@ export async function POST(request: Request) {
   
   return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
 }
-
-export async function GET() {
-  const cookieStore = await cookies()
-  const isAdmin = cookieStore.get('admin_auth')?.value === 'true'
-  
-  if (isAdmin) {
-    const response = NextResponse.json({ success: true })
-    response.cookies.delete('admin_auth')
-    return response
-  }
-  
-  return NextResponse.json({ error: 'Not logged in' }, { status: 401 })
-}
