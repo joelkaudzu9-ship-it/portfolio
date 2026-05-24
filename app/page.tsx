@@ -117,7 +117,7 @@ export default function Home() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-amber-500">Loading...</div>
+        <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     )
   }
@@ -145,7 +145,11 @@ export default function Home() {
         </div>
 
         <div className="container-custom text-center relative z-10">
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
             {/* Profile Image */}
             {displayHero.profile_image_url && (
               <div className="flex justify-center mb-8">

@@ -84,6 +84,7 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 }
 
+// Loading spinner component for Suspense fallback
 function LoadingSpinner() {
   return (
     <div className="min-h-screen flex items-center justify-center">
