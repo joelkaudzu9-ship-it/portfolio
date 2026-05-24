@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 import { ArrowRight, Target, Heart, TrendingUp, Users, Globe, Calendar, User, Star } from 'lucide-react'
 
 type HeroData = {
@@ -145,11 +144,7 @@ export default function Home() {
         </div>
 
         <div className="container-custom text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+          <div>
             {/* Profile Image */}
             {displayHero.profile_image_url && (
               <div className="flex justify-center mb-8">
@@ -180,7 +175,7 @@ export default function Home() {
             {/* Rotating Quote */}
             {quotes.length > 0 && (
               <div className="max-w-3xl mx-auto mb-12 p-8 glass-card">
-                <p className="text-lg italic text-gray-700 dark:text-gray-300 animate-fade-in leading-relaxed">
+                <p className="text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed">
                   "{quotes[currentQuote]?.quote}"
                 </p>
               </div>
@@ -194,7 +189,7 @@ export default function Home() {
                 Learn More
               </Link>
             </div>
-          </motion.div>
+          </div>
         </div>
 
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
@@ -208,13 +203,7 @@ export default function Home() {
       {values.length > 0 && (
         <section className="section bg-gray-50/50 dark:bg-gray-950/30">
           <div className="container-custom">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="text-center mb-12"
-            >
+            <div className="text-center mb-12">
               <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">Core Principles</span>
               <h2 className="text-3xl md:text-4xl font-bold mt-2">
                 Values That <span className="gradient-text-gold">Guide Me</span>
@@ -222,24 +211,20 @@ export default function Home() {
               <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mt-4">
                 Principles that shape every project I build and every problem I solve.
               </p>
-            </motion.div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {values.map((value, index) => {
                 const IconComponent = valueIcons[index % valueIcons.length]
                 return (
-                  <motion.div
+                  <div
                     key={value.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    viewport={{ once: true }}
                     className="glass-card-hover p-6"
                   >
                     <IconComponent size={40} className={iconColors[index % iconColors.length]} />
                     <h3 className="text-xl font-bold mb-2 mt-3">{value.title}</h3>
                     <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{value.description}</p>
-                  </motion.div>
+                  </div>
                 )
               })}
             </div>
@@ -250,13 +235,7 @@ export default function Home() {
       {/* Mission Statement */}
       <section className="section">
         <div className="container-custom">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500/5 via-amber-500/10 to-transparent p-8 md:p-12 text-center border border-amber-500/20"
-          >
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500/5 via-amber-500/10 to-transparent p-8 md:p-12 text-center border border-amber-500/20">
             <div className="relative z-10">
               <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">Personal Mission</span>
               <h2 className="text-2xl md:text-3xl font-bold mt-4 mb-6 gradient-text-gold">
@@ -266,7 +245,7 @@ export default function Home() {
                 Technology becomes meaningful when it solves real problems, respects human realities, and remains accessible to ordinary people.
               </p>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -274,28 +253,16 @@ export default function Home() {
       {featuredProjects.length > 0 && (
         <section className="section bg-gray-50/50 dark:bg-gray-950/30">
           <div className="container-custom">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="text-center mb-12"
-            >
+            <div className="text-center mb-12">
               <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">Featured Work</span>
               <h2 className="text-3xl md:text-4xl font-bold mt-2">
                 Featured <span className="gradient-text-gold">Projects</span>
               </h2>
-            </motion.div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredProjects.map((project, index) => (
-                <motion.div
-                  key={project.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                >
+                <div key={project.id}>
                   <Link href={`/projects/${project.slug}`}>
                     <div className="glass-card-hover overflow-hidden h-full">
                       {project.image_url && (
@@ -314,7 +281,7 @@ export default function Home() {
                       </div>
                     </div>
                   </Link>
-                </motion.div>
+                </div>
               ))}
             </div>
 
@@ -331,28 +298,16 @@ export default function Home() {
       {latestPosts.length > 0 && (
         <section className="section">
           <div className="container-custom">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="text-center mb-12"
-            >
+            <div className="text-center mb-12">
               <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">Latest Insights</span>
               <h2 className="text-3xl md:text-4xl font-bold mt-2">
                 From My <span className="gradient-text-gold">Blog</span>
               </h2>
-            </motion.div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {latestPosts.map((post, index) => (
-                <motion.article
-                  key={post.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                >
+                <article key={post.id}>
                   <Link href={`/blog/${post.slug}`}>
                     <div className="glass-card-hover overflow-hidden h-full">
                       {post.featured_image && (
@@ -371,7 +326,7 @@ export default function Home() {
                       </div>
                     </div>
                   </Link>
-                </motion.article>
+                </article>
               ))}
             </div>
 
@@ -388,27 +343,17 @@ export default function Home() {
       {testimonials.length > 0 && (
         <section className="section bg-gray-50/50 dark:bg-gray-950/30">
           <div className="container-custom">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="text-center mb-12"
-            >
+            <div className="text-center mb-12">
               <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">Kind Words</span>
               <h2 className="text-3xl md:text-4xl font-bold mt-2">
                 What People <span className="gradient-text-gold">Say</span>
               </h2>
-            </motion.div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {testimonials.map((testimonial, index) => (
-                <motion.div
+                <div
                   key={testimonial.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
                   className="glass-card p-6"
                 >
                   <Star size={24} className="text-amber-500 mb-3" />
@@ -417,7 +362,7 @@ export default function Home() {
                     <p className="font-semibold">{testimonial.name}</p>
                     {testimonial.role && <p className="text-sm text-gray-500">{testimonial.role}</p>}
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
