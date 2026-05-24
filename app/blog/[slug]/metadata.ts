@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   if (!post) {
     return {
       title: 'Post Not Found | Joel George Kaudzu',
-      description: 'The requested blog post could not be found. Explore other articles about healthcare technology and innovation in Africa.'
+      description: 'The requested blog post could not be found. Explore other articles about healthcare technology and innovation in Africa.',
     }
   }
   
@@ -46,6 +46,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     }
   }
   
+  // If no image found, use default OG image
   if (!featuredImageUrl) {
     featuredImageUrl = 'https://joelkaudzu-portfolio.vercel.app/og-image.jpg'
   }
@@ -53,16 +54,24 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joelkaudzu-portfolio.vercel.app'
   const postUrl = `${siteUrl}/blog/${post.slug}`
   
-  // Better title (50-60 characters)
-  const postTitle = post.title.length > 55 
-    ? post.title.substring(0, 52) + '...'
-    : post.title
-  
-  // Better description (110-160 characters)
-  let description = post.excerpt || post.content.substring(0, 200).replace(/[#*`]/g, '')
-  if (description.length > 155) {
-    description = description.substring(0, 152) + '...'
+  // Optimize title (50-60 characters)
+  let postTitle = post.title
+  if (postTitle.length > 57) {
+    postTitle = postTitle.substring(0, 54) + '...'
   }
+  
+  // Optimize description (110-160 characters)
+  let description = post.excerpt || post.content.substring(0, 200).replace(/[#*`]/g, ' ').replace(/\s+/g, ' ').trim()
+  if (description.length > 157) {
+    description = description.substring(0, 154) + '...'
+  }
+  
+  // If description is too short, add context
+  if (description.length < 110) {
+    description = `${description} Read more about healthcare technology and innovation in Africa on Joel George Kaudzu's blog.`
+  }
+  
+  const formattedDate = new Date(post.created_at).toISOString()
   
   return {
     title: `${postTitle} | Joel George Kaudzu`,
@@ -73,14 +82,15 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       url: postUrl,
       siteName: 'Joel George Kaudzu',
       type: 'article',
-      publishedTime: post.created_at,
+      publishedTime: formattedDate,
       authors: ['Joel George Kaudzu'],
+      tags: ['healthcare', 'technology', 'Africa', 'digital health', 'innovation'],
       images: [
         {
           url: featuredImageUrl,
           width: 1200,
           height: 630,
-          alt: `${post.title} - Joel George Kaudzu`,
+          alt: `${post.title} - Joel George Kaudzu Blog`,
         },
       ],
     },
@@ -90,6 +100,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       description: description,
       images: [featuredImageUrl],
       creator: '@joelkaudzu',
+      site: '@joelkaudzu',
+    },
+    alternates: {
+      canonical: postUrl,
     },
   }
 }
