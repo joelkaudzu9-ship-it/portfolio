@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-
 import { Calendar, User, ArrowLeft, Video, Play, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -74,10 +73,7 @@ export default function BlogPostClient({ initialPost }: { initialPost: Post | nu
           <ArrowLeft size={18} /> Back to Blog
         </Link>
 
-        <motion.article
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <div>
           <div className="mb-8">
             <div className="flex items-center gap-4 text-sm text-text-muted mb-4">
               <span className="flex items-center gap-1">
@@ -198,7 +194,7 @@ export default function BlogPostClient({ initialPost }: { initialPost: Post | nu
             </ReactMarkdown>
             <SocialShare title={post.title} url={`/blog/${post.slug}`} />
           </div>
-        </motion.article>
+        </div>
       </div>
     </div>
   )
