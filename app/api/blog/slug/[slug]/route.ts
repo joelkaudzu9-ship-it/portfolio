@@ -11,11 +11,16 @@ export async function GET(
     .from('blog_posts')
     .select('*')
     .eq('slug', slug)
-    .single()
   
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 404 })
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
   
-  return NextResponse.json(data)
+  // Handle array response
+  if (!data || data.length === 0) {
+    return NextResponse.json({ error: 'Post not found' }, { status: 404 })
+  }
+  
+  // Return the first item (single object)
+  return NextResponse.json(data[0])
 }
