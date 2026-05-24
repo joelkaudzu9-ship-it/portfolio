@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useEffect } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import Script from 'next/script'
@@ -11,7 +12,7 @@ declare global {
   }
 }
 
-export function GoogleAnalytics() {
+function GoogleAnalyticsContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
@@ -27,11 +28,7 @@ export function GoogleAnalytics() {
       }
     }
 
-    // Track initial page view
     handleRouteChange(pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : ''))
-
-    // Listen for route changes
-    // Note: In Next.js App Router, this effect runs on each route change
   }, [pathname, searchParams, GA_MEASUREMENT_ID])
 
   if (!GA_MEASUREMENT_ID) {
@@ -59,5 +56,13 @@ export function GoogleAnalytics() {
         }}
       />
     </>
+  )
+}
+
+export function GoogleAnalytics() {
+  return (
+    <Suspense fallback={null}>
+      <GoogleAnalyticsContent />
+    </Suspense>
   )
 }
