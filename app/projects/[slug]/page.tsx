@@ -6,7 +6,8 @@ import Link from 'next/link'
 import { ArrowLeft, Calendar, Code, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { PageLoader } from '@/components/PageLoader'
+import { ProjectDetailSkeleton } from '@/components/skeletons/ProjectDetailSkeleton'
+
 type Project = {
   id: number
   title: string
@@ -59,7 +60,7 @@ export default function SingleProjectPage() {
   }
 
   if (loading) {
-    return <PageLoader />
+    return <ProjectDetailSkeleton />
   }
 
   if (!project) {
@@ -118,6 +119,7 @@ export default function SingleProjectPage() {
               <img 
                 src={project.image_url} 
                 alt={project.title}
+                loading="eager"
                 className="w-full h-auto"
               />
             </div>
@@ -130,6 +132,7 @@ export default function SingleProjectPage() {
                   <img 
                     src={allImages[galleryIndex]} 
                     alt={`${project.title} - Image ${galleryIndex + 1}`}
+                    loading="lazy"
                     className="w-full h-auto max-h-[500px] object-contain"
                   />
                 </div>
@@ -139,12 +142,14 @@ export default function SingleProjectPage() {
                     <button
                       onClick={prevImage}
                       className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                      aria-label="Previous image"
                     >
                       <ChevronLeft size={24} className="text-white" />
                     </button>
                     <button
                       onClick={nextImage}
                       className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                      aria-label="Next image"
                     >
                       <ChevronRight size={24} className="text-white" />
                     </button>
@@ -163,6 +168,7 @@ export default function SingleProjectPage() {
                           ? 'w-6 h-2 bg-amber-500 rounded-full' 
                           : 'w-2 h-2 bg-gray-600 rounded-full hover:bg-gray-500'
                       }`}
+                      aria-label={`Go to image ${idx + 1}`}
                     />
                   ))}
                 </div>
