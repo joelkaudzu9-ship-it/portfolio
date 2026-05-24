@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { PageLoader } from '@/components/PageLoader'
 import Link from 'next/link'
 import { ArrowRight, Target, Heart, TrendingUp, Users, Globe, Calendar, User, Star } from 'lucide-react'
 
@@ -108,11 +109,7 @@ export default function Home() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-      </div>
-    )
+    return <PageLoader />
   }
 
   const displayHero = hero || {

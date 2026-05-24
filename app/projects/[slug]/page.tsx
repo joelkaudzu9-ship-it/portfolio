@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, Calendar, Code, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-
+import { PageLoader } from '@/components/PageLoader'
 type Project = {
   id: number
   title: string
@@ -59,11 +59,7 @@ export default function SingleProjectPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-      </div>
-    )
+    return <PageLoader />
   }
 
   if (!project) {

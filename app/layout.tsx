@@ -6,7 +6,8 @@ import './globals.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
-import { ScrollReset } from '@/components/ScrollReset'  // Add this import
+import { ScrollReset } from '@/components/ScrollReset'
+import { PageLoader } from '@/components/PageLoader'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
     default: 'Joel George Kaudzu | Healthcare Systems Builder | MoyoWanga Creator',
     template: '%s | Joel George Kaudzu'
   },
-  description: 'Dental Surgery Student at KUHeS building healthcare technology for Africa. Creator of MoyoWanga — multilingual chronic disease support for low-resource environments. Explore my journey in digital health innovation.',
+  description: 'Dental Surgery Student at KUHeS building healthcare technology for Africa. Creator of MoyoWanga — multilingual chronic disease support for low-resource environments.',
   keywords: ['healthcare', 'technology', 'Africa', 'innovation', 'digital health', 'Malawi', 'dental surgery', 'MoyoWanga', 'healthtech', 'telemedicine', 'AI healthcare'],
   authors: [{ name: 'Joel George Kaudzu', url: 'https://joelkaudzu-portfolio.vercel.app' }],
   creator: 'Joel George Kaudzu',
@@ -85,14 +86,6 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 }
 
-function LoadingSpinner() {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-    </div>
-  )
-}
-
 export default function RootLayout({
   children,
 }: {
@@ -106,10 +99,10 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${jetbrains.variable} font-sans antialiased`}>
         <ThemeProvider>
-          <ScrollReset />  {/* Add this line */}
+          <ScrollReset />
           <Navigation />
           <main className="min-h-screen-dynamic pt-16">
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense fallback={<PageLoader />}>
               {children}
             </Suspense>
           </main>

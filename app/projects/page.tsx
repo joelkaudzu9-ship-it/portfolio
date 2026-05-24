@@ -1,5 +1,5 @@
 'use client'
-
+import { PageLoader } from '@/components/PageLoader'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowRight, Calendar, Code, ExternalLink } from 'lucide-react'
@@ -54,11 +54,7 @@ export default function ProjectsPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-      </div>
-    )
+    return <PageLoader />
   }
 
   return (
