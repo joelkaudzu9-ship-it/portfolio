@@ -10,8 +10,8 @@ export default async function Image({ params }: { params: { slug: string } }) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joelkaudzu-portfolio.vercel.app'
   
   try {
-    const response = await fetch(`${baseUrl}/api/blog/slug/${slug}`)
-    const post = await response.json()
+    const res = await fetch(`${baseUrl}/api/blog/slug/${slug}`)
+    const post = await res.json()
     
     let imageUrl = post.featured_image
     
