@@ -4,4 +4,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/
 Disallow: /_next/
-Sitemap: https://joelkaudzu.netlify.app/sitemap.xml
+Sitemap: https://joelkaudzu-portfolio.vercel.app/sitemap.xml

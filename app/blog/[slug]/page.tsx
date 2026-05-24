@@ -282,7 +282,7 @@ export default function BlogPostPage() {
             >
               {post.content}
             </ReactMarkdown>
-            <SocialShare title={post.title} url={`https://joelkaudzu.vercel.app/blog/${post.slug}`} />
+            <SocialShare title={post.title} url={`https://joelkaudzu-portfolio.vercel.app/blog/${post.slug}`} />
           </div>
         </motion.article>
       </div>

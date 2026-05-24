@@ -40,7 +40,7 @@ export async function POST(request: Request) {
           <p>${content.replace(/\n/g, '<br/>')}</p>
           <hr/>
           <p><strong>Action Required:</strong> Approve or reject this testimonial</p>
-          <p><a href="https://joelkaudzu.netlify.app/admin/testimonials">Go to Admin Panel</a></p>
+          <p><a href="https://joelkaudzu-portfolio.vercel.app/admin/testimonials">Go to Admin Panel</a></p>
         `,
       })
     } catch (emailError) {

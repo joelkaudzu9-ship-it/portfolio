@@ -12,7 +12,7 @@ export default function SocialShare({ title, url }: SocialShareProps) {
   const [copied, setCopied] = useState(false)
 
   // Use the current window location or a single base URL
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joelkaudzu.netlify.app'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joelkaudzu-portfolio.vercel.app'
   const fullUrl = `${baseUrl}${url}`
 
   const shareLinks = {

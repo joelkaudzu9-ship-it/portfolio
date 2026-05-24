@@ -37,7 +37,7 @@ export async function POST(request: Request) {
   for (const subscriber of subscribers) {
     try {
       await resend.emails.send({
-        from: 'Joel Kaudzu <newsletter@joelkaudzu.netlify.app>',
+        from: 'Joel Kaudzu <newsletter@joelkaudzu-portfolio.vercel.app>',
         to: [subscriber.email],
         subject: subject,
         html: `
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
             <hr style="border-color: #333; margin: 20px 0;">
             <p style="color: #666; font-size: 12px;">
               You're receiving this because you subscribed to my newsletter.<br>
-              <a href="https://joelkaudzu.netlify.app/api/newsletter/unsubscribe?email=${subscriber.email}" style="color: #D4A017;">Unsubscribe</a>
+              <a href="https://joelkaudzu-portfolio.vercel.app/api/newsletter/unsubscribe?email=${subscriber.email}" style="color: #D4A017;">Unsubscribe</a>
             </p>
           </div>
         `,
