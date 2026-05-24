@@ -1,28 +1,33 @@
-import { supabaseAdmin } from '@/lib/supabase/server'
 import BlogPostClient from './BlogPostClient'
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  // Query without any filters first
-  const { data, error } = await supabaseAdmin
-    .from('blog_posts')
-    .select('*')
-    .eq('slug', params.slug)
+async function getPost(slug: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joelkaudzu-portfolio.vercel.app'
   
-  let initialPost = null
-  
-  if (!error && data && data.length > 0) {
-    initialPost = data[0]
-  }
-  
-  // If no post found, try all posts to debug
-  if (!initialPost) {
-    const { data: allPosts } = await supabaseAdmin
-      .from('blog_posts')
-      .select('slug, title')
-      .limit(5)
+  try {
+    const res = await fetch(`${baseUrl}/api/blog/slug/${slug}`, {
+      cache: 'no-store'
+    })
     
-    console.log('Available slugs:', allPosts)
+    if (!res.ok) {
+      console.error(`API returned ${res.status} for slug: ${slug}`)
+      return null
+    }
+    
+    const data = await res.json()
+    
+    // Handle both array and object responses
+    if (Array.isArray(data)) {
+      return data.length > 0 ? data[0] : null
+    }
+    
+    return data
+  } catch (error) {
+    console.error('Error fetching post:', error)
+    return null
   }
-  
-  return <BlogPostClient initialPost={initialPost} />
+}
+
+export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+  const post = await getPost(params.slug)
+  return <BlogPostClient initialPost={post} />
 }

@@ -1,20 +1,37 @@
 import { Metadata } from 'next'
-import { supabaseAdmin } from '@/lib/supabase/server'
+
+async function getPost(slug: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joelkaudzu-portfolio.vercel.app'
+  
+  try {
+    const res = await fetch(`${baseUrl}/api/blog/slug/${slug}`, {
+      cache: 'force-cache'
+    })
+    
+    if (!res.ok) return null
+    
+    const data = await res.json()
+    
+    // Handle both array and object responses
+    if (Array.isArray(data)) {
+      return data.length > 0 ? data[0] : null
+    }
+    
+    return data
+  } catch {
+    return null
+  }
+}
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const { data, error } = await supabaseAdmin
-    .from('blog_posts')
-    .select('*')
-    .eq('slug', params.slug)
+  const post = await getPost(params.slug)
   
-  if (error || !data || data.length === 0) {
+  if (!post) {
     return {
       title: 'Post Not Found | Joel George Kaudzu',
       description: 'The requested blog post could not be found.',
     }
   }
-  
-  const post = data[0]
   
   let imageUrl = post.featured_image
   
