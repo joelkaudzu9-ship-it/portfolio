@@ -20,18 +20,13 @@ const nextConfig = {
   },
   // Compress responses for faster loading
   compress: true,
-  // Enable React compiler for better performance (if using React 19+)
-  reactCompiler: true,
-  // Reduce initial bundle size
-  swcMinify: true,
-  // Configure for faster page loads
+  // React Compiler is NOT enabled by default - remove or install the package
+  // If you want React Compiler, uncomment the line below AND run:
+  // npm install babel-plugin-react-compiler
+  // reactCompiler: true,
+  // Reduce initial bundle size (swcMinify is deprecated in Next.js 16+)
+  // swcMinify is now enabled by default, no need to specify
   poweredByHeader: false,
-  // Enable turbopack for development (faster refresh)
-  turbopack: {
-    resolveAlias: {
-      // Optional: add aliases if needed
-    },
-  },
 }
 
 export default nextConfig
