@@ -78,11 +78,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#000000' },
-  ],
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({
@@ -99,7 +97,7 @@ export default function RootLayout({
       <body className={`${inter.variable} ${jetbrains.variable} font-sans antialiased`}>
         <ThemeProvider>
           <Navigation />
-          <main className="min-h-screen pt-16">
+          <main className="min-h-screen-dynamic pt-16">
             {children}
           </main>
           <Footer />
