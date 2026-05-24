@@ -8,10 +8,7 @@ async function getPost(slug: string) {
       cache: 'no-store'
     })
     
-    if (!res.ok) {
-      console.error(`API returned ${res.status} for slug: ${slug}`)
-      return null
-    }
+    if (!res.ok) return null
     
     const data = await res.json()
     
@@ -28,6 +25,10 @@ async function getPost(slug: string) {
 }
 
 export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = await getPost(params.slug)
+  // Make sure to await params in Next.js 15+
+  const { slug } = await params
+  
+  const post = await getPost(slug)
+  
   return <BlogPostClient initialPost={post} />
 }
