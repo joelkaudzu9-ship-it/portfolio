@@ -21,6 +21,6 @@ export async function GET(
     return NextResponse.json({ error: 'Post not found' }, { status: 404 })
   }
   
-  // Return the first item (single object)
+  // Return the first item (single object
   return NextResponse.json(data[0])
 }
