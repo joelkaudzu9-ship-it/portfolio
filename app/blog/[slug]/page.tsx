@@ -252,24 +252,32 @@ export default function BlogPostPage() {
                   console.error('Markdown image failed to load:', src)
                   e.currentTarget.src = 'https://placehold.co/800x400/1a1a1a/666?text=Image+Not+Found'
                 }} />,
-                // Video renderer for markdown
-                video: ({ src, controls, className, ...props }) => (
-                  <div className="my-8 rounded-xl overflow-hidden bg-black">
-                    <video 
-                      controls 
-                      preload="metadata"
-                      className="w-full"
-                      {...props}
-                    >
-                      <source src={src} type="video/mp4" />
-                      <source src={src?.replace('.mp4', '.webm')} type="video/webm" />
-                      <p className="p-4 text-center text-text-secondary">
-                        Your browser doesn't support video playback.
-                        <a href={src} download className="text-amber-500 block mt-2">Download video</a>
-                      </p>
-                    </video>
-                  </div>
-                ),
+                video: ({ src, ...props }: any) => {
+                  const videoSrc = typeof src === 'string' ? src : undefined
+                  return (
+                    <div className="my-8 rounded-xl overflow-hidden bg-black">
+                      <video 
+                        controls 
+                        preload="metadata"
+                        className="w-full"
+                        {...props}
+                      >
+                        {videoSrc && (
+                          <>
+                            <source src={videoSrc} type="video/mp4" />
+                            <source src={videoSrc.replace('.mp4', '.webm')} type="video/webm" />
+                          </>
+                        )}
+                        <p className="p-4 text-center text-text-secondary">
+                          Your browser doesn't support video playback.
+                          {videoSrc && (
+                            <a href={videoSrc} download className="text-amber-500 block mt-2">Download video</a>
+                          )}
+                        </p>
+                      </video>
+                    </div>
+                  )
+                },
               }}
             >
               {post.content}
