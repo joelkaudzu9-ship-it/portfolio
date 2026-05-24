@@ -1,48 +1,88 @@
 import { NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase/server'
-import { Resend } from 'resend'
-
-const resend = new Resend(process.env.RESEND_API_KEY)
+import nodemailer from 'nodemailer'
 
 export async function POST(request: Request) {
   try {
     const { name, email, message } = await request.json()
-    
+
     if (!name || !email || !message) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 })
     }
-    
-    // Save to Supabase
-    const { error: dbError } = await supabaseAdmin
-      .from('messages')
-      .insert({ name, email, message, read: false, created_at: new Date() })
-    
-    if (dbError) throw dbError
-    
-    // Send email notification using Resend
-    try {
-      await resend.emails.send({
-        from: 'Contact Form <onboarding@resend.dev>',
-        to: ['joelkaudzu9@gmail.com'],
-        subject: `New Contact Message from ${name}`,
-        html: `
-          <h2>New Contact Form Submission</h2>
+
+    // Create transporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    })
+
+    // Send email to you
+    await transporter.sendMail({
+      from: process.env.GMAIL_USER,
+      to: 'joelkaudzu9@gmail.com',
+      subject: `📬 Portfolio Contact: ${name}`,
+      text: `
+Name: ${name}
+Email: ${email}
+Message:
+${message}
+      `,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2 style="color: #f59e0b;">New Contact Form Submission</h2>
           <p><strong>From:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
           <p><strong>Message:</strong></p>
-          <p>${message.replace(/\n/g, '<br/>')}</p>
-          <hr/>
-          <p><small>View in admin panel: https://joelkaudzu.netlify.app/admin/messages</small></p>
-        `,
-      })
-    } catch (emailError) {
-      console.error('Email send failed:', emailError)
-      // Don't fail the request if email fails - just log it
-    }
-    
+          <div style="background: #f3f4f6; padding: 15px; border-radius: 8px;">
+            ${message.replace(/\n/g, '<br>')}
+          </div>
+          <hr style="margin: 20px 0;">
+          <p style="font-size: 12px; color: #6b7280;">Reply directly to: ${email}</p>
+        </div>
+      `,
+      replyTo: email,
+    })
+
+    // Send auto-reply to the person who contacted you
+    await transporter.sendMail({
+      from: process.env.GMAIL_USER,
+      to: email,
+      subject: 'Thanks for reaching out! - Joel Kaudzu',
+      text: `
+Hi ${name},
+
+Thanks for reaching out! I've received your message and will get back to you within 24-48 hours.
+
+In the meantime, feel free to:
+• Check out my projects: https://joelkaudzu.vercel.app/projects
+• Read my blog: https://joelkaudzu.vercel.app/blog
+• Connect on LinkedIn: https://www.linkedin.com/in/joel-kaudzu
+
+Best regards,
+Joel George Kaudzu
+Healthcare Systems Builder
+      `,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 500px;">
+          <h2 style="color: #f59e0b;">Thanks for reaching out, ${name}!</h2>
+          <p>I've received your message and will get back to you within 24-48 hours.</p>
+          <p>In the meantime, feel free to:</p>
+          <ul>
+            <li><a href="https://joelkaudzu.vercel.app/projects">Check out my projects</a></li>
+            <li><a href="https://joelkaudzu.vercel.app/blog">Read my blog</a></li>
+            <li><a href="https://www.linkedin.com/in/joel-kaudzu">Connect on LinkedIn</a></li>
+          </ul>
+          <hr style="margin: 20px 0;">
+          <p style="font-size: 12px; color: #6b7280;">Best regards,<br><strong>Joel George Kaudzu</strong><br>Healthcare Systems Builder</p>
+        </div>
+      `,
+    })
+
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Contact form error:', error)
     return NextResponse.json({ error: 'Failed to send message' }, { status: 500 })
   }
 }
