@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 import { ArrowRight, Calendar, Code, ExternalLink } from 'lucide-react'
 
 // Remove GitHub import - we'll use text instead
@@ -67,9 +66,9 @@ export default function ProjectsPage() {
   return (
     <div className="min-h-screen py-20">
       <div className="container-custom">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
+         }
+         }
           className="text-center mb-12"
         >
           <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">My Work</span>
@@ -79,7 +78,7 @@ export default function ProjectsPage() {
           <p className="text-text-secondary max-w-2xl mx-auto mt-4">
             Building systems that solve real problems in healthcare, education, and communication
           </p>
-        </motion.div>
+        </div>
 
         <div className="flex flex-wrap justify-center gap-3 mb-12">
           {['all', 'active', 'concept', 'planning', 'experiment'].map((category) => (
@@ -99,11 +98,11 @@ export default function ProjectsPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {filteredProjects.map((project, index) => (
-            <motion.div
+            <div
               key={project.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+             }
+             }
+             }
               className="group"
             >
               <Link href={`/projects/${project.slug}`}>
@@ -193,7 +192,7 @@ export default function ProjectsPage() {
                   </div>
                 </div>
               </Link>
-            </motion.div>
+            </div>
           ))}
         </div>
 

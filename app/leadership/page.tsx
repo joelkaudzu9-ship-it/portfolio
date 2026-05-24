@@ -1,15 +1,14 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { Users, GraduationCap, PenTool, BookOpen, Heart, Calendar } from 'lucide-react'
 
 export default function LeadershipPage() {
   return (
     <div className="min-h-screen py-20">
       <div className="container-custom">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
+         }
+         }
           className="text-center mb-12"
         >
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">
@@ -18,13 +17,13 @@ export default function LeadershipPage() {
           <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Serving others through innovation, mentorship, and community building
           </p>
-        </motion.div>
+        </div>
 
         {/* Innovations Coordinator */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+        <div
+         }
+         }
+         }
           className="mb-8 p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800"
         >
           <div className="flex items-start gap-4">
@@ -37,13 +36,13 @@ export default function LeadershipPage() {
               </p>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Publications Team */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+        <div
+         }
+         }
+         }
           className="mb-8 p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800"
         >
           <div className="flex items-start gap-4">
@@ -56,13 +55,13 @@ export default function LeadershipPage() {
               </p>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Teaching Experience */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+        <div
+         }
+         }
+         }
           className="mb-8 p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800"
         >
           <div className="flex items-start gap-4">
@@ -75,13 +74,13 @@ export default function LeadershipPage() {
               </p>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Peer Support */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+        <div
+         }
+         }
+         }
           className="mb-8 p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800"
         >
           <div className="flex items-start gap-4">
@@ -93,13 +92,13 @@ export default function LeadershipPage() {
               </p>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Conferences */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+        <div
+         }
+         }
+         }
           className="p-6 rounded-2xl bg-gradient-to-r from-teal-500/10 to-amber-500/10"
         >
           <div className="flex items-start gap-4">
@@ -118,7 +117,7 @@ export default function LeadershipPage() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   )

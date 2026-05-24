@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { Heart, Feather, Sparkles } from 'lucide-react'
 
 const poems = [
@@ -32,9 +31,9 @@ export default function PoetryPage() {
     <div className="min-h-screen py-20">
       <div className="container-custom">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
+         }
+         }
           className="text-center mb-16"
         >
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">
@@ -43,16 +42,16 @@ export default function PoetryPage() {
           <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Words that explore healing, faith, identity, and the human experience
           </p>
-        </motion.div>
+        </div>
 
         {/* Poems Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {poems.map((poem, index) => (
-            <motion.div
+            <div
               key={poem.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+             }
+             }
+             }
               onClick={() => setSelectedPoem(poem)}
               className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 cursor-pointer card-hover"
             >
@@ -63,23 +62,23 @@ export default function PoetryPage() {
                 {poem.excerpt}
               </pre>
               <div className="mt-4 text-teal-500 text-sm">Click to read →</div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
         {/* Quote */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
+        <div
+         }
+         }
+         }
+         }
           className="mt-16 p-8 rounded-2xl bg-gradient-to-r from-teal-500/20 to-amber-500/20 text-center"
         >
           <p className="text-xl italic text-gray-700 dark:text-gray-300">
             "Poetry has strengthened my communication, emotional intelligence, storytelling ability, and reflective thinking. 
             Creativity and technical intelligence should coexist, not compete."
           </p>
-        </motion.div>
+        </div>
       </div>
 
       {/* Modal */}
@@ -88,9 +87,9 @@ export default function PoetryPage() {
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
           onClick={() => setSelectedPoem(null)}
         >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
+          <div
+           }
+           }
             className="max-w-lg w-full p-8 rounded-2xl bg-white dark:bg-gray-900 border border-teal-500/30"
             onClick={(e) => e.stopPropagation()}
           >
@@ -106,7 +105,7 @@ export default function PoetryPage() {
             >
               Close
             </button>
-          </motion.div>
+          </div>
         </div>
       )}
     </div>

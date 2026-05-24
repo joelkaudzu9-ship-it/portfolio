@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin, Send } from 'lucide-react'
 
 export default function ContactPage() {
@@ -40,9 +39,9 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen py-20">
       <div className="container-custom">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
+         }
+         }
           className="text-center mb-12"
         >
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">
@@ -51,13 +50,13 @@ export default function ContactPage() {
           <p className="text-text-secondary max-w-2xl mx-auto">
             Have a project idea, collaboration, or just want to connect?
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
           {/* Contact Info */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+          <div
+           }
+           }
             className="space-y-6"
           >
             <div className="glass-card p-6">
@@ -97,12 +96,12 @@ export default function ContactPage() {
                 </a>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Contact Form */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+          <div
+           }
+           }
             className="glass-card p-6"
           >
             {submitted ? (
@@ -164,7 +163,7 @@ export default function ContactPage() {
                 </button>
               </form>
             )}
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>

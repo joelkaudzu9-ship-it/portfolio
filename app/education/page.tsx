@@ -1,27 +1,26 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { GraduationCap, BookOpen, Code, Database, Cloud, PenTool, Brain } from 'lucide-react'
 
 export default function EducationPage() {
   return (
     <div className="min-h-screen py-20">
       <div className="container-custom">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
+         }
+         }
           className="text-center mb-12"
         >
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">
             Education & <span className="gradient-text">Skills</span>
           </h1>
-        </motion.div>
+        </div>
 
         {/* Education */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+        <div
+         }
+         }
+         }
           className="mb-12 p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800"
         >
           <div className="flex items-center gap-3 mb-4">
@@ -38,13 +37,13 @@ export default function EducationPage() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* Technical Skills */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+        <div
+         }
+         }
+         }
           className="mb-12"
         >
           <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Code className="text-teal-500" /> Programming & Software Development</h2>
@@ -55,13 +54,13 @@ export default function EducationPage() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* Infrastructure & Tools */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+        <div
+         }
+         }
+         }
           className="mb-12"
         >
           <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Database className="text-teal-500" /> Infrastructure & Tools</h2>
@@ -72,13 +71,13 @@ export default function EducationPage() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* Design & Creative */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+        <div
+         }
+         }
+         }
           className="mb-12"
         >
           <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><PenTool className="text-teal-500" /> Design & Creative</h2>
@@ -89,13 +88,13 @@ export default function EducationPage() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* Personal Strengths */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+        <div
+         }
+         }
+         }
           className="p-8 rounded-2xl bg-gradient-to-r from-teal-500/10 to-amber-500/10"
         >
           <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Brain className="text-teal-500" /> Personal Strengths</h2>
@@ -111,7 +110,7 @@ export default function EducationPage() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   )

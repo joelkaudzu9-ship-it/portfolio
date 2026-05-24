@@ -1,15 +1,14 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { Heart, Code, Globe, Users, BookOpen, Cpu, Sparkles, Target, Shield, Zap } from 'lucide-react'
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen py-20">
       <div className="container-custom">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
+         }
+         }
           className="text-center mb-12"
         >
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">
@@ -18,13 +17,13 @@ export default function AboutPage() {
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
             Dental Surgery Student • Healthcare Systems Thinker • Digital Health Builder • Innovation Coordinator • Creative Technologist
           </p>
-        </motion.div>
+        </div>
 
         {/* Main Bio */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+        <div
+         }
+         }
+         }
           className="mb-12 p-8 rounded-2xl bg-gradient-to-r from-teal-500/10 to-amber-500/10"
         >
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -33,7 +32,7 @@ export default function AboutPage() {
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
             His work exists at the intersection of healthcare, systems thinking, digital innovation, leadership, community-centered design, software development, creativity, and infrastructure-aware problem solving.
           </p>
-        </motion.div>
+        </div>
 
         {/* Intersection Points */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
@@ -46,10 +45,10 @@ export default function AboutPage() {
         </div>
 
         {/* Long-term Focus */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+        <div
+         }
+         }
+         }
           className="mb-12"
         >
           <h2 className="text-2xl font-bold mb-4">Long-Term Focus</h2>
@@ -68,13 +67,13 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* Professional Profile */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+        <div
+         }
+         }
+         }
           className="mb-12"
         >
           <h2 className="text-2xl font-bold mb-4">Professional Profile</h2>
@@ -111,14 +110,14 @@ export default function AboutPage() {
               </ul>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Philosophy Quote */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
+        <div
+         }
+         }
+         }
+         }
           className="p-8 rounded-2xl bg-gradient-to-r from-teal-500/20 to-amber-500/20 text-center"
         >
           <p className="text-2xl font-bold gradient-text mb-3">
@@ -127,7 +126,7 @@ export default function AboutPage() {
           <p className="text-gray-700 dark:text-gray-300">
             This philosophy has led me to conceptualize and develop multiple systems and platforms focused on practical impact.
           </p>
-        </motion.div>
+        </div>
       </div>
     </div>
   )

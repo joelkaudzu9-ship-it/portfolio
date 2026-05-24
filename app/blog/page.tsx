@@ -3,7 +3,6 @@
 import { Suspense } from 'react'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 import { Calendar, User, Video, Image as ImageIcon, Play } from 'lucide-react'
 import BlogSidebar from '@/components/BlogSidebar'
 
@@ -92,9 +91,9 @@ function BlogContent() {
   return (
     <div className="min-h-screen py-20">
       <div className="container-custom">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
+         }
+         }
           className="text-center mb-12"
         >
           <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">Insights</span>
@@ -130,7 +129,7 @@ function BlogContent() {
               </button>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Main Content Area with Sidebar */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -144,11 +143,11 @@ function BlogContent() {
                 const displayImage = featuredImage || galleryPreview
                 
                 return (
-                  <motion.article
+                  <article
                     key={post.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
+                   }
+                   }
+                   }
                     className="glass-card-hover overflow-hidden relative group"
                   >
                     <Link href={`/blog/${post.slug}`}>
@@ -234,7 +233,7 @@ function BlogContent() {
                         </div>
                       </div>
                     </Link>
-                  </motion.article>
+                  </article>
                 )
               })}
             </div>

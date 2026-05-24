@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { Star, User, Calendar, Send, CheckCircle } from 'lucide-react'
 
 type Testimonial = {
@@ -82,9 +81,9 @@ export default function TestimonialsPage() {
     <div className="min-h-screen py-20">
       <div className="container-custom">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
+         }
+         }
           className="text-center mb-12"
         >
           <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">Kind Words</span>
@@ -94,7 +93,7 @@ export default function TestimonialsPage() {
           <p className="text-text-secondary max-w-2xl mx-auto mt-4">
             Testimonials from colleagues, mentors, and people I've worked with
           </p>
-        </motion.div>
+        </div>
 
         {/* Testimonials Grid */}
         {loading ? (
@@ -104,11 +103,11 @@ export default function TestimonialsPage() {
         ) : testimonials.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
             {testimonials.map((testimonial, index) => (
-              <motion.div
+              <div
                 key={testimonial.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+               }
+               }
+               }
                 className="glass-card p-6"
               >
                 <Star size={24} className="text-amber-500 mb-3" />
@@ -128,7 +127,7 @@ export default function TestimonialsPage() {
                   <Calendar size={12} />
                   {new Date(testimonial.created_at).toLocaleDateString()}
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         ) : (
@@ -138,10 +137,10 @@ export default function TestimonialsPage() {
         )}
 
         {/* Submit Testimonial Form */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+        <div
+         }
+         }
+         }
           className="max-w-2xl mx-auto"
         >
           <div className="glass-card p-6 md:p-8">
@@ -222,7 +221,7 @@ export default function TestimonialsPage() {
               </form>
             )}
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   )

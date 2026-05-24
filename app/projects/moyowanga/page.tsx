@@ -1,6 +1,5 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { ArrowLeft, Check, Globe, Smartphone, Database, Cloud, Shield } from 'lucide-react'
 import Link from 'next/link'
 
@@ -21,9 +20,9 @@ export default function MoyoWangaPage() {
           <ArrowLeft size={18} /> Back to Projects
         </Link>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
+         }
+         }
         >
           <span className="text-accent-gold text-sm font-semibold tracking-wide uppercase">Healthcare Technology Platform</span>
           <h1 className="text-4xl sm:text-5xl font-bold mt-2 mb-4">
@@ -32,13 +31,13 @@ export default function MoyoWangaPage() {
           <p className="text-xl text-text-secondary max-w-3xl mb-8">
             Multilingual Chronic Disease Support Ecosystem for low-resource healthcare environments
           </p>
-        </motion.div>
+        </div>
 
         {/* Problem Statement */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+        <div
+         }
+         }
+         }
           className="mb-8 p-6 rounded-2xl bg-red-500/5 border border-red-500/20"
         >
           <h2 className="text-xl font-bold mb-3 text-red-400">The Problem</h2>
@@ -47,13 +46,13 @@ export default function MoyoWangaPage() {
             follow-up support afterward. This creates medication non-adherence, missed appointments, poor health monitoring, 
             communication barriers, and preventable complications.
           </p>
-        </motion.div>
+        </div>
 
         {/* Solution */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+        <div
+         }
+         }
+         }
           className="mb-12"
         >
           <h2 className="text-2xl font-bold mb-4">The Solution</h2>
@@ -72,13 +71,13 @@ export default function MoyoWangaPage() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* Tech Stack */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+        <div
+         }
+         }
+         }
           className="mb-12 p-6 rounded-2xl bg-gradient-to-r from-accent-gold/5 to-transparent border border-accent-gold/20"
         >
           <h2 className="text-2xl font-bold mb-6 text-center">Technology Stack</h2>
@@ -104,13 +103,13 @@ export default function MoyoWangaPage() {
               <p className="text-xs text-text-muted">Deployment</p>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Multilingual Support */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+        <div
+         }
+         }
+         }
           className="mb-12"
         >
           <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -123,13 +122,13 @@ export default function MoyoWangaPage() {
               </span>
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* Development Challenges */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+        <div
+         }
+         }
+         }
           className="mb-12 p-6 rounded-2xl bg-surface/30 border border-border"
         >
           <h2 className="text-2xl font-bold mb-4">Challenges Overcome</h2>
@@ -140,13 +139,13 @@ export default function MoyoWangaPage() {
             <li className="flex gap-2 text-text-secondary"><span className="text-accent-gold">•</span> Financial limitations</li>
             <li className="flex gap-2 text-text-secondary"><span className="text-accent-gold">•</span> Formal business registration for two-way communication</li>
           </ul>
-        </motion.div>
+        </div>
 
         {/* Long-term Vision */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+        <div
+         }
+         }
+         }
           className="p-8 rounded-2xl bg-gradient-to-r from-accent-gold/10 to-transparent border border-accent-gold/20 text-center"
         >
           <h2 className="text-2xl font-bold mb-3 gradient-text-gold">Long-term Vision</h2>
@@ -154,7 +153,7 @@ export default function MoyoWangaPage() {
             AI-assisted healthcare systems, predictive adherence monitoring, community health analytics, 
             and scalable African healthcare communication infrastructure.
           </p>
-        </motion.div>
+        </div>
       </div>
     </div>
   )

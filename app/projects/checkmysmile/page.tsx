@@ -1,6 +1,5 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { ArrowLeft, Smartphone, Activity, Shield, Target } from 'lucide-react'
 import Link from 'next/link'
 
@@ -12,9 +11,9 @@ export default function CheckMySmilePage() {
           <ArrowLeft size={18} /> Back to Projects
         </Link>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
+         }
+         }
         >
           <span className="text-accent-gold text-sm font-semibold tracking-wide uppercase">Mobile Health Application</span>
           <h1 className="text-4xl sm:text-5xl font-bold mt-2 mb-4">
@@ -23,13 +22,13 @@ export default function CheckMySmilePage() {
           <p className="text-xl text-text-secondary max-w-3xl mb-8">
             Mobile Dental Health Application focused on oral healthcare awareness and preventive dentistry
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
+          <div
+           }
+           }
+           }
           >
             <div className="glass-card p-6 mb-6">
               <h2 className="text-xl font-bold mb-3">Project Overview</h2>
@@ -49,12 +48,12 @@ export default function CheckMySmilePage() {
                 <li>• Explore patient-centered health engagement systems</li>
               </ul>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
+          <div
+           }
+           }
+           }
           >
             <div className="glass-card p-6 mb-6">
               <h2 className="text-xl font-bold mb-3 flex items-center gap-2"><Smartphone className="text-accent-gold" size={20} /> Technologies Used</h2>
@@ -72,7 +71,7 @@ export default function CheckMySmilePage() {
                 The project helped strengthen user-centered thinking, application logic understanding, and mobile health ideation.
               </p>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>

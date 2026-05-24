@@ -1,6 +1,5 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { ArrowLeft, MessageCircle, Zap, Target } from 'lucide-react'
 import Link from 'next/link'
 
@@ -12,9 +11,9 @@ export default function SendMePage() {
           <ArrowLeft size={18} /> Back to Projects
         </Link>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
+         }
+         }
         >
           <span className="text-accent-gold text-sm font-semibold tracking-wide uppercase">Digital Communication Platform</span>
           <h1 className="text-4xl sm:text-5xl font-bold mt-2 mb-4">
@@ -23,13 +22,13 @@ export default function SendMePage() {
           <p className="text-xl text-text-secondary max-w-3xl mb-8">
             Digital Communication & Delivery Platform exploring efficient user interactions
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
+          <div
+           }
+           }
+           }
           >
             <div className="glass-card p-6">
               <h2 className="text-xl font-bold mb-3">Project Overview</h2>
@@ -39,12 +38,12 @@ export default function SendMePage() {
                 experimentation with software systems, interface concepts, and communication infrastructure.
               </p>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
+          <div
+           }
+           }
+           }
           >
             <div className="glass-card p-6">
               <h2 className="text-xl font-bold mb-3 flex items-center gap-2"><Target className="text-accent-gold" size={20} /> Focus Areas</h2>
@@ -55,7 +54,7 @@ export default function SendMePage() {
                 <li>• Practical user interactions</li>
               </ul>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>
