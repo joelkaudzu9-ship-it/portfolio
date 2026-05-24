@@ -1,18 +1,25 @@
-import Link from 'next/link'
-//www
+// app/not-found.tsx - ✅ Fixed version
+'use client';
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+
+// Isolate the part that uses useSearchParams
+function NotFoundContent() {
+  const searchParams = useSearchParams();
+  
+  return (
+    <div>
+      <h1>404 - Page Not Found</h1>
+      {/* Your 404 page content */}
+    </div>
+  );
+}
+
+// The main page component wraps the client component in Suspense
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex items-center justify-center py-20">
-      <div className="container-custom text-center">
-        <h1 className="text-6xl font-bold gradient-text-gold mb-4">404</h1>
-        <h2 className="text-2xl font-semibold mb-4">Page Not Found</h2>
-        <p className="text-text-secondary mb-8">
-          The page you&apos;re looking for doesn&apos;t exist or has been moved.
-        </p>
-        <Link href="/" className="btn-primary inline-block">
-          Return Home
-        </Link>
-      </div>
-    </div>
-  )
+    <Suspense fallback={<div>Loading...</div>}>
+      <NotFoundContent />
+    </Suspense>
+  );
 }

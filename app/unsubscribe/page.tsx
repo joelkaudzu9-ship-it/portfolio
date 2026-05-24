@@ -1,13 +1,16 @@
-'use client'
+// app/unsubscribe/page.tsx
+'use client';
 
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { CheckCircle, XCircle } from 'lucide-react'
+import { Suspense } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { CheckCircle, XCircle } from 'lucide-react';
 
-export default function UnsubscribePage() {
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
-  const searchParams = useSearchParams()
-  const email = searchParams?.get('email')
+// Create a separate component that uses useSearchParams
+function UnsubscribeContent() {
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const searchParams = useSearchParams();
+  const email = searchParams?.get('email');
 
   useEffect(() => {
     if (email) {
@@ -18,13 +21,13 @@ export default function UnsubscribePage() {
       })
         .then(res => res.json())
         .then(data => {
-          setStatus(data.success ? 'success' : 'error')
+          setStatus(data.success ? 'success' : 'error');
         })
-        .catch(() => setStatus('error'))
+        .catch(() => setStatus('error'));
     } else {
-      setStatus('error')
+      setStatus('error');
     }
-  }, [email])
+  }, [email]);
 
   return (
     <div className="min-h-screen flex items-center justify-center py-20">
@@ -58,5 +61,21 @@ export default function UnsubscribePage() {
         </a>
       </div>
     </div>
-  )
+  );
+}
+
+// Main page component with Suspense boundary
+export default function UnsubscribePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center py-20">
+        <div className="glass-card p-8 text-center max-w-md">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto mb-4"></div>
+          <h2 className="text-xl font-bold">Loading...</h2>
+        </div>
+      </div>
+    }>
+      <UnsubscribeContent />
+    </Suspense>
+  );
 }
