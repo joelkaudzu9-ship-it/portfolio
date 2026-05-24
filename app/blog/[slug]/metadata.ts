@@ -30,11 +30,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     }
   }
   
-  // Get featured image URL (prioritize: video thumbnail > featured_image > media_gallery > default)
+  // Get featured image URL - prioritize video thumbnail first
   let featuredImageUrl = ''
   
   if (post.video_id) {
-    // YouTube thumbnail
+    // YouTube maxresdefault thumbnail
     featuredImageUrl = `https://img.youtube.com/vi/${post.video_id}/maxresdefault.jpg`
   } else if (post.featured_image) {
     featuredImageUrl = post.featured_image
@@ -55,14 +55,17 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joelkaudzu-portfolio.vercel.app'
   const postUrl = `${siteUrl}/blog/${post.slug}`
   
+  // Clean description (remove markdown)
+  const cleanDescription = post.excerpt 
+    ? post.excerpt.replace(/[#*`]/g, '') 
+    : post.content.substring(0, 160).replace(/[#*`]/g, '')
+  
   return {
     title: `${post.title} | Joel George Kaudzu`,
-    description: post.excerpt || post.content.substring(0, 160).replace(/[#*`]/g, ''),
-    keywords: [...(post.tags || []), 'healthcare', 'technology', 'Africa', 'digital health'],
-    authors: [{ name: 'Joel George Kaudzu' }],
+    description: cleanDescription,
     openGraph: {
       title: post.title,
-      description: post.excerpt || post.content.substring(0, 160).replace(/[#*`]/g, ''),
+      description: cleanDescription,
       url: postUrl,
       siteName: 'Joel George Kaudzu',
       type: 'article',
@@ -80,7 +83,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     twitter: {
       card: 'summary_large_image',
       title: post.title,
-      description: post.excerpt || post.content.substring(0, 160).replace(/[#*`]/g, ''),
+      description: cleanDescription,
       images: [featuredImageUrl],
       creator: '@joelkaudzu',
     },
