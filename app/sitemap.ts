@@ -4,7 +4,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://joelkaudzu-portfolio.vercel.app'
   
   // Static routes
-  const routes = [
+  const staticRoutes = [
     '',
     '/about',
     '/journey',
@@ -15,8 +15,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/poetry',
     '/systems',
     '/testimonials',
-    '/contact'
-  ].map(route => ({
+    '/contact',
+  ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
@@ -26,11 +26,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch blog posts for dynamic routes
   let blogRoutes: MetadataRoute.Sitemap = []
   try {
-    const postsRes = await fetch(`${baseUrl}/api/blog`, {
+    const response = await fetch(`${baseUrl}/api/blog`, {
       next: { revalidate: 3600 } // Cache for 1 hour
     })
-    if (postsRes.ok) {
-      const posts = await postsRes.json()
+    
+    if (response.ok) {
+      const posts = await response.json()
       blogRoutes = posts
         .filter((post: any) => post.published)
         .map((post: any) => ({
@@ -47,11 +48,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch projects for dynamic routes
   let projectRoutes: MetadataRoute.Sitemap = []
   try {
-    const projectsRes = await fetch(`${baseUrl}/api/projects`, {
-      next: { revalidate: 3600 } // Cache for 1 hour
-    })
-    if (projectsRes.ok) {
-      const projects = await projectsRes.json()
+    const response = await fetch(`${baseUrl}/api/projects`)
+    
+    if (response.ok) {
+      const projects = await response.json()
       projectRoutes = projects.map((project: any) => ({
         url: `${baseUrl}/projects/${project.slug}`,
         lastModified: new Date(project.updated_at || project.created_at),
@@ -63,5 +63,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error fetching projects for sitemap:', error)
   }
   
-  return [...routes, ...blogRoutes, ...projectRoutes]
+  return [...staticRoutes, ...blogRoutes, ...projectRoutes]
 }
