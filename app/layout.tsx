@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { Suspense } from 'react'
 import { Inter, JetBrains_Mono } from 'next/font/google'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import './globals.css'
@@ -83,6 +84,14 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 }
 
+function LoadingSpinner() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
+    </div>
+  )
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -98,7 +107,9 @@ export default function RootLayout({
         <ThemeProvider>
           <Navigation />
           <main className="min-h-screen-dynamic pt-16">
-            {children}
+            <Suspense fallback={<LoadingSpinner />}>
+              {children}
+            </Suspense>
           </main>
           <Footer />
         </ThemeProvider>

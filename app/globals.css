@@ -195,19 +195,3 @@
     }
   }
 
-  /* Mobile-specific adjustments */
-  @media (max-width: 768px) {
-    .glass-card {
-      backdrop-filter: blur(2px); /* Lighter blur on mobile for performance */
-    }
-    
-    /* Reduce motion on mobile */
-    .motion-div,
-    [data-motion] {
-      transform: none !important;
-      opacity: 1 !important;
-      animation: none !important;
-      transition: none !important;
-    }
-  }
-}

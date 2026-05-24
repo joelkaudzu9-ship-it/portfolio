@@ -62,7 +62,7 @@ export default function BlogPostClient({ initialPost }: { initialPost: Post | nu
   if (loading || !post) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-amber-500">Loading...</div>
+        <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     )
   }
