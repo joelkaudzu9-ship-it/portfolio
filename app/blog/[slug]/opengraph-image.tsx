@@ -27,17 +27,9 @@ export default async function Image({ params }: { params: { slug: string } }) {
       imageUrl = `${baseUrl}/og-image.jpg`
     }
     
-    // Return the image directly
     return new ImageResponse(
       (
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            position: 'relative',
-          }}
-        >
+        <div style={{ width: '100%', height: '100%', display: 'flex' }}>
           <img
             src={imageUrl}
             alt={post.title}
@@ -47,28 +39,11 @@ export default async function Image({ params }: { params: { slug: string } }) {
               objectFit: 'cover',
             }}
           />
-          {/* Optional: Add title overlay */}
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              padding: '40px',
-              background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
-              fontSize: 48,
-              fontWeight: 'bold',
-              color: 'white',
-            }}
-          >
-            {post.title}
-          </div>
         </div>
       ),
       size
     )
-  } catch (error) {
-    // Fallback image if something fails
+  } catch {
     return new ImageResponse(
       (
         <div

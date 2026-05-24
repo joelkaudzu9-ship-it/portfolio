@@ -38,8 +38,8 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: 'Joel George Kaudzu | Healthcare Systems Builder | Building Healthcare Technology for Africa',
-    description: 'Discover how I combine dental surgery with technology to build scalable healthcare systems. Creator of MoyoWanga — transforming chronic disease support in low-resource environments.',
+    title: 'Joel George Kaudzu | Healthcare Systems Builder',
+    description: 'Building scalable healthcare systems for Africa. Creator of MoyoWanga — multilingual chronic disease support.',
     url: 'https://joelkaudzu-portfolio.vercel.app',
     siteName: 'Joel George Kaudzu',
     locale: 'en_US',
@@ -49,15 +49,14 @@ export const metadata: Metadata = {
         url: 'https://joelkaudzu-portfolio.vercel.app/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Joel George Kaudzu - Building Healthcare Technology for Africa | Read my story →',
+        alt: 'Joel George Kaudzu - Healthcare Systems Builder',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Joel George Kaudzu | Healthcare Systems Builder',
-    description: 'Dental Surgery Student & Healthcare Tech Builder. Creator of MoyoWanga — multilingual chronic disease support for Africa.',
-    images: ['https://joelkaudzu-portfolio.vercel.app/og-image.jpg'],
+    description: 'Building scalable healthcare systems for Africa.',
     creator: '@joelkaudzu',
   },
   icons: {
@@ -74,9 +73,6 @@ export const metadata: Metadata = {
     },
   },
   category: 'technology',
-  verification: {
-    google: 'your-google-site-verification', // Add your Google Search Console verification code
-  },
 }
 
 export const viewport: Viewport = {
