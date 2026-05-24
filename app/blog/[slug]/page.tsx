@@ -1,34 +1,57 @@
+import { supabaseAdmin } from '@/lib/supabase/server'
 import BlogPostClient from './BlogPostClient'
 
 async function getPost(slug: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joelkaudzu-portfolio.vercel.app'
+  const { data, error } = await supabaseAdmin
+    .from('blog_posts')
+    .select('*')
+    .eq('slug', slug)
   
-  try {
-    const res = await fetch(`${baseUrl}/api/blog/slug/${slug}`, {
-      cache: 'no-store'
-    })
-    
-    if (!res.ok) return null
-    
-    const data = await res.json()
-    
-    // Handle both array and object responses
-    if (Array.isArray(data)) {
-      return data.length > 0 ? data[0] : null
-    }
-    
-    return data
-  } catch (error) {
-    console.error('Error fetching post:', error)
+  if (error || !data || data.length === 0) {
     return null
   }
+  
+  return data[0]
 }
 
 export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  // Make sure to await params in Next.js 15+
   const { slug } = await params
-  
   const post = await getPost(slug)
   
   return <BlogPostClient initialPost={post} />
+}
+
+// Metadata generation directly in the page component
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const { slug } = await params
+  const post = await getPost(slug)
+  
+  if (!post) {
+    return {
+      title: 'Post Not Found',
+    }
+  }
+  
+  const baseUrl = 'https://joelkaudzu-portfolio.vercel.app'
+  const imageUrl = post.featured_image || `${baseUrl}/og-image.jpg`
+  
+  return {
+    title: `${post.title} | Joel George Kaudzu`,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      url: `${baseUrl}/blog/${post.slug}`,
+      images: [imageUrl],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt,
+      images: [imageUrl],
+    },
+    alternates: {
+      canonical: `${baseUrl}/blog/${post.slug}`,
+    },
+  }
 }
