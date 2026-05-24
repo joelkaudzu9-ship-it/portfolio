@@ -144,7 +144,7 @@ export default function BlogPostPage() {
             </div>
           )}
 
-          {/* Media Gallery - Improved version */}
+          {/* Media Gallery */}
           {post.media_gallery && post.media_gallery.length > 0 && !post.video_id && (
             <div className="mb-8">
               <div className="relative">
@@ -179,10 +179,10 @@ export default function BlogPostPage() {
                       controls 
                       className="w-full"
                       preload="metadata"
+                      key={post.media_gallery[galleryIndex].url}
                     >
                       <source src={post.media_gallery[galleryIndex].url} type="video/mp4" />
-                      <source src={post.media_gallery[galleryIndex].url} type="video/webm" />
-                      <source src={post.media_gallery[galleryIndex].url} type="video/ogg" />
+                      <source src={post.media_gallery[galleryIndex].url.replace('.mp4', '.webm')} type="video/webm" />
                       <p className="p-4 text-center text-text-secondary">
                         Your browser doesn't support video playback.
                         <a href={post.media_gallery[galleryIndex].url} download className="text-amber-500 block mt-2">Download video</a>
@@ -209,33 +209,30 @@ export default function BlogPostPage() {
                 )}
               </div>
               
-              {/* Gallery Indicators */}
               {post.media_gallery.length > 1 && (
-                <div className="flex justify-center gap-2 mt-4">
-                  {post.media_gallery.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setGalleryIndex(idx)}
-                      className={`transition-all ${
-                        idx === galleryIndex 
-                          ? 'w-6 h-2 bg-amber-500 rounded-full' 
-                          : 'w-2 h-2 bg-gray-600 rounded-full hover:bg-gray-500'
-                      }`}
-                    />
-                  ))}
-                </div>
-              )}
-              
-              {/* Gallery Image Counter */}
-              {post.media_gallery.length > 1 && (
-                <p className="text-center text-text-muted text-sm mt-3">
-                  {galleryIndex + 1} / {post.media_gallery.length}
-                </p>
+                <>
+                  <div className="flex justify-center gap-2 mt-4">
+                    {post.media_gallery.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setGalleryIndex(idx)}
+                        className={`transition-all ${
+                          idx === galleryIndex 
+                            ? 'w-6 h-2 bg-amber-500 rounded-full' 
+                            : 'w-2 h-2 bg-gray-600 rounded-full hover:bg-gray-500'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-center text-text-muted text-sm mt-3">
+                    {galleryIndex + 1} / {post.media_gallery.length}
+                  </p>
+                </>
               )}
             </div>
           )}
 
-          {/* Content */}
+          {/* Content with ReactMarkdown */}
           <div className="prose prose-invert prose-lg max-w-none">
             <ReactMarkdown 
               remarkPlugins={[remarkGfm]}
@@ -255,12 +252,29 @@ export default function BlogPostPage() {
                   console.error('Markdown image failed to load:', src)
                   e.currentTarget.src = 'https://placehold.co/800x400/1a1a1a/666?text=Image+Not+Found'
                 }} />,
+                // Video renderer for markdown
+                video: ({ src, controls, className, ...props }) => (
+                  <div className="my-8 rounded-xl overflow-hidden bg-black">
+                    <video 
+                      controls 
+                      preload="metadata"
+                      className="w-full"
+                      {...props}
+                    >
+                      <source src={src} type="video/mp4" />
+                      <source src={src?.replace('.mp4', '.webm')} type="video/webm" />
+                      <p className="p-4 text-center text-text-secondary">
+                        Your browser doesn't support video playback.
+                        <a href={src} download className="text-amber-500 block mt-2">Download video</a>
+                      </p>
+                    </video>
+                  </div>
+                ),
               }}
             >
               {post.content}
             </ReactMarkdown>
             <SocialShare title={post.title} url={`https://joelkaudzu.vercel.app/blog/${post.slug}`} />
-
           </div>
         </motion.article>
       </div>
