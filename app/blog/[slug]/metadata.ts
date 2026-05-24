@@ -25,16 +25,15 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   
   if (!post) {
     return {
-      title: 'Post Not Found',
-      description: 'The requested blog post could not be found.'
+      title: 'Post Not Found | Joel George Kaudzu',
+      description: 'The requested blog post could not be found. Explore other articles about healthcare technology and innovation in Africa.'
     }
   }
   
-  // Get featured image URL - prioritize video thumbnail first
+  // Get featured image URL
   let featuredImageUrl = ''
   
   if (post.video_id) {
-    // YouTube maxresdefault thumbnail
     featuredImageUrl = `https://img.youtube.com/vi/${post.video_id}/maxresdefault.jpg`
   } else if (post.featured_image) {
     featuredImageUrl = post.featured_image
@@ -47,7 +46,6 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     }
   }
   
-  // If no image found, use default OG image
   if (!featuredImageUrl) {
     featuredImageUrl = 'https://joelkaudzu-portfolio.vercel.app/og-image.jpg'
   }
@@ -55,17 +53,23 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joelkaudzu-portfolio.vercel.app'
   const postUrl = `${siteUrl}/blog/${post.slug}`
   
-  // Clean description (remove markdown)
-  const cleanDescription = post.excerpt 
-    ? post.excerpt.replace(/[#*`]/g, '') 
-    : post.content.substring(0, 160).replace(/[#*`]/g, '')
+  // Better title (50-60 characters)
+  const postTitle = post.title.length > 55 
+    ? post.title.substring(0, 52) + '...'
+    : post.title
+  
+  // Better description (110-160 characters)
+  let description = post.excerpt || post.content.substring(0, 200).replace(/[#*`]/g, '')
+  if (description.length > 155) {
+    description = description.substring(0, 152) + '...'
+  }
   
   return {
-    title: `${post.title} | Joel George Kaudzu`,
-    description: cleanDescription,
+    title: `${postTitle} | Joel George Kaudzu`,
+    description: description,
     openGraph: {
-      title: post.title,
-      description: cleanDescription,
+      title: postTitle,
+      description: description,
       url: postUrl,
       siteName: 'Joel George Kaudzu',
       type: 'article',
@@ -76,14 +80,14 @@ export async function generateMetadata({ params }: { params: { slug: string } })
           url: featuredImageUrl,
           width: 1200,
           height: 630,
-          alt: post.title,
+          alt: `${post.title} - Joel George Kaudzu`,
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.title,
-      description: cleanDescription,
+      title: postTitle,
+      description: description,
       images: [featuredImageUrl],
       creator: '@joelkaudzu',
     },
