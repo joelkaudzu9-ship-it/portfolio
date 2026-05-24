@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -26,7 +27,7 @@ type Post = {
   media_gallery: MediaItem[]
 }
 
-export default function BlogPage() {
+function BlogContent() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest')
@@ -252,5 +253,13 @@ export default function BlogPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function BlogPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading blog...</div>}>
+      <BlogContent />
+    </Suspense>
   )
 }
