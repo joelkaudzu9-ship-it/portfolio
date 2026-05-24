@@ -2,6 +2,94 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/server'
 import nodemailer from 'nodemailer'
 
+// Create email transporter
+const createTransporter = () => {
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
+    },
+  })
+}
+
+// Send welcome email to subscriber
+async function sendWelcomeEmail(email: string) {
+  const transporter = createTransporter()
+  
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Welcome to my newsletter!</title>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e5e7eb; border-top: none; }
+        .btn { display: inline-block; background: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin-top: 20px; }
+        .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #9ca3af; }
+        h1 { margin: 0; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Welcome! 👋</h1>
+        </div>
+        <div class="content">
+          <p>Thanks for subscribing to my newsletter!</p>
+          <p>You'll receive updates about:</p>
+          <ul>
+            <li>🔬 Healthcare tech innovations in Africa</li>
+            <li>💡 Frugal engineering insights</li>
+            <li>📝 New blog posts and projects</li>
+            <li>🌍 Opportunities in digital health</li>
+          </ul>
+          <p>I send emails occasionally (no spam, I promise!), and you can unsubscribe anytime.</p>
+          <a href="https://joelkaudzu-portfolio.vercel.app/blog" class="btn">Explore my blog →</a>
+          <p style="margin-top: 30px;">Best regards,<br><strong>Joel George Kaudzu</strong><br>Healthcare Systems Builder</p>
+        </div>
+        <div class="footer">
+          <p>You received this email because you subscribed to my newsletter.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+
+  await transporter.sendMail({
+    from: `"Joel Kaudzu" <${process.env.GMAIL_USER}>`,
+    to: email,
+    subject: 'Welcome to my newsletter! 🚀',
+    text: `Thanks for subscribing! You'll receive updates about healthcare tech, frugal innovation, and new blog posts. Best regards, Joel George Kaudzu`,
+    html: htmlContent,
+  })
+}
+
+// Send notification to admin
+async function sendAdminNotification(email: string) {
+  const transporter = createTransporter()
+  
+  await transporter.sendMail({
+    from: `"Newsletter" <${process.env.GMAIL_USER}>`,
+    to: process.env.GMAIL_USER,
+    subject: '📧 New Newsletter Subscriber!',
+    text: `New subscriber!\n\nEmail: ${email}\nTime: ${new Date().toLocaleString()}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2 style="color: #f59e0b;">📧 New Newsletter Subscriber!</h2>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+        <hr>
+        <p><a href="https://joelkaudzu-portfolio.vercel.app/admin/newsletter">View all subscribers →</a></p>
+      </div>
+    `,
+  })
+}
+
 export async function POST(request: Request) {
   try {
     const { email } = await request.json()
@@ -35,84 +123,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to subscribe' }, { status: 500 })
     }
 
-    // Create transporter
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD,
-      },
+    // Send emails (don't await - let them run in background)
+    Promise.all([
+      sendWelcomeEmail(email).catch(console.error),
+      sendAdminNotification(email).catch(console.error),
+    ])
+
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Successfully subscribed! Check your email for a welcome message.' 
     })
-
-    // Send welcome email to subscriber
-    await transporter.sendMail({
-      from: process.env.GMAIL_USER,
-      to: email,
-      subject: 'Welcome to my newsletter! 🚀',
-      text: `
-Welcome to my newsletter!
-
-Thanks for subscribing! You'll receive updates about:
-• Healthcare tech innovations in Africa
-• Frugal engineering insights
-• New blog posts and projects
-• Opportunities in digital health
-
-I send emails occasionally (no spam, I promise!), and you can unsubscribe anytime.
-
-Best regards,
-Joel George Kaudzu
-Healthcare Systems Builder
-
-P.S. Check out my latest projects: https://joelkaudzu.vercel.app/projects
-      `,
-      html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 500px;">
-          <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0;">
-            <h1 style="margin: 0;">Welcome! 👋</h1>
-          </div>
-          <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
-            <p>Thanks for subscribing to my newsletter!</p>
-            <p>You'll receive updates about:</p>
-            <ul>
-              <li>🔬 Healthcare tech innovations in Africa</li>
-              <li>💡 Frugal engineering insights</li>
-              <li>📝 New blog posts and projects</li>
-              <li>🌍 Opportunities in digital health</li>
-            </ul>
-            <p>I send emails occasionally (no spam, I promise!), and you can unsubscribe anytime.</p>
-            <a href="https://joelkaudzu.vercel.app/blog" style="display: inline-block; background: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin-top: 20px;">Explore my blog →</a>
-            <hr style="margin: 20px 0;">
-            <p style="font-size: 12px; color: #6b7280;">Best regards,<br><strong>Joel George Kaudzu</strong><br>Healthcare Systems Builder</p>
-          </div>
-        </div>
-      `,
-    })
-
-    // Send notification to you (admin)
-    await transporter.sendMail({
-      from: process.env.GMAIL_USER,
-      to: 'joelkaudzu9@gmail.com',
-      subject: '📧 New Newsletter Subscriber!',
-      text: `
-New subscriber!
-
-Email: ${email}
-Time: ${new Date().toLocaleString()}
-
-View all subscribers in your admin dashboard.
-      `,
-      html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2 style="color: #f59e0b;">📧 New Newsletter Subscriber!</h2>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
-          <a href="https://joelkaudzu.vercel.app/admin/newsletter" style="background: #f59e0b; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">View all subscribers →</a>
-        </div>
-      `,
-    })
-
-    return NextResponse.json({ success: true, message: 'Subscribed successfully! Check your email for a welcome message.' })
   } catch (error) {
     console.error('Newsletter error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

@@ -31,7 +31,7 @@ export default function Newsletter() {
       
       if (res.ok) {
         setStatus('success')
-        setMessage('Thanks for subscribing! 🎉')
+        setMessage('Thanks for subscribing! Check your email for a welcome message.')
         setEmail('')
         setTimeout(() => {
           setStatus('idle')
@@ -39,10 +39,9 @@ export default function Newsletter() {
         }, 5000)
       } else {
         setStatus('error')
-        setMessage(data.error || 'Something went wrong. Please try again.')
+        setMessage(data.error || 'Something went wrong')
       }
     } catch (error) {
-      console.error('Subscribe error:', error)
       setStatus('error')
       setMessage('Network error. Please try again.')
     }
