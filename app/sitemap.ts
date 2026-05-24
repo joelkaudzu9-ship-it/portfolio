@@ -3,65 +3,23 @@ import { MetadataRoute } from 'next'
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://joelkaudzu-portfolio.vercel.app'
   
-  // Static routes
+  // Static routes - only include pages that actually exist
   const staticRoutes = [
-    '',
-    '/about',
-    '/journey',
-    '/education',
-    '/projects',
-    '/leadership',
-    '/blog',
-    '/poetry',
-    '/systems',
-    '/testimonials',
-    '/contact',
-  ].map((route) => ({
+    { route: '', priority: 1.0 },
+    { route: '/about', priority: 0.8 },
+    { route: '/journey', priority: 0.8 },
+    { route: '/education', priority: 0.8 },
+    { route: '/projects', priority: 0.9 },
+    { route: '/leadership', priority: 0.7 },
+    { route: '/blog', priority: 0.9 },
+    { route: '/testimonials', priority: 0.7 },
+    { route: '/contact', priority: 0.7 },
+  ].map(({ route, priority }) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
-    priority: route === '' ? 1.0 : 0.8,
+    priority: priority,
   }))
   
-  // Fetch blog posts for dynamic routes
-  let blogRoutes: MetadataRoute.Sitemap = []
-  try {
-    const response = await fetch(`${baseUrl}/api/blog`, {
-      next: { revalidate: 3600 } // Cache for 1 hour
-    })
-    
-    if (response.ok) {
-      const posts = await response.json()
-      blogRoutes = posts
-        .filter((post: any) => post.published)
-        .map((post: any) => ({
-          url: `${baseUrl}/blog/${post.slug}`,
-          lastModified: new Date(post.updated_at || post.created_at),
-          changeFrequency: 'monthly' as const,
-          priority: 0.6,
-        }))
-    }
-  } catch (error) {
-    console.error('Error fetching blog posts for sitemap:', error)
-  }
-  
-  // Fetch projects for dynamic routes
-  let projectRoutes: MetadataRoute.Sitemap = []
-  try {
-    const response = await fetch(`${baseUrl}/api/projects`)
-    
-    if (response.ok) {
-      const projects = await response.json()
-      projectRoutes = projects.map((project: any) => ({
-        url: `${baseUrl}/projects/${project.slug}`,
-        lastModified: new Date(project.updated_at || project.created_at),
-        changeFrequency: 'monthly' as const,
-        priority: 0.7,
-      }))
-    }
-  } catch (error) {
-    console.error('Error fetching projects for sitemap:', error)
-  }
-  
-  return [...staticRoutes, ...blogRoutes, ...projectRoutes]
+  return staticRoutes
 }
