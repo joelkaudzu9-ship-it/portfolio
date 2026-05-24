@@ -6,6 +6,7 @@ import './globals.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
+import { ScrollReset } from '@/components/ScrollReset'  // Add this import
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -84,7 +85,6 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 }
 
-// Loading spinner component for Suspense fallback
 function LoadingSpinner() {
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -106,6 +106,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${jetbrains.variable} font-sans antialiased`}>
         <ThemeProvider>
+          <ScrollReset />  {/* Add this line */}
           <Navigation />
           <main className="min-h-screen-dynamic pt-16">
             <Suspense fallback={<LoadingSpinner />}>
