@@ -1,26 +1,20 @@
 import { Metadata } from 'next'
-
-async function getPost(slug: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joelkaudzu-portfolio.vercel.app'
-  
-  try {
-    const res = await fetch(`${baseUrl}/api/blog/slug/${slug}`, { cache: 'force-cache' })
-    if (!res.ok) return null
-    return res.json()
-  } catch {
-    return null
-  }
-}
+import { supabaseAdmin } from '@/lib/supabase/server'
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const post = await getPost(params.slug)
+  const { data, error } = await supabaseAdmin
+    .from('blog_posts')
+    .select('*')
+    .eq('slug', params.slug)
   
-  if (!post) {
+  if (error || !data || data.length === 0) {
     return {
       title: 'Post Not Found | Joel George Kaudzu',
       description: 'The requested blog post could not be found.',
     }
   }
+  
+  const post = data[0]
   
   let imageUrl = post.featured_image
   
@@ -37,14 +31,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const defaultImage = `${siteUrl}/og-image.jpg`
   
   let title = post.title
-  if (title.length > 57) {
-    title = title.substring(0, 54) + '...'
-  }
+  if (title.length > 57) title = title.substring(0, 54) + '...'
   
-  let description = post.excerpt || post.content?.substring(0, 200).replace(/[#*`]/g, ' ').replace(/\s+/g, ' ').trim() || ''
-  if (description.length > 157) {
-    description = description.substring(0, 154) + '...'
-  }
+  let description = post.excerpt || (post.content ? post.content.substring(0, 200).replace(/[#*`]/g, ' ').replace(/\s+/g, ' ').trim() : '')
+  if (description.length > 157) description = description.substring(0, 154) + '...'
   
   return {
     title: `${title} | Joel George Kaudzu`,

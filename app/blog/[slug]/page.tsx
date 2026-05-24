@@ -1,12 +1,17 @@
+import { supabaseAdmin } from '@/lib/supabase/server'
 import BlogPostClient from './BlogPostClient'
 
-async function getPost(slug: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joelkaudzu-portfolio.vercel.app'
-  const res = await fetch(`${baseUrl}/api/blog/slug/${slug}`, { cache: 'no-store' })
-  return res.json()
-}
-
 export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = await getPost(params.slug)
-  return <BlogPostClient initialPost={post} />
+  const { data, error } = await supabaseAdmin
+    .from('blog_posts')
+    .select('*')
+    .eq('slug', params.slug)
+  
+  let initialPost = null
+  
+  if (!error && data && data.length > 0) {
+    initialPost = data[0]
+  }
+  
+  return <BlogPostClient initialPost={initialPost} />
 }
