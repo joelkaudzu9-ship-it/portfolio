@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowRight, Calendar, Code, ExternalLink } from 'lucide-react'
 
-// Remove GitHub import - we'll use text instead
-
 type Project = {
   id: number
   title: string
@@ -58,7 +56,7 @@ export default function ProjectsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-amber-500">Loading projects...</div>
+        <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     )
   }
@@ -66,11 +64,7 @@ export default function ProjectsPage() {
   return (
     <div className="min-h-screen py-20">
       <div className="container-custom">
-        <div
-         }
-         }
-          className="text-center mb-12"
-        >
+        <div className="text-center mb-12">
           <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">My Work</span>
           <h1 className="text-4xl sm:text-5xl font-bold mt-2">
             Featured <span className="gradient-text-gold">Projects</span>
@@ -97,14 +91,8 @@ export default function ProjectsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {filteredProjects.map((project, index) => (
-            <div
-              key={project.id}
-             }
-             }
-             }
-              className="group"
-            >
+          {filteredProjects.map((project) => (
+            <div key={project.id} className="group">
               <Link href={`/projects/${project.slug}`}>
                 <div className="glass-card-hover overflow-hidden h-full flex flex-col">
                   <div className="relative h-56 overflow-hidden bg-gradient-to-br from-amber-500/20 to-amber-500/5">

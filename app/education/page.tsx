@@ -6,28 +6,19 @@ export default function EducationPage() {
   return (
     <div className="min-h-screen py-20">
       <div className="container-custom">
-        <div
-         }
-         }
-          className="text-center mb-12"
-        >
+        <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">
-            Education & <span className="gradient-text">Skills</span>
+            Education & <span className="gradient-text-gold">Skills</span>
           </h1>
         </div>
 
         {/* Education */}
-        <div
-         }
-         }
-         }
-          className="mb-12 p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800"
-        >
+        <div className="mb-12 p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800">
           <div className="flex items-center gap-3 mb-4">
-            <GraduationCap size={32} className="text-teal-500" />
+            <GraduationCap size={32} className="text-amber-500" />
             <div>
               <h2 className="text-2xl font-bold">Kamuzu University of Health Sciences (KUHeS)</h2>
-              <p className="text-teal-500">Bachelor of Dental Surgery (BDS)</p>
+              <p className="text-amber-500">Bachelor of Dental Surgery (BDS)</p>
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
@@ -40,13 +31,8 @@ export default function EducationPage() {
         </div>
 
         {/* Technical Skills */}
-        <div
-         }
-         }
-         }
-          className="mb-12"
-        >
-          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Code className="text-teal-500" /> Programming & Software Development</h2>
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Code className="text-amber-500" /> Programming & Software Development</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {['Python', 'Flask', 'HTML', 'CSS', 'JavaScript', 'MIT App Inventor', 'Front-End Dev', 'API Integration'].map((skill) => (
               <div key={skill} className="p-3 text-center bg-gray-50 dark:bg-gray-900/30 rounded-xl border border-gray-200 dark:border-gray-800">
@@ -57,13 +43,8 @@ export default function EducationPage() {
         </div>
 
         {/* Infrastructure & Tools */}
-        <div
-         }
-         }
-         }
-          className="mb-12"
-        >
-          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Database className="text-teal-500" /> Infrastructure & Tools</h2>
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Database className="text-amber-500" /> Infrastructure & Tools</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {['GitHub', 'VS Code', 'Supabase', 'Render', 'Cloud Deployment', 'API Concepts'].map((tool) => (
               <div key={tool} className="p-3 text-center bg-gray-50 dark:bg-gray-900/30 rounded-xl border border-gray-200 dark:border-gray-800">
@@ -74,13 +55,8 @@ export default function EducationPage() {
         </div>
 
         {/* Design & Creative */}
-        <div
-         }
-         }
-         }
-          className="mb-12"
-        >
-          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><PenTool className="text-teal-500" /> Design & Creative</h2>
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><PenTool className="text-amber-500" /> Design & Creative</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {['Canva', 'CapCut', 'Graphic Design', 'Presentation Design', 'Visual Communication', 'Storytelling'].map((skill) => (
               <div key={skill} className="p-3 text-center bg-gray-50 dark:bg-gray-900/30 rounded-xl border border-gray-200 dark:border-gray-800">
@@ -91,13 +67,8 @@ export default function EducationPage() {
         </div>
 
         {/* Personal Strengths */}
-        <div
-         }
-         }
-         }
-          className="p-8 rounded-2xl bg-gradient-to-r from-teal-500/10 to-amber-500/10"
-        >
-          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Brain className="text-teal-500" /> Personal Strengths</h2>
+        <div className="p-8 rounded-2xl bg-gradient-to-r from-teal-500/10 to-amber-500/10">
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Brain className="text-amber-500" /> Personal Strengths</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {[
               'Strong self-learning ability', 'Interdisciplinary thinking', 'Deep curiosity',
@@ -106,7 +77,7 @@ export default function EducationPage() {
               'Leadership orientation', 'Persistence under uncertainty', 'Systems-oriented thinking'
             ].map((strength) => (
               <div key={strength} className="flex items-center gap-2 text-sm">
-                <span className="text-teal-500">✓</span> {strength}
+                <span className="text-amber-500">✓</span> {strength}
               </div>
             ))}
           </div>

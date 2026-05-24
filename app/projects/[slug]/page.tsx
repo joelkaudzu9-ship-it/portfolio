@@ -3,12 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 import { ArrowLeft, Calendar, Code, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-
-// No GitHub icon import - use text instead
 
 type Project = {
   id: number
@@ -64,7 +61,7 @@ export default function SingleProjectPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-amber-500">Loading...</div>
+        <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     )
   }
@@ -91,10 +88,7 @@ export default function SingleProjectPage() {
           <ArrowLeft size={18} /> Back to Projects
         </Link>
 
-        <motion.article
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <div>
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-4">
               <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${
@@ -225,7 +219,7 @@ export default function SingleProjectPage() {
               )}
             </div>
           )}
-        </motion.article>
+        </div>
       </div>
     </div>
   )

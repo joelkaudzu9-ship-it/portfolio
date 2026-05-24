@@ -76,32 +76,26 @@ export default function Home() {
 
   const fetchAllData = async () => {
     try {
-      // Fetch hero section
       const heroRes = await fetch('/api/dynamic/hero')
       const heroData = await heroRes.json()
       setHero(heroData[0] || null)
 
-      // Fetch core values
       const valuesRes = await fetch('/api/dynamic/values')
       const valuesData = await valuesRes.json()
       setValues(valuesData)
 
-      // Fetch featured quotes
       const quotesRes = await fetch('/api/dynamic/quotes')
       const quotesData = await quotesRes.json()
       setQuotes(quotesData.filter((q: PersonalQuote) => q.is_featured))
 
-      // Fetch featured projects
       const projectsRes = await fetch('/api/projects?featured=true')
       const projectsData = await projectsRes.json()
       setFeaturedProjects(projectsData.filter((p: any) => p.featured).slice(0, 3))
 
-      // Fetch latest blog posts
       const postsRes = await fetch('/api/blog')
       const postsData = await postsRes.json()
       setLatestPosts(postsData.filter((p: any) => p.published).slice(0, 3))
 
-      // Fetch testimonials
       const testimonialsRes = await fetch('/api/dynamic/testimonials')
       const testimonialsData = await testimonialsRes.json()
       setTestimonials(testimonialsData)
@@ -121,7 +115,6 @@ export default function Home() {
     )
   }
 
-  // Default values if no data in CMS
   const displayHero = hero || {
     title: 'Joel George Kaudzu',
     subtitle: 'Dental Surgery Student • Healthcare Systems Thinker • Digital Health Builder',
@@ -145,7 +138,6 @@ export default function Home() {
 
         <div className="container-custom text-center relative z-10">
           <div>
-            {/* Profile Image */}
             {displayHero.profile_image_url && (
               <div className="flex justify-center mb-8">
                 <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-amber-500/30 shadow-xl">
@@ -172,7 +164,6 @@ export default function Home() {
               {displayHero.description}
             </p>
 
-            {/* Rotating Quote */}
             {quotes.length > 0 && (
               <div className="max-w-3xl mx-auto mb-12 p-8 glass-card">
                 <p className="text-lg italic text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -217,10 +208,7 @@ export default function Home() {
               {values.map((value, index) => {
                 const IconComponent = valueIcons[index % valueIcons.length]
                 return (
-                  <div
-                    key={value.id}
-                    className="glass-card-hover p-6"
-                  >
+                  <div key={value.id} className="glass-card-hover p-6">
                     <IconComponent size={40} className={iconColors[index % iconColors.length]} />
                     <h3 className="text-xl font-bold mb-2 mt-3">{value.title}</h3>
                     <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{value.description}</p>
@@ -261,7 +249,7 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredProjects.map((project, index) => (
+              {featuredProjects.map((project) => (
                 <div key={project.id}>
                   <Link href={`/projects/${project.slug}`}>
                     <div className="glass-card-hover overflow-hidden h-full">
@@ -306,7 +294,7 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {latestPosts.map((post, index) => (
+              {latestPosts.map((post) => (
                 <article key={post.id}>
                   <Link href={`/blog/${post.slug}`}>
                     <div className="glass-card-hover overflow-hidden h-full">
@@ -351,11 +339,8 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {testimonials.map((testimonial, index) => (
-                <div
-                  key={testimonial.id}
-                  className="glass-card p-6"
-                >
+              {testimonials.map((testimonial) => (
+                <div key={testimonial.id} className="glass-card p-6">
                   <Star size={24} className="text-amber-500 mb-3" />
                   <p className="text-gray-700 dark:text-gray-300 italic leading-relaxed">"{testimonial.content}"</p>
                   <div className="mt-4">

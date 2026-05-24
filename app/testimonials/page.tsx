@@ -32,7 +32,6 @@ export default function TestimonialsPage() {
     try {
       const res = await fetch('/api/dynamic/testimonials')
       const data = await res.json()
-      // Only show active testimonials
       setTestimonials(data.filter((t: Testimonial) => t.is_active))
     } catch (error) {
       console.error('Error fetching testimonials:', error)
@@ -81,11 +80,7 @@ export default function TestimonialsPage() {
     <div className="min-h-screen py-20">
       <div className="container-custom">
         {/* Header */}
-        <div
-         }
-         }
-          className="text-center mb-12"
-        >
+        <div className="text-center mb-12">
           <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">Kind Words</span>
           <h1 className="text-4xl sm:text-5xl font-bold mt-2">
             What People <span className="gradient-text-gold">Say</span>
@@ -98,16 +93,13 @@ export default function TestimonialsPage() {
         {/* Testimonials Grid */}
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="text-amber-500">Loading testimonials...</div>
+            <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
           </div>
         ) : testimonials.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-            {testimonials.map((testimonial, index) => (
+            {testimonials.map((testimonial) => (
               <div
                 key={testimonial.id}
-               }
-               }
-               }
                 className="glass-card p-6"
               >
                 <Star size={24} className="text-amber-500 mb-3" />
@@ -137,12 +129,7 @@ export default function TestimonialsPage() {
         )}
 
         {/* Submit Testimonial Form */}
-        <div
-         }
-         }
-         }
-          className="max-w-2xl mx-auto"
-        >
+        <div className="max-w-2xl mx-auto">
           <div className="glass-card p-6 md:p-8">
             <h2 className="text-2xl font-bold text-center mb-2 gradient-text-gold">
               Share Your Experience

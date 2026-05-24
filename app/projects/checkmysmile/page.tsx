@@ -7,15 +7,12 @@ export default function CheckMySmilePage() {
   return (
     <div className="min-h-screen py-20">
       <div className="container-custom">
-        <Link href="/projects" className="inline-flex items-center gap-2 text-text-secondary hover:text-accent-gold mb-8 transition-colors">
+        <Link href="/projects" className="inline-flex items-center gap-2 text-text-secondary hover:text-amber-500 mb-8 transition-colors">
           <ArrowLeft size={18} /> Back to Projects
         </Link>
 
-        <div
-         }
-         }
-        >
-          <span className="text-accent-gold text-sm font-semibold tracking-wide uppercase">Mobile Health Application</span>
+        <div>
+          <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">Mobile Health Application</span>
           <h1 className="text-4xl sm:text-5xl font-bold mt-2 mb-4">
             Check<span className="gradient-text-gold">MySmile</span>
           </h1>
@@ -25,11 +22,7 @@ export default function CheckMySmilePage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div
-           }
-           }
-           }
-          >
+          <div>
             <div className="glass-card p-6 mb-6">
               <h2 className="text-xl font-bold mb-3">Project Overview</h2>
               <p className="text-text-secondary leading-relaxed">
@@ -39,7 +32,7 @@ export default function CheckMySmilePage() {
             </div>
 
             <div className="glass-card p-6 mb-6">
-              <h2 className="text-xl font-bold mb-3 flex items-center gap-2"><Target className="text-accent-gold" size={20} /> Project Objectives</h2>
+              <h2 className="text-xl font-bold mb-3 flex items-center gap-2"><Target className="text-amber-500" size={20} /> Project Objectives</h2>
               <ul className="space-y-2 text-text-secondary">
                 <li>• Promote preventive oral healthcare</li>
                 <li>• Encourage dental hygiene awareness</li>
@@ -50,22 +43,18 @@ export default function CheckMySmilePage() {
             </div>
           </div>
 
-          <div
-           }
-           }
-           }
-          >
+          <div>
             <div className="glass-card p-6 mb-6">
-              <h2 className="text-xl font-bold mb-3 flex items-center gap-2"><Smartphone className="text-accent-gold" size={20} /> Technologies Used</h2>
+              <h2 className="text-xl font-bold mb-3 flex items-center gap-2"><Smartphone className="text-amber-500" size={20} /> Technologies Used</h2>
               <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 bg-accent-gold/10 text-accent-gold rounded-full text-sm">MIT App Inventor</span>
-                <span className="px-3 py-1 bg-accent-gold/10 text-accent-gold rounded-full text-sm">Mobile UI Design</span>
-                <span className="px-3 py-1 bg-accent-gold/10 text-accent-gold rounded-full text-sm">Application Architecture</span>
+                <span className="px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full text-sm">MIT App Inventor</span>
+                <span className="px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full text-sm">Mobile UI Design</span>
+                <span className="px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full text-sm">Application Architecture</span>
               </div>
             </div>
 
             <div className="glass-card p-6">
-              <h2 className="text-xl font-bold mb-3 flex items-center gap-2"><Shield className="text-accent-gold" size={20} /> Significance</h2>
+              <h2 className="text-xl font-bold mb-3 flex items-center gap-2"><Shield className="text-amber-500" size={20} /> Significance</h2>
               <p className="text-text-secondary leading-relaxed">
                 CheckMySmile represents my early exploration into merging dentistry, healthcare communication, and digital systems. 
                 The project helped strengthen user-centered thinking, application logic understanding, and mobile health ideation.

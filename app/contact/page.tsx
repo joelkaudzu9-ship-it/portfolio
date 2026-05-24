@@ -39,11 +39,7 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen py-20">
       <div className="container-custom">
-        <div
-         }
-         }
-          className="text-center mb-12"
-        >
+        <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">
             Get In <span className="gradient-text-gold">Touch</span>
           </h1>
@@ -54,11 +50,7 @@ export default function ContactPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
           {/* Contact Info */}
-          <div
-           }
-           }
-            className="space-y-6"
-          >
+          <div className="space-y-6">
             <div className="glass-card p-6">
               <h2 className="text-xl font-bold mb-4">Contact Information</h2>
               <div className="space-y-4">
@@ -99,11 +91,7 @@ export default function ContactPage() {
           </div>
 
           {/* Contact Form */}
-          <div
-           }
-           }
-            className="glass-card p-6"
-          >
+          <div className="glass-card p-6">
             {submitted ? (
               <div className="text-center py-8">
                 <div className="text-5xl mb-4 text-amber-500">✓</div>

@@ -81,7 +81,7 @@ function BlogContent() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-amber-500">Loading...</div>
+        <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     )
   }
@@ -91,11 +91,7 @@ function BlogContent() {
   return (
     <div className="min-h-screen py-20">
       <div className="container-custom">
-        <div
-         }
-         }
-          className="text-center mb-12"
-        >
+        <div className="text-center mb-12">
           <span className="text-amber-500 text-sm font-semibold tracking-wide uppercase">Insights</span>
           <h1 className="text-4xl sm:text-5xl font-bold mt-2">
             My <span className="gradient-text-gold">Blog</span>
@@ -136,20 +132,14 @@ function BlogContent() {
           {/* Blog Posts Grid - 2 columns on large screens */}
           <div className="lg:col-span-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {sortedPosts.map((post, index) => {
+              {sortedPosts.map((post) => {
                 const featuredImage = getFeaturedImage(post)
                 const galleryPreview = getGalleryPreview(post)
                 const mediaType = getMediaType(post)
                 const displayImage = featuredImage || galleryPreview
                 
                 return (
-                  <article
-                    key={post.id}
-                   }
-                   }
-                   }
-                    className="glass-card-hover overflow-hidden relative group"
-                  >
+                  <article key={post.id} className="glass-card-hover overflow-hidden relative group">
                     <Link href={`/blog/${post.slug}`}>
                       {/* Featured Image / Thumbnail */}
                       <div className="relative h-48 overflow-hidden bg-gradient-to-br from-amber-500/20 to-amber-500/5">
