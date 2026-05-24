@@ -1,4 +1,4 @@
-'use client'
+export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
@@ -282,7 +282,12 @@ export default function BlogPostPage() {
             >
               {post.content}
             </ReactMarkdown>
-            <SocialShare title={post.title} url={`https://joelkaudzu-portfolio.vercel.app/blog/${post.slug}`} />
+            
+            {/* Social Share - using relative path instead of full URL */}
+            <SocialShare 
+              title={post.title} 
+              url={`/blog/${post.slug}`}
+            />
           </div>
         </motion.article>
       </div>

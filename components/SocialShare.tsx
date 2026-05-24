@@ -5,15 +5,26 @@ import { useState } from 'react'
 
 interface SocialShareProps {
   title: string
-  url: string
+  url: string  // This should be the path only (e.g., /blog/post-slug)
 }
 
 export default function SocialShare({ title, url }: SocialShareProps) {
   const [copied, setCopied] = useState(false)
 
-  // Use the current window location or a single base URL
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joelkaudzu-portfolio.vercel.app'
-  const fullUrl = `${baseUrl}${url}`
+  // Use the current window location for the base URL
+  const baseUrl = typeof window !== 'undefined' 
+    ? window.location.origin 
+    : 'https://joelkaudzu-portfolio.vercel.app'
+  
+  // Clean the URL - remove any duplicate base URL
+  let cleanUrl = url
+  if (cleanUrl.startsWith('https://')) {
+    // If url already has https, extract just the path
+    const urlObj = new URL(cleanUrl)
+    cleanUrl = urlObj.pathname + urlObj.search
+  }
+  
+  const fullUrl = `${baseUrl}${cleanUrl}`
 
   const shareLinks = {
     twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(fullUrl)}`,
@@ -33,7 +44,6 @@ export default function SocialShare({ title, url }: SocialShareProps) {
     <div className="flex flex-wrap items-center gap-2">
       <span className="text-sm text-text-muted">Share:</span>
       
-      {/* Twitter/X */}
       <a
         href={shareLinks.twitter}
         target="_blank"
@@ -44,7 +54,6 @@ export default function SocialShare({ title, url }: SocialShareProps) {
         <X size={16} />
       </a>
       
-      {/* LinkedIn */}
       <a
         href={shareLinks.linkedin}
         target="_blank"
@@ -57,7 +66,6 @@ export default function SocialShare({ title, url }: SocialShareProps) {
         </svg>
       </a>
       
-      {/* Facebook */}
       <a
         href={shareLinks.facebook}
         target="_blank"
@@ -70,7 +78,6 @@ export default function SocialShare({ title, url }: SocialShareProps) {
         </svg>
       </a>
       
-      {/* WhatsApp */}
       <a
         href={shareLinks.whatsapp}
         target="_blank"
@@ -83,7 +90,6 @@ export default function SocialShare({ title, url }: SocialShareProps) {
         </svg>
       </a>
       
-      {/* Email */}
       <a
         href={shareLinks.email}
         className="p-2 rounded-lg bg-surface border border-border hover:bg-gray-600 hover:text-white hover:border-gray-600 transition-all"
@@ -94,7 +100,6 @@ export default function SocialShare({ title, url }: SocialShareProps) {
         </svg>
       </a>
       
-      {/* Copy Link */}
       <button
         onClick={copyToClipboard}
         className="p-2 rounded-lg bg-surface border border-border hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all"
