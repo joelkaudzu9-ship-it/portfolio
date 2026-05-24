@@ -1,100 +1,86 @@
 'use client'
 
 import { useState } from 'react'
-import { Send, CheckCircle, XCircle, Mail } from 'lucide-react'
+import { Send, Check, AlertCircle } from 'lucide-react'
 
 export default function Newsletter() {
   const [email, setEmail] = useState('')
-  const [name, setName] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
+    
+    if (!email || !email.includes('@')) {
+      setStatus('error')
+      setMessage('Please enter a valid email address')
+      return
+    }
     
     setStatus('loading')
+    setMessage('')
     
     try {
-      const res = await fetch('/api/newsletter/subscribe', {
+      const res = await fetch('/api/newsletter/subscribe', {  // Make sure this matches
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name }),
+        body: JSON.stringify({ email }),
       })
       
       const data = await res.json()
       
       if (res.ok) {
         setStatus('success')
-        setMessage(data.message || 'Thanks for subscribing!')
+        setMessage('Thanks for subscribing!')
         setEmail('')
-        setName('')
+        setTimeout(() => {
+          setStatus('idle')
+          setMessage('')
+        }, 3000)
       } else {
         setStatus('error')
         setMessage(data.error || 'Something went wrong')
       }
-    } catch {
+    } catch (error) {
       setStatus('error')
       setMessage('Network error. Please try again.')
     }
   }
 
   return (
-    <div className="glass-card p-6">
-      <div className="text-center mb-4">
-        <Mail className="w-10 h-10 text-amber-500 mx-auto mb-3" />
-        <h3 className="text-xl font-bold gradient-text-gold">Subscribe to My Newsletter</h3>
-        <p className="text-text-secondary text-sm mt-2">
-          Get updates on my projects, healthcare innovation, and African tech delivered to your inbox.
-        </p>
-      </div>
-      
-      {status === 'success' ? (
-        <div className="text-center py-4">
-          <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-2" />
-          <p className="text-green-500 font-medium">{message}</p>
-          <p className="text-text-muted text-sm mt-2">Check your inbox for a welcome email!</p>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            type="text"
-            placeholder="Your name (optional)"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-amber-500/50 focus:outline-none transition-colors"
-          />
-          <input
-            type="email"
-            placeholder="Email address *"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg bg-surface border border-border focus:border-amber-500/50 focus:outline-none transition-colors"
-            required
-          />
-          <button
-            type="submit"
-            disabled={status === 'loading'}
-            className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            {status === 'loading' ? (
-              'Subscribing...'
-            ) : (
-              <>
-                <Send size={16} /> Subscribe
-              </>
-            )}
-          </button>
-          {status === 'error' && (
-            <div className="flex items-center gap-2 text-red-500 text-sm justify-center">
-              <XCircle size={14} />
-              <span>{message}</span>
-            </div>
+    <div className="w-full">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Your email address"
+          className="flex-1 px-3 py-2 text-sm rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
+          disabled={status === 'loading'}
+        />
+        <button
+          type="submit"
+          disabled={status === 'loading'}
+          className="px-4 py-2 bg-accent-gold text-background rounded-lg text-sm font-medium hover:bg-accent-goldLight transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          {status === 'loading' ? (
+            <div className="animate-spin rounded-full h-4 w-4 border-2 border-background border-t-transparent" />
+          ) : status === 'success' ? (
+            <Check size={16} />
+          ) : (
+            <Send size={16} />
           )}
-          <p className="text-text-muted text-xs text-center">
-            No spam. Unsubscribe anytime.
-          </p>
-        </form>
+          {status === 'loading' ? 'Subscribing...' : 'Subscribe'}
+        </button>
+      </form>
+      
+      {message && (
+        <p className={`text-xs mt-2 flex items-center gap-1 ${
+          status === 'success' ? 'text-green-500' : 'text-red-500'
+        }`}>
+          {status === 'error' && <AlertCircle size={12} />}
+          {message}
+        </p>
       )}
     </div>
   )
