@@ -13,14 +13,20 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   
-  const { data, error } = await supabaseAdmin
-    .from('newsletter')
-    .select('*')
-    .order('subscribed_at', { ascending: false })
-  
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('newsletter_subscribers')
+      .select('*')
+      .order('subscribed_at', { ascending: false })
+    
+    if (error) {
+      console.error('Fetch error:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+    
+    return NextResponse.json(data || [])
+  } catch (error) {
+    console.error('Newsletter fetch error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-  
-  return NextResponse.json(data || [])
 }

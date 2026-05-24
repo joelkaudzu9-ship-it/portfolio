@@ -21,27 +21,28 @@ export default function Newsletter() {
     setMessage('')
     
     try {
-      const res = await fetch('/api/newsletter/subscribe', {  // Make sure this matches
+      const res = await fetch('/api/newsletter/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: email.trim() }),
       })
       
       const data = await res.json()
       
       if (res.ok) {
         setStatus('success')
-        setMessage('Thanks for subscribing!')
+        setMessage('Thanks for subscribing! 🎉')
         setEmail('')
         setTimeout(() => {
           setStatus('idle')
           setMessage('')
-        }, 3000)
+        }, 5000)
       } else {
         setStatus('error')
-        setMessage(data.error || 'Something went wrong')
+        setMessage(data.error || 'Something went wrong. Please try again.')
       }
     } catch (error) {
+      console.error('Subscribe error:', error)
       setStatus('error')
       setMessage('Network error. Please try again.')
     }
