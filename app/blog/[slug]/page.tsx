@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const imageUrl = post.featured_image || `${baseUrl}/og-image.jpg`
   
   return {
-    title: `${post.title} | Joel George Kaudzu`,
+    title: post.title,
     description: post.excerpt,
     openGraph: {
       title: post.title,
