@@ -2,21 +2,92 @@ import { ImageResponse } from 'next/og'
 
 export const runtime = 'edge'
 export const size = { width: 1200, height: 630 }
+export const contentType = 'image/png'
 
 export default async function Image({ params }: { params: { slug: string } }) {
-  // Hardcode a test image from one of your posts to verify it works
-  // Use the Cloudinary image from your post
-  const testImageUrl = 'https://res.cloudinary.com/dfth3jtai/image/upload/v1779628475/portfolio/blog/jrtux8pv4ipvqg1qjekl.jpg'
+  const { slug } = await params
   
-  return new ImageResponse(
-    (
-      <div style={{ width: '100%', height: '100%', display: 'flex' }}>
-        <img 
-          src={testImageUrl} 
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-        />
-      </div>
-    ),
-    size
-  )
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joelkaudzu-portfolio.vercel.app'
+  
+  try {
+    const response = await fetch(`${baseUrl}/api/blog/slug/${slug}`)
+    const post = await response.json()
+    
+    let imageUrl = post.featured_image
+    
+    if (!imageUrl && post.video_id) {
+      imageUrl = `https://img.youtube.com/vi/${post.video_id}/maxresdefault.jpg`
+    }
+    
+    if (!imageUrl && post.media_gallery?.[0]) {
+      imageUrl = post.media_gallery[0].url
+    }
+    
+    if (!imageUrl) {
+      imageUrl = `${baseUrl}/og-image.jpg`
+    }
+    
+    // Return the image directly
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            position: 'relative',
+          }}
+        >
+          <img
+            src={imageUrl}
+            alt={post.title}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+          {/* Optional: Add title overlay */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: '40px',
+              background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
+              fontSize: 48,
+              fontWeight: 'bold',
+              color: 'white',
+            }}
+          >
+            {post.title}
+          </div>
+        </div>
+      ),
+      size
+    )
+  } catch (error) {
+    // Fallback image if something fails
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#1a1a1a',
+            fontSize: 48,
+            fontWeight: 'bold',
+            color: '#f59e0b',
+          }}
+        >
+          Joel Kaudzu
+        </div>
+      ),
+      size
+    )
+  }
 }
