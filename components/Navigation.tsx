@@ -199,25 +199,28 @@ export default function Navigation() {
         />
         
         <div
-          className={`absolute right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-gray-900 shadow-2xl transition-transform duration-300 ease-out ${
+          className={`absolute right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-gray-900 shadow-2xl transition-transform duration-300 ease-out overflow-y-auto ${
             isOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
-          {/* Header */}
-          <div className="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-800">
-            <div>
-              <span className="text-amber-500 font-bold text-xl">Menu</span>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Navigate your way</p>
+          {/* Header - Sticky */}
+          <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+            <div className="flex justify-between items-center p-5">
+              <div>
+                <span className="text-amber-500 font-bold text-xl">Menu</span>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Navigate your way</p>
+              </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              >
+                <X size={20} className="text-gray-900 dark:text-white" />
+              </button>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-            >
-              <X size={20} className="text-gray-900 dark:text-white" />
-            </button>
           </div>
           
-          <div className="flex flex-col p-5 h-[calc(100%-80px)] overflow-y-auto">
+          {/* Scrollable Content */}
+          <div className="flex flex-col p-5 pb-32">
             {/* Theme Toggle - Full width button at top */}
             <button
               onClick={() => toggleTheme()}
@@ -238,11 +241,11 @@ export default function Navigation() {
             </button>
             
             {/* Main Nav Items - 2 COLUMN GRID */}
-            <div className="mb-6">
+            <div className="mb-8">
               <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
                 Main Navigation
               </p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 {mainNavItems.map((item, index) => {
                   const Icon = item.icon
                   const isActive = pathname === item.href
@@ -250,7 +253,7 @@ export default function Navigation() {
                     <button
                       key={item.href}
                       onClick={() => handleLinkClick(item.href)}
-                      className={`flex flex-col items-center gap-2 px-3 py-3 rounded-xl transition-all duration-300 ${
+                      className={`flex flex-col items-center gap-2 px-3 py-4 rounded-xl transition-all duration-300 ${
                         isActive 
                           ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30' 
                           : 'bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
@@ -274,7 +277,7 @@ export default function Navigation() {
               <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
                 Extended Journey
               </p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 {dropdownItems.map((item, index) => {
                   const Icon = item.icon
                   const isActive = pathname === item.href
@@ -282,7 +285,7 @@ export default function Navigation() {
                     <button
                       key={item.href}
                       onClick={() => handleLinkClick(item.href)}
-                      className={`flex flex-col items-center gap-2 px-3 py-3 rounded-xl transition-all duration-300 ${
+                      className={`flex flex-col items-center gap-2 px-3 py-4 rounded-xl transition-all duration-300 ${
                         isActive 
                           ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30' 
                           : 'bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
@@ -302,15 +305,8 @@ export default function Navigation() {
             </div>
           </div>
           
-          {/* Footer */}
-          <div 
-            className="absolute bottom-0 left-0 right-0 p-5 border-t border-gray-200 dark:border-gray-800 text-center bg-white dark:bg-gray-900"
-            style={{
-              transitionDelay: `${(mainNavItems.length + dropdownItems.length + 2) * 50}ms`,
-              transform: isOpen ? 'translateY(0)' : 'translateY(30px)',
-              opacity: isOpen ? 1 : 0,
-            }}
-          >
+          {/* Footer - Sticky at bottom */}
+          <div className="sticky bottom-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-5 text-center">
             <p className="text-gray-600 dark:text-gray-400 text-xs">
               © {new Date().getFullYear()} Joel George Kaudzu
             </p>
