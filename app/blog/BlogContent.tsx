@@ -44,40 +44,48 @@ export default function BlogContent() {
 
   return (
     <>
-      {/* Ultra Compact Header - Directly below nav */}
-      <div className="flex flex-wrap items-end justify-between gap-3 pb-4 mb-6 border-b border-border">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold gradient-text-gold">Blog</h1>
-            <span className="text-text-muted text-xs">insights</span>
+      {/* Refined Header - Cleaner, more premium */}
+      <div className="mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div>
+            <div className="flex items-baseline gap-3">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
+                Blog
+              </h1>
+              <span className="text-xs text-text-muted uppercase tracking-wider hidden sm:inline">Insights</span>
+            </div>
+            <p className="text-text-secondary text-sm mt-2 max-w-lg leading-relaxed">
+              Healthcare technology, frugal innovation & African systems
+            </p>
           </div>
-          <p className="text-text-muted text-xs mt-1 max-w-md">
-            Healthcare tech, frugal innovation & African systems
-          </p>
+          
+          {/* Softer sort buttons */}
+          <div className="flex gap-1.5">
+            <button
+              onClick={() => setSortOrder('newest')}
+              className={`px-3 py-1 rounded-md transition-all text-sm ${
+                sortOrder === 'newest' 
+                  ? 'bg-amber-500/10 text-amber-500 border border-amber-500/30' 
+                  : 'text-text-muted hover:text-text-secondary'
+              }`}
+            >
+              Latest
+            </button>
+            <button
+              onClick={() => setSortOrder('oldest')}
+              className={`px-3 py-1 rounded-md transition-all text-sm ${
+                sortOrder === 'oldest' 
+                  ? 'bg-amber-500/10 text-amber-500 border border-amber-500/30' 
+                  : 'text-text-muted hover:text-text-secondary'
+              }`}
+            >
+              Oldest
+            </button>
+          </div>
         </div>
         
-        <div className="flex gap-2 text-sm">
-          <button
-            onClick={() => setSortOrder('newest')}
-            className={`px-3 py-1 rounded-lg transition-colors text-sm ${
-              sortOrder === 'newest' 
-                ? 'bg-amber-500 text-white' 
-                : 'bg-surface border border-border hover:border-amber-500/30'
-            }`}
-          >
-            Latest
-          </button>
-          <button
-            onClick={() => setSortOrder('oldest')}
-            className={`px-3 py-1 rounded-lg transition-colors text-sm ${
-              sortOrder === 'oldest' 
-                ? 'bg-amber-500 text-white' 
-                : 'bg-surface border border-border hover:border-amber-500/30'
-            }`}
-          >
-            Oldest
-          </button>
-        </div>
+        {/* Subtle divider - optional, adds separation without heaviness */}
+        <div className="h-px bg-gradient-to-r from-border via-border to-transparent mt-5" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
