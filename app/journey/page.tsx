@@ -1,98 +1,174 @@
 'use client'
 
 import { useState } from 'react'
-import { Heart, Feather, Sparkles } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { 
+  Compass, 
+  Brain, 
+  Heart, 
+  Sparkles, 
+  TrendingUp, 
+  Lightbulb,
+  ChevronRight,
+  Quote
+} from 'lucide-react'
 
-const poems = [
+const journeyStages = [
   {
-    title: "The Builder's Prayer",
-    excerpt: "Let my hands build what outlasts me,\nSystems that breathe when I'm asleep.\nLet my failures be foundations,\nNot epitaphs.",
-    theme: "Growth",
-    icon: Sparkles
+    year: "Early Years",
+    title: "The Curious Builder",
+    icon: Compass,
+    description: "Growing up in Malawi, I was naturally drawn to practical, hands-on disciplines—technical drawing, woodwork, metalwork, small circuits, and scientific experiments. Engineering felt like my destined path.",
+    color: "from-amber-500/20 to-transparent"
   },
   {
-    title: "Uncertainty",
-    excerpt: "I have learned to dance with the unknown,\nTo find solid ground in shifting sand.\nFor what is faith but moving forward\nWhen the path is not yet planned?",
-    theme: "Faith",
-    icon: Heart
+    year: "Secondary School",
+    title: "Science Fair & Setbacks",
+    icon: Brain,
+    description: "At Dedza Secondary School, I participated in the Kamuzu National Schools Science Fair in 2022. Despite my passion, I didn't achieve the recognition I hoped for. Combined with academic pressure and personal struggles, this period forced me into deep reflection about identity and purpose.",
+    color: "from-blue-500/20 to-transparent"
   },
   {
-    title: "The Space Between",
-    excerpt: "Between the dream and the waking,\nBetween the wound and the healing,\nThere is a silence where strength is born.\nI am learning to live there.",
-    theme: "Healing",
-    icon: Feather
+    year: "The Wilderness",
+    title: "Uncertainty & Rebuilding",
+    icon: Heart,
+    description: "After MSCE examinations, I faced disappointment, comparison, and emotional struggles that shook my confidence. I questioned my potential, my direction, and even my relationship with science. Through mentorship, spiritual growth, and exposure to innovation communities, the spark slowly returned.",
+    color: "from-purple-500/20 to-transparent"
+  },
+  {
+    year: "Current Chapter",
+    title: "Interdisciplinary Builder",
+    icon: Sparkles,
+    description: "Now studying Dental Surgery at KUHeS while simultaneously teaching myself software development, systems design, and innovation frameworks. I've realized my true passion isn't confined to one field—it's solving meaningful problems at the intersection of healthcare, technology, and human systems.",
+    color: "from-emerald-500/20 to-transparent"
   }
 ]
 
-export default function PoetryPage() {
-  const [selectedPoem, setSelectedPoem] = useState<typeof poems[0] | null>(null)
+const turningPoints = [
+  {
+    title: "MLW Diagnostics Workshop",
+    description: "Participating in the Malawi Liverpool Wellcome Trust workshop featuring Assoc. Prof. Manu Prakash transformed my understanding of frugal innovation and infrastructure-aware healthcare design.",
+    icon: Lightbulb
+  },
+  {
+    title: "Building MoyoWanga",
+    description: "Creating a multilingual SMS-based chronic disease support platform taught me that real impact comes from solving practical problems for real people in real environments.",
+    icon: TrendingUp
+  },
+  {
+    title: "Faith & Mentorship",
+    description: "Through spiritual growth and guidance from mentors who integrate faith, leadership, and innovation, I've developed resilience, discipline, and a long-term perspective on building systems that matter.",
+    icon: Heart
+  }
+]
+
+export default function JourneyPage() {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
 
   return (
-    <div className="min-h-screen py-20">
-      <div className="container-custom">
+    <div className="min-h-screen py-16">
+      <div className="container-custom max-w-4xl">
         {/* Header */}
-        <div className="text-center mb-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-12"
+        >
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">
-            Poetry & <span className="gradient-text-gold">Reflections</span>
+            My <span className="gradient-text-gold">Journey</span>
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Words that explore healing, faith, identity, and the human experience
+          <p className="text-text-secondary max-w-2xl mx-auto">
+            A non-linear path of curiosity, setbacks, rebuilding, and discovering purpose 
+            at the intersection of healthcare, technology, and human systems
           </p>
-        </div>
+        </motion.div>
 
-        {/* Poems Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {poems.map((poem) => (
-            <div
-              key={poem.title}
-              onClick={() => setSelectedPoem(poem)}
-              className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 cursor-pointer card-hover"
+        {/* Personal Quote */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="mb-12 p-6 rounded-2xl bg-gradient-to-r from-accent-gold/10 to-transparent border border-accent-gold/20"
+        >
+          <Quote size={32} className="text-accent-gold mb-3" />
+          <p className="text-text-primary text-lg italic leading-relaxed">
+            "Every problem becomes temporary once you prove to yourself that you can build something real from nothing."
+          </p>
+          <p className="text-accent-gold mt-2 font-medium">— Joel George Kaudzu</p>
+        </motion.div>
+
+        {/* Journey Timeline */}
+        <div className="space-y-8 mb-16">
+          {journeyStages.map((stage, index) => (
+            <motion.div
+              key={stage.year}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="relative pl-8 border-l-2 border-accent-gold/30"
             >
-              <poem.icon size={32} className="text-amber-500 mb-4" />
-              <h3 className="text-xl font-bold mb-2">{poem.title}</h3>
-              <p className="text-amber-500 text-sm mb-3">{poem.theme}</p>
-              <pre className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap font-sans text-sm">
-                {poem.excerpt}
-              </pre>
-              <div className="mt-4 text-amber-500 text-sm">Click to read →</div>
-            </div>
+              <div className="absolute -left-3 top-0 w-6 h-6 rounded-full bg-accent-gold flex items-center justify-center">
+                <stage.icon size={12} className="text-background" />
+              </div>
+              
+              <div className="mb-2">
+                <span className="text-accent-gold text-sm font-semibold">{stage.year}</span>
+                <h2 className="text-xl font-bold text-text-primary mt-1">{stage.title}</h2>
+              </div>
+              
+              <p className="text-text-secondary leading-relaxed">
+                {stage.description}
+              </p>
+            </motion.div>
           ))}
         </div>
 
-        {/* Quote */}
-        <div className="mt-16 p-8 rounded-2xl bg-gradient-to-r from-teal-500/20 to-amber-500/20 text-center">
-          <p className="text-xl italic text-gray-700 dark:text-gray-300">
-            "Poetry has strengthened my communication, emotional intelligence, storytelling ability, and reflective thinking. 
-            Creativity and technical intelligence should coexist, not compete."
-          </p>
-        </div>
-      </div>
-
-      {/* Modal */}
-      {selectedPoem && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-          onClick={() => setSelectedPoem(null)}
+        {/* Turning Points */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mb-12"
         >
-          <div
-            className="max-w-lg w-full p-8 rounded-2xl bg-white dark:bg-gray-900 border border-amber-500/30"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <selectedPoem.icon size={40} className="text-amber-500 mb-4" />
-            <h2 className="text-2xl font-bold mb-2">{selectedPoem.title}</h2>
-            <p className="text-amber-500 mb-6">{selectedPoem.theme}</p>
-            <pre className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-serif text-lg leading-relaxed">
-              {selectedPoem.excerpt}
-            </pre>
-            <button
-              onClick={() => setSelectedPoem(null)}
-              className="mt-6 w-full py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors"
-            >
-              Close
-            </button>
+          <h2 className="text-2xl font-bold text-center mb-8 gradient-text-gold">
+            Defining Moments
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {turningPoints.map((point, idx) => (
+              <div
+                key={point.title}
+                className="p-5 rounded-xl bg-surface border border-border hover:border-accent-gold/30 transition-all cursor-pointer"
+                onClick={() => setExpandedIndex(expandedIndex === idx ? null : idx)}
+              >
+                <point.icon size={28} className="text-accent-gold mb-3" />
+                <h3 className="font-semibold text-text-primary mb-2">{point.title}</h3>
+                <p className={`text-text-secondary text-sm transition-all duration-300 ${expandedIndex === idx ? '' : 'line-clamp-2'}`}>
+                  {point.description}
+                </p>
+                <button className="mt-2 text-accent-gold text-xs flex items-center gap-1">
+                  {expandedIndex === idx ? 'Show less' : 'Read more'} <ChevronRight size={12} />
+                </button>
+              </div>
+            ))}
           </div>
-        </div>
-      )}
+        </motion.div>
+
+        {/* Philosophy Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="p-6 rounded-2xl bg-surface/50 border border-border text-center"
+        >
+          <h3 className="text-lg font-semibold text-accent-gold mb-3">My Philosophy</h3>
+          <p className="text-text-primary leading-relaxed">
+            I don't see medicine, software, leadership, research, and creativity as separate identities.
+            <br /><br />
+            They are interconnected capabilities. The future of African innovation will belong to those who can combine empathy, systems thinking, and disciplined execution.
+            <br /><br />
+            My mission: <strong className="text-accent-gold">Build systems that increase human capability and improve lives.</strong>
+          </p>
+        </motion.div>
+      </div>
     </div>
   )
 }
