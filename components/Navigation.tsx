@@ -153,7 +153,7 @@ export default function Navigation() {
                 )}
               </div>
               
-              {/* Theme Toggle */}
+              {/* Theme Toggle - Desktop */}
               <button
                 onClick={toggleTheme}
                 className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors hover:border-amber-500/30"
@@ -221,6 +221,32 @@ export default function Navigation() {
           </div>
           
           <div className="flex flex-col p-4 space-y-1 max-h-[calc(100vh-120px)] overflow-y-auto">
+            {/* Theme Toggle - ONLY ONE, AT THE TOP FOR EASY ACCESS */}
+            <button
+              onClick={() => {
+                toggleTheme()
+                setIsOpen(false)
+              }}
+              className="flex items-center gap-3 px-4 py-3 mb-2 bg-gray-800/50 text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-colors"
+              style={{
+                transitionDelay: `0ms`,
+                transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
+                opacity: isOpen ? 1 : 0,
+              }}
+            >
+              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+              <span className="text-base font-medium">
+                {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+              </span>
+            </button>
+            
+            {/* Divider */}
+            <div className="h-px bg-gray-800 my-2" style={{
+              transitionDelay: `50ms`,
+              transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
+              opacity: isOpen ? 1 : 0,
+            }} />
+            
             {/* Main nav items */}
             {mainNavItems.map((item, index) => (
               <button
@@ -232,7 +258,7 @@ export default function Navigation() {
                     : 'text-gray-300 hover:bg-gray-800 hover:text-white'
                 }`}
                 style={{
-                  transitionDelay: `${index * 50}ms`,
+                  transitionDelay: `${(index + 1) * 50}ms`,
                   transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
                   opacity: isOpen ? 1 : 0,
                 }}
@@ -243,7 +269,7 @@ export default function Navigation() {
             
             {/* Divider */}
             <div className="h-px bg-gray-800 my-2" style={{
-              transitionDelay: `${mainNavItems.length * 50}ms`,
+              transitionDelay: `${(mainNavItems.length + 1) * 50}ms`,
               transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
               opacity: isOpen ? 1 : 0,
             }} />
@@ -259,7 +285,7 @@ export default function Navigation() {
                     : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                 }`}
                 style={{
-                  transitionDelay: `${(mainNavItems.length + index + 1) * 50}ms`,
+                  transitionDelay: `${(mainNavItems.length + index + 2) * 50}ms`,
                   transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
                   opacity: isOpen ? 1 : 0,
                 }}
@@ -267,32 +293,13 @@ export default function Navigation() {
                 <span className="text-sm font-medium">{item.label}</span>
               </button>
             ))}
-            
-            {/* Theme Toggle in Mobile Menu */}
-            <button
-              onClick={() => {
-                toggleTheme()
-                setIsOpen(false)
-              }}
-              className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-colors mt-2"
-              style={{
-                transitionDelay: `${(mainNavItems.length + dropdownItems.length + 1) * 50}ms`,
-                transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
-                opacity: isOpen ? 1 : 0,
-              }}
-            >
-              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-              <span className="text-base font-medium">
-                {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
-              </span>
-            </button>
           </div>
           
-          {/* Footer in Mobile Menu */}
+          {/* Footer in Mobile Menu - NO THEME TOGGLE HERE ANYMORE */}
           <div 
             className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-800 text-center"
             style={{
-              transitionDelay: `${(mainNavItems.length + dropdownItems.length + 2) * 50}ms`,
+              transitionDelay: `${(mainNavItems.length + dropdownItems.length + 3) * 50}ms`,
               transform: isOpen ? 'translateY(0)' : 'translateY(30px)',
               opacity: isOpen ? 1 : 0,
             }}
