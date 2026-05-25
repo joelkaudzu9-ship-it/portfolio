@@ -56,8 +56,8 @@ Hi ${name},
 Thanks for reaching out! I've received your message and will get back to you within 24-48 hours.
 
 In the meantime, feel free to:
-• Check out my projects: https://joelkaudzu.vercel.app/projects
-• Read my blog: https://joelkaudzu.vercel.app/blog
+• Check out my projects: https://joelkaudzu-portfolio.vercel.app/projects
+• Read my blog: https://joelkaudzu-portfolio.vercel.app/blog
 • Connect on LinkedIn: https://www.linkedin.com/in/joel-kaudzu
 
 Best regards,
