@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Calendar, User, ArrowLeft, Share2, BookOpen, Eye } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Calendar, User, ArrowLeft, Share2, BookOpen, Eye, ChevronLeft, ChevronRight, X, Play, Image as ImageIcon } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import SocialShare from '@/components/SocialShare'
@@ -12,6 +12,7 @@ type MediaItem = {
   url: string
   type: 'image' | 'video' | 'youtube'
   videoId?: string
+  thumbnail?: string
 }
 
 type Post = {
@@ -36,7 +37,47 @@ interface BlogPostClientProps {
 
 export default function BlogPostClient({ initialPost, readingTime, allPosts = [] }: BlogPostClientProps) {
   const [post] = useState(initialPost)
-  const [showShare, setShowShare] = useState(false)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
+
+  // Build unified gallery from all media sources (no redundancy)
+  const getAllMedia = (): MediaItem[] => {
+    const media: MediaItem[] = []
+    
+    // Add featured image if exists
+    if (post?.featured_image) {
+      media.push({ 
+        url: post.featured_image, 
+        type: post.featured_image_type as 'image' || 'image'
+      })
+    }
+    
+    // Add YouTube video if exists
+    if (post?.video_id) {
+      media.push({ 
+        url: `https://www.youtube.com/embed/${post.video_id}`, 
+        type: 'youtube',
+        videoId: post.video_id,
+        thumbnail: `https://img.youtube.com/vi/${post.video_id}/maxresdefault.jpg`
+      })
+    }
+    
+    // Add gallery items (avoid duplicates with featured image)
+    if (post?.media_gallery && post.media_gallery.length > 0) {
+      post.media_gallery.forEach(item => {
+        // Skip if this URL is already the featured image
+        if (item.url !== post.featured_image) {
+          media.push(item)
+        }
+      })
+    }
+    
+    return media
+  }
+
+  const allMedia = getAllMedia()
+  const currentMedia = allMedia[currentIndex]
 
   // Increment view count
   useEffect(() => {
@@ -49,7 +90,6 @@ export default function BlogPostClient({ initialPost, readingTime, allPosts = []
   useEffect(() => {
     if (!post?.content) return
     
-    // Small delay to ensure DOM is ready
     const timeout = setTimeout(() => {
       const headings = document.querySelectorAll('.blog-content h2, .blog-content h3')
       headings.forEach((heading) => {
@@ -62,6 +102,19 @@ export default function BlogPostClient({ initialPost, readingTime, allPosts = []
     return () => clearTimeout(timeout)
   }, [post?.content])
 
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % allMedia.length)
+  }
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - 1 + allMedia.length) % allMedia.length)
+  }
+
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index)
+    setLightboxOpen(true)
+  }
+
   if (!post) {
     return (
       <div className="min-h-screen py-20 text-center">
@@ -71,14 +124,11 @@ export default function BlogPostClient({ initialPost, readingTime, allPosts = []
     )
   }
 
-  // Get related posts (exclude current, take first 3)
-  const relatedPosts = allPosts
-    .filter(p => p.id !== post.id)
-    .slice(0, 3)
+  const relatedPosts = allPosts.filter(p => p.id !== post.id).slice(0, 3)
 
   return (
     <div className="relative min-h-screen py-16">
-      <div className="container-custom max-w-3xl">
+      <div className="container-custom max-w-4xl">
         {/* Back button */}
         <Link 
           href="/blog" 
@@ -95,7 +145,7 @@ export default function BlogPostClient({ initialPost, readingTime, allPosts = []
           className="blog-content"
         >
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-6">
             <div className="flex flex-wrap items-center gap-4 text-sm text-text-muted mb-4">
               <span className="flex items-center gap-1">
                 <Calendar size={14} /> 
@@ -129,29 +179,127 @@ export default function BlogPostClient({ initialPost, readingTime, allPosts = []
             )}
           </div>
 
-          {/* Featured Media */}
-          {post.video_id && (
-            <div className="mb-8 rounded-2xl overflow-hidden aspect-video">
-              <iframe
-                src={`https://www.youtube.com/embed/${post.video_id}`}
-                title={post.title}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          )}
+          {/* Decorative separator */}
+          <div className="mb-8 w-20 h-0.5 bg-gradient-to-r from-accent-gold/50 to-transparent rounded-full" />
 
-          {!post.video_id && post.featured_image && (
-            <div className="mb-8 rounded-2xl overflow-hidden">
-              <img 
-                src={post.featured_image} 
-                alt={post.title}
-                className="w-full h-auto"
-                onError={(e) => {
-                  e.currentTarget.src = 'https://placehold.co/1200x600/1a1a1a/666?text=Image+Not+Found'
-                }}
-              />
+          {/* Main Carousel - Only shows if there's media */}
+          {allMedia.length > 0 && (
+            <div className="mb-10">
+              <div className="relative group">
+                {/* Main Display */}
+                <div 
+                  className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-900 to-black cursor-pointer shadow-2xl"
+                  onClick={() => openLightbox(currentIndex)}
+                >
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currentIndex}
+                      initial={{ opacity: 0, x: 100 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -100 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {currentMedia.type === 'image' && (
+                        <img 
+                          src={currentMedia.url} 
+                          alt={`${post.title} - Image ${currentIndex + 1}`}
+                          className="w-full h-auto max-h-[500px] object-contain"
+                        />
+                      )}
+                      
+                      {currentMedia.type === 'youtube' && (
+                        <div className="relative aspect-video">
+                          <iframe
+                            src={currentMedia.url}
+                            title={post.title}
+                            className="w-full h-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                      )}
+                      
+                      {currentMedia.type === 'video' && (
+                        <video controls className="w-full max-h-[500px]" preload="metadata">
+                          <source src={currentMedia.url} type="video/mp4" />
+                          Your browser doesn't support video playback.
+                        </video>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                  
+                  {/* Play overlay for videos */}
+                  {currentMedia.type !== 'image' && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="w-16 h-16 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                        <Play size={32} className="text-white ml-1" />
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Navigation Arrows */}
+                  {allMedia.length > 1 && (
+                    <>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); prevSlide(); }}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <ChevronLeft size={24} className="text-white" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); nextSlide(); }}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <ChevronRight size={24} className="text-white" />
+                      </button>
+                    </>
+                  )}
+                </div>
+                
+                {/* Thumbnail Navigation */}
+                {allMedia.length > 1 && (
+                  <div className="flex justify-center gap-2 mt-4 overflow-x-auto pb-2">
+                    {allMedia.map((media, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentIndex(idx)}
+                        className={`relative flex-shrink-0 transition-all ${
+                          idx === currentIndex 
+                            ? 'ring-2 ring-accent-gold scale-105' 
+                            : 'opacity-60 hover:opacity-100'
+                        }`}
+                      >
+                        <div className="w-16 h-12 rounded-md overflow-hidden bg-gray-800">
+                          {media.type === 'image' && (
+                            <img 
+                              src={media.url} 
+                              alt={`Thumbnail ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          )}
+                          {media.type === 'youtube' && (
+                            <div className="w-full h-full bg-red-600 flex items-center justify-center">
+                              <Play size={16} className="text-white" />
+                            </div>
+                          )}
+                          {media.type === 'video' && (
+                            <div className="w-full h-full bg-purple-600 flex items-center justify-center">
+                              <Play size={16} className="text-white" />
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Counter */}
+                {allMedia.length > 1 && (
+                  <div className="text-center mt-3 text-sm text-text-muted">
+                    {currentIndex + 1} / {allMedia.length}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -243,6 +391,69 @@ export default function BlogPostClient({ initialPost, readingTime, allPosts = []
           </div>
         )}
       </div>
+
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {lightboxOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+            onClick={() => setLightboxOpen(false)}
+          >
+            <button
+              onClick={() => setLightboxOpen(false)}
+              className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+            >
+              <X size={24} className="text-white" />
+            </button>
+            
+            <button
+              onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + allMedia.length) % allMedia.length); }}
+              className="absolute left-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+            >
+              <ChevronLeft size={32} className="text-white" />
+            </button>
+            
+            <div className="max-w-5xl max-h-[90vh] mx-4" onClick={(e) => e.stopPropagation()}>
+              {allMedia[lightboxIndex]?.type === 'image' && (
+                <img 
+                  src={allMedia[lightboxIndex].url} 
+                  alt="Full size"
+                  className="max-w-full max-h-[90vh] object-contain"
+                />
+              )}
+              {allMedia[lightboxIndex]?.type === 'youtube' && (
+                <div className="aspect-video w-full max-w-4xl">
+                  <iframe
+                    src={allMedia[lightboxIndex].url}
+                    title="YouTube video"
+                    className="w-full h-full"
+                    allowFullScreen
+                  />
+                </div>
+              )}
+              {allMedia[lightboxIndex]?.type === 'video' && (
+                <video controls className="max-h-[90vh] w-auto" autoPlay>
+                  <source src={allMedia[lightboxIndex].url} type="video/mp4" />
+                </video>
+              )}
+            </div>
+            
+            <button
+              onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % allMedia.length); }}
+              className="absolute right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+            >
+              <ChevronRight size={32} className="text-white" />
+            </button>
+            
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-sm">
+              {lightboxIndex + 1} / {allMedia.length}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
