@@ -5,26 +5,32 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTheme } from './ThemeProvider'
 import BlogSearch from './BlogSearch'
-import { Sun, Moon, X, ChevronDown } from 'lucide-react'
+import { 
+  Sun, Moon, X, ChevronDown, 
+  Home, User, Compass, Rocket, 
+  PenLine, Mail, GraduationCap, 
+  Diamond, Zap, Trophy, BookOpen, 
+  Star, Menu
+} from 'lucide-react'
 
-// Main navigation items
+// Main navigation items with professional icons
 const mainNavItems = [
-  { href: '/', label: 'Home', icon: '🏠' },
-  { href: '/about', label: 'About', icon: '👤' },
-  { href: '/journey', label: 'Journey', icon: '🛤️' },
-  { href: '/projects', label: 'Projects', icon: '🚀' },
-  { href: '/blog', label: 'Insights', icon: '📝' },
-  { href: '/contact', label: 'Contact', icon: '📧' },
+  { href: '/', label: 'Home', icon: Home },
+  { href: '/about', label: 'About', icon: User },
+  { href: '/journey', label: 'Journey', icon: Compass },
+  { href: '/projects', label: 'Projects', icon: Rocket },
+  { href: '/blog', label: 'Insights', icon: PenLine },
+  { href: '/contact', label: 'Contact', icon: Mail },
 ]
 
-// Dropdown items
+// Dropdown items with professional icons
 const dropdownItems = [
-  { href: '/education', label: 'Education', icon: '🎓' },
-  { href: '/values', label: 'Values', icon: '💎' },
-  { href: '/skills', label: 'Skills', icon: '⚡' },
-  { href: '/achievements', label: 'Achievements', icon: '🏆' },
-  { href: '/poetry', label: 'Poetry', icon: '📖' },
-  { href: '/testimonials', label: 'Testimonials', icon: '⭐' },
+  { href: '/education', label: 'Education', icon: GraduationCap },
+  { href: '/values', label: 'Values', icon: Diamond },
+  { href: '/skills', label: 'Skills', icon: Zap },
+  { href: '/achievements', label: 'Achievements', icon: Trophy },
+  { href: '/poetry', label: 'Poetry', icon: BookOpen },
+  { href: '/testimonials', label: 'Testimonials', icon: Star },
 ]
 
 export default function Navigation() {
@@ -84,7 +90,7 @@ export default function Navigation() {
     <>
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled 
-          ? 'bg-white dark:bg-black shadow-md' 
+          ? 'bg-white/95 dark:bg-black/95 backdrop-blur-sm shadow-md' 
           : 'bg-white dark:bg-black'
       } border-b border-gray-200 dark:border-gray-800`}>
         <div className="container-custom">
@@ -146,7 +152,10 @@ export default function Navigation() {
                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                         }`}
                       >
-                        {item.label}
+                        <div className="flex items-center gap-2">
+                          <item.icon size={14} className="opacity-70" />
+                          <span>{item.label}</span>
+                        </div>
                       </Link>
                     ))}
                   </div>
@@ -170,23 +179,7 @@ export default function Navigation() {
               className="md:hidden relative z-50 w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
               aria-label="Toggle menu"
             >
-              <div className="relative w-4 h-4">
-                <span
-                  className={`absolute left-0 w-4 h-0.5 bg-gray-900 dark:bg-white transition-all duration-300 ease-out ${
-                    isOpen ? 'rotate-45 top-1.5' : 'top-0'
-                  }`}
-                />
-                <span
-                  className={`absolute left-0 w-4 h-0.5 bg-gray-900 dark:bg-white transition-all duration-200 ease-out ${
-                    isOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100 top-1.5'
-                  }`}
-                />
-                <span
-                  className={`absolute left-0 w-4 h-0.5 bg-gray-900 dark:bg-white transition-all duration-300 ease-out ${
-                    isOpen ? '-rotate-45 top-1.5' : 'top-3'
-                  }`}
-                />
-              </div>
+              {isOpen ? <X size={16} /> : <Menu size={16} />}
             </button>
           </div>
         </div>
@@ -199,117 +192,137 @@ export default function Navigation() {
         }`}
       >
         <div
-          className={`absolute inset-0 bg-black/80 transition-opacity duration-300 ${
+          className={`absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-300 ${
             isOpen ? 'opacity-100' : 'opacity-0'
           }`}
           onClick={() => setIsOpen(false)}
         />
         
         <div
-          className={`absolute right-0 top-0 h-full w-full max-w-sm bg-gray-900 shadow-2xl transition-transform duration-300 ease-out ${
+          className={`absolute right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-gray-900 shadow-2xl transition-transform duration-300 ease-out ${
             isOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
           {/* Header */}
-          <div className="flex justify-between items-center p-4 border-b border-gray-800">
-            <div className="flex items-center gap-2">
-              <span className="text-amber-500 font-bold text-lg">Menu</span>
-              <span className="text-xs text-gray-500">v1.0</span>
+          <div className="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-800">
+            <div>
+              <span className="text-amber-500 font-bold text-xl">Menu</span>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Navigate your way</p>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors"
+              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             >
-              <X size={20} className="text-white" />
+              <X size={20} className="text-gray-900 dark:text-white" />
             </button>
           </div>
           
-          <div className="flex flex-col p-4 max-h-[calc(100vh-120px)] overflow-y-auto">
-            {/* Theme Toggle - At Top */}
+          <div className="flex flex-col p-5 h-[calc(100%-80px)] overflow-y-auto">
+            {/* Theme Toggle */}
             <button
               onClick={() => {
                 toggleTheme()
-                setIsOpen(false)
               }}
-              className="flex items-center justify-center gap-3 px-4 py-3 mb-4 bg-gradient-to-r from-amber-500/20 to-amber-600/20 text-amber-500 rounded-xl transition-all hover:scale-[1.02]"
+              className="flex items-center justify-between w-full px-4 py-3 mb-6 bg-gradient-to-r from-amber-500/10 to-amber-600/10 rounded-xl transition-all hover:scale-[1.02] border border-amber-500/20"
               style={{
                 transitionDelay: `0ms`,
                 transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
                 opacity: isOpen ? 1 : 0,
               }}
             >
-              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-              <span className="text-sm font-medium">
-                {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
-              </span>
+              <div className="flex items-center gap-3">
+                {theme === 'light' ? <Moon size={18} className="text-amber-500" /> : <Sun size={18} className="text-amber-500" />}
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+                </span>
+              </div>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Toggle</span>
             </button>
             
-            {/* Main Nav Items - 2 COLUMN GRID */}
-            <div className="mb-4">
-              <p className="text-xs text-gray-500 mb-2 px-1">Main</p>
-              <div className="grid grid-cols-2 gap-2">
-                {mainNavItems.map((item, index) => (
-                  <button
-                    key={item.href}
-                    onClick={() => handleLinkClick(item.href)}
-                    className={`flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all duration-300 ${
-                      pathname === item.href 
-                        ? 'bg-amber-500/20 text-amber-500' 
-                        : 'bg-gray-800/50 text-gray-300 hover:bg-gray-800 hover:text-white'
-                    }`}
-                    style={{
-                      transitionDelay: `${(index + 1) * 50}ms`,
-                      transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
-                      opacity: isOpen ? 1 : 0,
-                    }}
-                  >
-                    <span className="text-base">{item.icon}</span>
-                    <span className="text-sm font-medium">{item.label}</span>
-                  </button>
-                ))}
+            {/* Main Nav Items */}
+            <div className="mb-6">
+              <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-1">
+                Main Navigation
+              </p>
+              <div className="space-y-1">
+                {mainNavItems.map((item, index) => {
+                  const Icon = item.icon
+                  const isActive = pathname === item.href
+                  return (
+                    <button
+                      key={item.href}
+                      onClick={() => handleLinkClick(item.href)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+                        isActive 
+                          ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30' 
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                      style={{
+                        transitionDelay: `${(index + 1) * 50}ms`,
+                        transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
+                        opacity: isOpen ? 1 : 0,
+                      }}
+                    >
+                      <Icon size={20} className={isActive ? 'text-amber-500' : 'text-gray-500 dark:text-gray-400'} />
+                      <span className="text-sm font-medium">{item.label}</span>
+                      {isActive && (
+                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-500" />
+                      )}
+                    </button>
+                  )
+                })}
               </div>
             </div>
             
-            {/* Dropdown Items - 2 COLUMN GRID */}
+            {/* More Items */}
             <div>
-              <p className="text-xs text-gray-500 mb-2 px-1">More</p>
-              <div className="grid grid-cols-2 gap-2">
-                {dropdownItems.map((item, index) => (
-                  <button
-                    key={item.href}
-                    onClick={() => handleLinkClick(item.href)}
-                    className={`flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all duration-300 ${
-                      pathname === item.href 
-                        ? 'bg-amber-500/20 text-amber-500' 
-                        : 'bg-gray-800/50 text-gray-400 hover:bg-gray-800 hover:text-white'
-                    }`}
-                    style={{
-                      transitionDelay: `${(mainNavItems.length + index + 1) * 50}ms`,
-                      transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
-                      opacity: isOpen ? 1 : 0,
-                    }}
-                  >
-                    <span className="text-base">{item.icon}</span>
-                    <span className="text-sm font-medium">{item.label}</span>
-                  </button>
-                ))}
+              <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-1">
+                Extended Journey
+              </p>
+              <div className="space-y-1">
+                {dropdownItems.map((item, index) => {
+                  const Icon = item.icon
+                  const isActive = pathname === item.href
+                  return (
+                    <button
+                      key={item.href}
+                      onClick={() => handleLinkClick(item.href)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+                        isActive 
+                          ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30' 
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                      style={{
+                        transitionDelay: `${(mainNavItems.length + index + 1) * 50}ms`,
+                        transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
+                        opacity: isOpen ? 1 : 0,
+                      }}
+                    >
+                      <Icon size={20} className={isActive ? 'text-amber-500' : 'text-gray-500 dark:text-gray-400'} />
+                      <span className="text-sm font-medium">{item.label}</span>
+                      {isActive && (
+                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-500" />
+                      )}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           </div>
           
           {/* Footer */}
           <div 
-            className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-800 text-center bg-gray-900"
+            className="absolute bottom-0 left-0 right-0 p-5 border-t border-gray-200 dark:border-gray-800 text-center bg-white dark:bg-gray-900"
             style={{
               transitionDelay: `${(mainNavItems.length + dropdownItems.length + 2) * 50}ms`,
               transform: isOpen ? 'translateY(0)' : 'translateY(30px)',
               opacity: isOpen ? 1 : 0,
             }}
           >
-            <p className="text-gray-500 text-xs">
+            <p className="text-gray-600 dark:text-gray-400 text-xs">
               © {new Date().getFullYear()} Joel George Kaudzu
             </p>
-            <p className="text-gray-600 text-xs mt-0.5">
+            <p className="text-gray-500 dark:text-gray-500 text-xs mt-1">
               Building systems that matter
             </p>
           </div>
