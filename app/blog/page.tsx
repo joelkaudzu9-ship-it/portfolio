@@ -1,5 +1,6 @@
 'use client'
 
+
 import { Suspense } from 'react'
 import { BlogGridSkeleton } from '@/components/skeletons/BlogGridSkeleton'
 import BlogContent from './BlogContent'

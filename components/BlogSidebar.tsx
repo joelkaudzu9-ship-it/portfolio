@@ -6,7 +6,7 @@ import Newsletter from './Newsletter'
 import { useState } from 'react'
 
 interface BlogSidebarProps {
-  posts?: any[]  // Add this to accept posts
+  posts?: any[]
 }
 
 export default function BlogSidebar({ posts = [] }: BlogSidebarProps) {
@@ -14,8 +14,6 @@ export default function BlogSidebar({ posts = [] }: BlogSidebarProps) {
   
   // Get unique tags from posts (you can customize these)
   const getAllTags = () => {
-    // This would come from your post tags if you have them
-    // For now, return some default tags
     return [
       { name: 'Healthcare', count: 5 },
       { name: 'Technology', count: 8 },
@@ -70,7 +68,7 @@ export default function BlogSidebar({ posts = [] }: BlogSidebarProps) {
         </div>
       </div>
       
-      {/* Newsletter Subscription */}
+      {/* Newsletter Subscription - MOVED HERE */}
       <div className="glass-card p-4">
         <h3 className="font-semibold mb-3 text-text-primary flex items-center gap-2">
           📧 Newsletter
