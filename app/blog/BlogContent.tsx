@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import BlogHeader from '@/components/blog/BlogHeader'
 import BlogGrid from '@/components/blog/BlogGrid'
 import BlogSidebar from '@/components/BlogSidebar'
 import { BlogGridSkeleton } from '@/components/skeletons/BlogGridSkeleton'
@@ -45,7 +44,37 @@ export default function BlogContent() {
 
   return (
     <>
-      <BlogHeader sortOrder={sortOrder} onSortChange={setSortOrder} />
+      {/* Compact Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
+        <div>
+          <span className="text-amber-500 text-sm font-semibold">Blog</span>
+          <p className="text-text-muted text-xs mt-0.5">Healthcare & tech insights</p>
+        </div>
+        
+        <div className="flex gap-2 text-sm">
+          <button
+            onClick={() => setSortOrder('newest')}
+            className={`px-3 py-1.5 rounded-lg transition-colors ${
+              sortOrder === 'newest' 
+                ? 'bg-amber-500 text-white' 
+                : 'bg-surface border border-border hover:border-amber-500/30'
+            }`}
+          >
+            Latest
+          </button>
+          <button
+            onClick={() => setSortOrder('oldest')}
+            className={`px-3 py-1.5 rounded-lg transition-colors ${
+              sortOrder === 'oldest' 
+                ? 'bg-amber-500 text-white' 
+                : 'bg-surface border border-border hover:border-amber-500/30'
+            }`}
+          >
+            Oldest
+          </button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <BlogGrid posts={sortedPosts} />
