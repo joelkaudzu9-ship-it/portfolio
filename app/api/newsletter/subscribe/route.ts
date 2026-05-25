@@ -17,6 +17,8 @@ const createTransporter = () => {
 async function sendWelcomeEmail(email: string) {
   const transporter = createTransporter()
   
+  const unsubscribeLink = `https://joelkaudzu-portfolio.vercel.app/unsubscribe?email=${encodeURIComponent(email)}`
+  
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -25,13 +27,13 @@ async function sendWelcomeEmail(email: string) {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Welcome to my newsletter!</title>
       <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
         .header { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 30px 20px; text-align: center; border-radius: 10px 10px 0 0; }
         .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e5e7eb; border-top: none; }
-        .btn { display: inline-block; background: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin-top: 20px; }
         .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #9ca3af; }
-        h1 { margin: 0; }
+        .btn { display: inline-block; background: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin-top: 20px; }
+        h1 { margin: 0; font-size: 24px; }
       </style>
     </head>
     <body>
@@ -51,9 +53,16 @@ async function sendWelcomeEmail(email: string) {
           <p>I send emails occasionally (no spam, I promise!), and you can unsubscribe anytime.</p>
           <a href="https://joelkaudzu-portfolio.vercel.app/blog" class="btn">Explore my blog →</a>
           <p style="margin-top: 30px;">Best regards,<br><strong>Joel George Kaudzu</strong><br>Healthcare Systems Builder</p>
+          <hr style="margin: 30px 0 20px;">
+          <p style="font-size: 12px; color: #6b7280;">
+            You received this email because you subscribed to my newsletter.
+            <br>
+            <a href="${unsubscribeLink}" style="color: #f59e0b;">Unsubscribe</a>
+          </p>
         </div>
         <div class="footer">
-          <p>You received this email because you subscribed to my newsletter.</p>
+          <p>Joel George Kaudzu - Healthcare Systems Builder</p>
+          <p><a href="https://joelkaudzu-portfolio.vercel.app" style="color: #9ca3af;">Visit Website</a></p>
         </div>
       </div>
     </body>
@@ -64,7 +73,7 @@ async function sendWelcomeEmail(email: string) {
     from: `"Joel Kaudzu" <${process.env.GMAIL_USER}>`,
     to: email,
     subject: 'Welcome to my newsletter! 🚀',
-    text: `Thanks for subscribing! You'll receive updates about healthcare tech, frugal innovation, and new blog posts. Best regards, Joel George Kaudzu`,
+    text: `Thanks for subscribing! You'll receive updates about healthcare tech, frugal innovation, and new blog posts. Unsubscribe: ${unsubscribeLink} - Best regards, Joel George Kaudzu`,
     html: htmlContent,
   })
 }
@@ -94,6 +103,7 @@ export async function POST(request: Request) {
   try {
     const { email } = await request.json()
 
+    // Validate email
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Valid email is required' }, { status: 400 })
     }
@@ -101,11 +111,36 @@ export async function POST(request: Request) {
     // Check if already subscribed
     const { data: existing } = await supabaseAdmin
       .from('newsletter_subscribers')
-      .select('email')
+      .select('email, status')
       .eq('email', email)
       .maybeSingle()
 
     if (existing) {
+      if (existing.status === 'unsubscribed') {
+        // Re-activate the subscriber
+        const { error: updateError } = await supabaseAdmin
+          .from('newsletter_subscribers')
+          .update({ 
+            status: 'active', 
+            unsubscribed_at: null,
+            subscribed_at: new Date().toISOString()
+          })
+          .eq('email', email)
+
+        if (updateError) {
+          console.error('Re-activation error:', updateError)
+          return NextResponse.json({ error: 'Failed to re-subscribe' }, { status: 500 })
+        }
+
+        // Send welcome back email
+        await sendWelcomeEmail(email).catch(console.error)
+        
+        return NextResponse.json({ 
+          success: true, 
+          message: 'Welcome back! You have been re-subscribed. Check your email for a confirmation.' 
+        })
+      }
+      
       return NextResponse.json({ error: 'Email already subscribed' }, { status: 400 })
     }
 
@@ -123,7 +158,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to subscribe' }, { status: 500 })
     }
 
-    // Send emails (don't await - let them run in background)
+    // Send emails in background (don't await)
     Promise.all([
       sendWelcomeEmail(email).catch(console.error),
       sendAdminNotification(email).catch(console.error),
