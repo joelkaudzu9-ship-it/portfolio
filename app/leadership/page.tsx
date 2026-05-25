@@ -1,94 +1,239 @@
 'use client'
 
-import { Users, GraduationCap, PenTool, BookOpen, Heart, Calendar } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { 
+  Users, 
+  Presentation, 
+  Heart, 
+  Target, 
+  Shield,
+  BookOpen,
+  Sparkles,
+  Calendar,
+  Award,
+  Globe,
+  MessageCircle
+} from 'lucide-react'
+
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5 }
+}
+
+const leadershipRoles = [
+  {
+    title: "Innovations Coordinator",
+    organization: "Science For All — KUHeS",
+    period: "Present",
+    description: "Coordinating innovation-centered activities, supporting student innovators, facilitating collaboration, and promoting applied problem-solving within the university.",
+    responsibilities: [
+      "Coordinate innovation-focused initiatives",
+      "Support student innovators and projects",
+      "Facilitate cross-disciplinary collaboration",
+      "Promote applied problem-solving culture"
+    ],
+    icon: Sparkles
+  },
+  {
+    title: "Graphic Designer",
+    organization: "KUHeS Publications Team",
+    period: "Present",
+    description: "Contributing to visual communication and design for university publications, posters, presentation graphics, and digital media support.",
+    responsibilities: [
+      "Poster and flyer design",
+      "Visual communication",
+      "Presentation graphics",
+      "Digital media support"
+    ],
+    icon: Presentation
+  },
+  {
+    title: "Student Teacher",
+    organization: "Bright Future Private Academy",
+    period: "1 Year",
+    description: "Served as a student teacher responsible for lesson delivery, student mentorship, academic support, classroom coordination, and educational communication.",
+    responsibilities: [
+      "Lesson delivery and planning",
+      "Student mentorship",
+      "Academic support",
+      "Classroom coordination"
+    ],
+    icon: BookOpen
+  }
+]
+
+const mentorship = {
+  title: "Peer Support & Mentorship",
+  description: "Actively involved in mentoring and supporting fellow students academically and personally.",
+  areas: [
+    { name: "Academic Guidance", icon: Target, description: "Supporting students with study strategies and academic challenges" },
+    { name: "Peer Support", icon: Heart, description: "Providing emotional encouragement and personal development support" },
+    { name: "Collaborative Learning", icon: Users, description: "Facilitating group study and knowledge sharing" },
+    { name: "Growth Culture", icon: Shield, description: "Encouraging a growth-oriented student culture" }
+  ]
+}
+
+const philosophy = {
+  title: "My Leadership Philosophy",
+  quote: "Leadership is less about authority and more about responsibility, service, consistency, emotional maturity, and helping others grow.",
+  inspirations: [
+    "My father — for his work ethic and perseverance",
+    "Prof. Kondwani Jambo — for healthcare research and scientific contribution",
+    "Dr. Kaso — for discipline and consistency",
+    "Sir Julius Chinyama — for integrating faith, business, innovation, and leadership",
+    "Sir Alpha Phiri — for navigating business and faith with balance",
+    "Apostle Joshua Selman — for spiritual depth and perspective"
+  ]
+}
+
+const skills = [
+  "Communication & Storytelling",
+  "Emotional Intelligence",
+  "Team Coordination",
+  "Public Speaking",
+  "Mentorship",
+  "Problem Analysis",
+  "Organizational Thinking",
+  "Innovation Management"
+]
 
 export default function LeadershipPage() {
   return (
-    <div className="min-h-screen py-20">
-      <div className="container-custom">
-        <div className="text-center mb-12">
+    <div className="min-h-screen py-16">
+      <div className="container-custom max-w-4xl">
+        
+        {/* Header */}
+        <motion.div 
+          {...fadeInUp}
+          className="text-center mb-12"
+        >
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">
             Leadership & <span className="gradient-text-gold">Community</span>
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Serving others through innovation, mentorship, and community building
+          <p className="text-text-secondary max-w-2xl mx-auto">
+            Serving through innovation coordination, design, teaching, and mentorship — 
+            driven by responsibility, service, and helping others grow.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Innovations Coordinator */}
-        <div className="mb-8 p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800">
-          <div className="flex items-start gap-4">
-            <Users size={40} className="text-amber-500 flex-shrink-0" />
-            <div>
-              <h2 className="text-2xl font-bold">Innovations Coordinator</h2>
-              <p className="text-amber-500 mb-2">Science For All (KUHeS)</p>
-              <p className="text-gray-600 dark:text-gray-400">
-                Coordinating innovation-centered activities, encouraging student innovation, supporting collaborative problem solving, and promoting practical systems thinking. This role has strengthened leadership, coordination, organizational thinking, public communication, and innovation management.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Publications Team */}
-        <div className="mb-8 p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800">
-          <div className="flex items-start gap-4">
-            <PenTool size={40} className="text-amber-500 flex-shrink-0" />
-            <div>
-              <h2 className="text-2xl font-bold">Graphic Designer</h2>
-              <p className="text-amber-500 mb-2">KUHeS Publications Team</p>
-              <p className="text-gray-600 dark:text-gray-400">
-                Visual communication, poster design, presentation graphics, and media support. Strengthened design communication, presentation structure, and visual storytelling.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Teaching Experience */}
-        <div className="mb-8 p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800">
-          <div className="flex items-start gap-4">
-            <GraduationCap size={40} className="text-amber-500 flex-shrink-0" />
-            <div>
-              <h2 className="text-2xl font-bold">Student Teacher</h2>
-              <p className="text-amber-500 mb-2">Bright Future Private Academy</p>
-              <p className="text-gray-600 dark:text-gray-400">
-                Served as a student teacher for approximately one year. Responsibilities included lesson delivery, student mentorship, classroom coordination, educational communication, and learner support. Strengthened patience, communication, leadership, and teaching structure.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Peer Support */}
-        <div className="mb-8 p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800">
-          <div className="flex items-start gap-4">
-            <Heart size={40} className="text-amber-500 flex-shrink-0" />
-            <div>
-              <h2 className="text-2xl font-bold">Peer Support & Mentorship</h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                Actively supporting and mentoring fellow students academically and personally through collaborative learning, academic encouragement, peer support, and growth-oriented student culture.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Conferences */}
-        <div className="p-6 rounded-2xl bg-gradient-to-r from-teal-500/10 to-amber-500/10">
-          <div className="flex items-start gap-4">
-            <Calendar size={40} className="text-amber-500 flex-shrink-0" />
-            <div>
-              <h2 className="text-2xl font-bold">Conferences & Exposure</h2>
-              <div className="mt-2 space-y-3">
-                <div>
-                  <p className="font-semibold">Malawi Liverpool Wellcome Trust Diagnostics Workshop</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Exposure to frugal innovation, diagnostics, healthcare accessibility, and infrastructure-aware design.</p>
+        {/* Leadership Roles */}
+        <motion.div 
+          {...fadeInUp}
+          transition={{ delay: 0.1 }}
+          className="mb-12 space-y-6"
+        >
+          <h2 className="text-2xl font-bold text-text-primary flex items-center gap-2">
+            <Users size={24} className="text-accent-gold" />
+            Current & Past Roles
+          </h2>
+          
+          {leadershipRoles.map((role, index) => (
+            <div key={role.title} className="p-5 rounded-xl bg-surface/50 border border-border hover:border-accent-gold/30 transition-all">
+              <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+                <div className="flex items-center gap-3">
+                  <role.icon size={24} className="text-accent-gold" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-text-primary">{role.title}</h3>
+                    <p className="text-accent-gold text-sm">{role.organization}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold">Men of Courage Conference</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Leadership and personal development focused on discipline, masculinity, leadership, purpose, and spiritual growth.</p>
-                </div>
+                <span className="text-text-muted text-sm flex items-center gap-1">
+                  <Calendar size={14} /> {role.period}
+                </span>
+              </div>
+              <p className="text-text-secondary text-sm leading-relaxed mb-3">{role.description}</p>
+              <div className="flex flex-wrap gap-2">
+                {role.responsibilities.map((resp) => (
+                  <span key={resp} className="text-xs px-2 py-1 rounded-full bg-surface border border-border text-text-muted">
+                    {resp}
+                  </span>
+                ))}
               </div>
             </div>
+          ))}
+        </motion.div>
+
+        {/* Mentorship */}
+        <motion.div 
+          {...fadeInUp}
+          transition={{ delay: 0.2 }}
+          className="mb-12 p-6 rounded-2xl bg-gradient-to-r from-accent-gold/5 to-transparent border border-border"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <Heart size={28} className="text-accent-gold" />
+            <h2 className="text-2xl font-bold text-text-primary">{mentorship.title}</h2>
           </div>
-        </div>
+          <p className="text-text-secondary leading-relaxed mb-5">{mentorship.description}</p>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {mentorship.areas.map((area) => (
+              <div key={area.name} className="text-center p-3 rounded-lg bg-surface/80 border border-border">
+                <area.icon size={20} className="mx-auto mb-2 text-accent-gold" />
+                <h4 className="font-medium text-text-primary text-sm">{area.name}</h4>
+                <p className="text-text-muted text-xs mt-1">{area.description}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Leadership Skills */}
+        <motion.div 
+          {...fadeInUp}
+          transition={{ delay: 0.3 }}
+          className="mb-12"
+        >
+          <h2 className="text-2xl font-bold text-text-primary flex items-center gap-2 mb-5">
+            <Target size={24} className="text-accent-gold" />
+            Leadership Skills
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {skills.map((skill) => (
+              <span key={skill} className="px-3 py-1.5 rounded-full bg-surface border border-border text-text-secondary text-sm">
+                {skill}
+              </span>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Philosophy */}
+        <motion.div 
+          {...fadeInUp}
+          transition={{ delay: 0.4 }}
+          className="mb-12 p-6 rounded-2xl bg-surface/50 border border-border"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <Shield size={28} className="text-accent-gold" />
+            <h2 className="text-2xl font-bold text-text-primary">{philosophy.title}</h2>
+          </div>
+          <p className="text-text-primary text-lg italic leading-relaxed mb-5">
+            "{philosophy.quote}"
+          </p>
+          
+          <h3 className="font-semibold text-text-primary mb-3">People Who Inspire Me</h3>
+          <ul className="space-y-2">
+            {philosophy.inspirations.map((inspiration, idx) => (
+              <li key={idx} className="flex items-center gap-2 text-text-secondary text-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent-gold" />
+                {inspiration}
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+
+        {/* Closing Note */}
+        <motion.div 
+          {...fadeInUp}
+          transition={{ delay: 0.5 }}
+          className="p-6 rounded-2xl bg-gradient-to-r from-accent-gold/10 to-emerald-500/5 border border-border text-center"
+        >
+          <p className="text-text-primary leading-relaxed italic">
+            "I admire leaders capable of combining intellect, humility, execution, and human understanding. 
+            Great leadership is not about authority — it's about creating conditions where others can grow."
+          </p>
+          <p className="text-accent-gold mt-3 font-medium">— Joel George Kaudzu</p>
+        </motion.div>
+
       </div>
     </div>
   )
