@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase/server'
 import BlogPostClient from './BlogPostClient'
+import SimpleComments from '@/components/SimpleComments'
 
 async function getPost(slug: string) {
   const { data, error } = await supabaseAdmin
@@ -18,7 +19,13 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
   const { slug } = await params
   const post = await getPost(slug)
   
-  return <BlogPostClient initialPost={post} />
+  return (
+    <>
+      <BlogPostClient initialPost={post} />
+      {/* Comments Section */}
+      {post && <SimpleComments postSlug={post.slug} />}
+    </>
+  )
 }
 
 // Metadata generation directly in the page component

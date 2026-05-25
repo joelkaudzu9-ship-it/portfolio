@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { 
   LayoutDashboard, FileText, LogOut, 
   BookOpen, Briefcase, Users, Star, Award, 
-  Heart, Settings, Plus, Mail
+  Heart, Settings, Plus, Mail, MessageCircle
 } from 'lucide-react'
 
 export default function AdminDashboard() {
@@ -108,6 +108,13 @@ export default function AdminDashboard() {
       href: '/admin/messages',
       description: 'View contact form submissions',
       color: 'text-red-500'
+    },
+    { 
+      title: 'Comments', 
+      icon: MessageCircle, 
+      href: '/admin/comments',
+      description: 'Moderate blog comments',
+      color: 'text-teal-500'
     },
     { 
       title: 'Site Settings', 

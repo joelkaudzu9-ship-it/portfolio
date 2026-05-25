@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Calendar, User, Video, Play, ImageIcon } from 'lucide-react'
+import { Calendar, User, Video, Play, ImageIcon, Eye } from 'lucide-react'
 
 type Post = {
   id: number
@@ -14,6 +14,7 @@ type Post = {
   featured_image_type: string | null
   video_id: string | null
   media_gallery: any[]
+  views?: number  // Add optional views field
 }
 
 interface BlogCardProps {
@@ -99,7 +100,7 @@ export default function BlogCard({ post }: BlogCardProps) {
               })}
             </span>
             <span className="flex items-center gap-1">
-              <User size={12} /> Joel Kaudzu
+              <Eye size={12} /> {post.views || 0} views
             </span>
           </div>
           

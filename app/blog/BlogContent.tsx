@@ -55,7 +55,7 @@ export default function BlogContent() {
               <span className="text-xs text-text-muted uppercase tracking-wider hidden sm:inline">Insights</span>
             </div>
             <p className="text-text-secondary text-sm mt-2 max-w-lg leading-relaxed">
-              Healthcare technology, frugal innovation & African systems
+              Thoughts on medicine, technology, and building the future in Africa
             </p>
           </div>
           
