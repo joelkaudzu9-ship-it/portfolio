@@ -41,17 +41,6 @@ async function getAllPosts() {
   return data || []
 }
 
-// Increment view count
-async function incrementViewCount(slug: string) {
-  try {
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://your-domain.com'}/api/blog/${slug}/views`, {
-      method: 'POST',
-    })
-  } catch (error) {
-    console.error('Failed to increment view count:', error)
-  }
-}
-
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const { slug } = await params
   const post = await getPost(slug)
@@ -63,7 +52,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     }
   }
   
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joelkaudzu-portfolio.vercel.app'
+  // Hardcode the base URL for reliability
+  const baseUrl = 'https://joelkaudzu-portfolio.vercel.app'
   const imageUrl = post.featured_image || `${baseUrl}/og-image.jpg`
   const postUrl = `${baseUrl}/blog/${post.slug}`
   
@@ -122,7 +112,10 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
   
   // Increment view count asynchronously
   if (post) {
-    incrementViewCount(slug)
+    // Don't await - fire and forget
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://joelkaudzu-portfolio.vercel.app'}/api/blog/${slug}/views`, {
+      method: 'POST',
+    }).catch(console.error)
   }
   
   if (!post) {
