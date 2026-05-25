@@ -218,11 +218,9 @@ export default function Navigation() {
           </div>
           
           <div className="flex flex-col p-5 h-[calc(100%-80px)] overflow-y-auto">
-            {/* Theme Toggle */}
+            {/* Theme Toggle - Full width button at top */}
             <button
-              onClick={() => {
-                toggleTheme()
-              }}
+              onClick={() => toggleTheme()}
               className="flex items-center justify-between w-full px-4 py-3 mb-6 bg-gradient-to-r from-amber-500/10 to-amber-600/10 rounded-xl transition-all hover:scale-[1.02] border border-amber-500/20"
               style={{
                 transitionDelay: `0ms`,
@@ -239,12 +237,12 @@ export default function Navigation() {
               <span className="text-xs text-gray-500 dark:text-gray-400">Toggle</span>
             </button>
             
-            {/* Main Nav Items */}
+            {/* Main Nav Items - 2 COLUMN GRID */}
             <div className="mb-6">
-              <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-1">
+              <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
                 Main Navigation
               </p>
-              <div className="space-y-1">
+              <div className="grid grid-cols-2 gap-2">
                 {mainNavItems.map((item, index) => {
                   const Icon = item.icon
                   const isActive = pathname === item.href
@@ -252,10 +250,10 @@ export default function Navigation() {
                     <button
                       key={item.href}
                       onClick={() => handleLinkClick(item.href)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+                      className={`flex flex-col items-center gap-2 px-3 py-3 rounded-xl transition-all duration-300 ${
                         isActive 
                           ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30' 
-                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                          : 'bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
                       }`}
                       style={{
                         transitionDelay: `${(index + 1) * 50}ms`,
@@ -263,23 +261,20 @@ export default function Navigation() {
                         opacity: isOpen ? 1 : 0,
                       }}
                     >
-                      <Icon size={20} className={isActive ? 'text-amber-500' : 'text-gray-500 dark:text-gray-400'} />
-                      <span className="text-sm font-medium">{item.label}</span>
-                      {isActive && (
-                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-500" />
-                      )}
+                      <Icon size={22} className={isActive ? 'text-amber-500' : 'text-gray-500 dark:text-gray-400'} />
+                      <span className="text-xs font-medium">{item.label}</span>
                     </button>
                   )
                 })}
               </div>
             </div>
             
-            {/* More Items */}
+            {/* Dropdown Items - 2 COLUMN GRID */}
             <div>
-              <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-1">
+              <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
                 Extended Journey
               </p>
-              <div className="space-y-1">
+              <div className="grid grid-cols-2 gap-2">
                 {dropdownItems.map((item, index) => {
                   const Icon = item.icon
                   const isActive = pathname === item.href
@@ -287,10 +282,10 @@ export default function Navigation() {
                     <button
                       key={item.href}
                       onClick={() => handleLinkClick(item.href)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+                      className={`flex flex-col items-center gap-2 px-3 py-3 rounded-xl transition-all duration-300 ${
                         isActive 
                           ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30' 
-                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                          : 'bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
                       }`}
                       style={{
                         transitionDelay: `${(mainNavItems.length + index + 1) * 50}ms`,
@@ -298,11 +293,8 @@ export default function Navigation() {
                         opacity: isOpen ? 1 : 0,
                       }}
                     >
-                      <Icon size={20} className={isActive ? 'text-amber-500' : 'text-gray-500 dark:text-gray-400'} />
-                      <span className="text-sm font-medium">{item.label}</span>
-                      {isActive && (
-                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-500" />
-                      )}
+                      <Icon size={22} className={isActive ? 'text-amber-500' : 'text-gray-500 dark:text-gray-400'} />
+                      <span className="text-xs font-medium">{item.label}</span>
                     </button>
                   )
                 })}
