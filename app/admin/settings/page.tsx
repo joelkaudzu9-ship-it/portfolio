@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { 
   ArrowLeft, Save, Globe, Mail, Eye, 
   Loader2, CheckCircle, AlertCircle, Sparkles,
-  Code, Linkedin, Twitter, Settings, RefreshCw
+  Code, Settings, RefreshCw, Share2, MessageCircle
 } from 'lucide-react'
 
 export default function SettingsPage() {
@@ -244,7 +244,7 @@ export default function SettingsPage() {
               
               <div>
                 <label className="block text-sm font-medium mb-1.5 text-text-secondary flex items-center gap-2">
-                  <Linkedin size={14} /> LinkedIn URL
+                  <Share2 size={14} /> LinkedIn URL
                 </label>
                 <input
                   type="url"
@@ -257,7 +257,7 @@ export default function SettingsPage() {
               
               <div>
                 <label className="block text-sm font-medium mb-1.5 text-text-secondary flex items-center gap-2">
-                  <Twitter size={14} /> Twitter/X URL
+                  <MessageCircle size={14} /> Twitter/X URL
                 </label>
                 <input
                   type="url"
@@ -340,14 +340,14 @@ export default function SettingsPage() {
                   )}
                   {social.linkedin && (
                     <div className="flex items-center gap-1.5 text-xs text-text-muted">
-                      <Linkedin size={12} className="text-blue-500" />
+                      <Share2 size={12} className="text-blue-500" />
                       <span>LinkedIn</span>
                       <CheckCircle size={10} className="text-green-500" />
                     </div>
                   )}
                   {social.twitter && (
                     <div className="flex items-center gap-1.5 text-xs text-text-muted">
-                      <Twitter size={12} className="text-sky-500" />
+                      <MessageCircle size={12} className="text-sky-500" />
                       <span>Twitter</span>
                       <CheckCircle size={10} className="text-green-500" />
                     </div>
