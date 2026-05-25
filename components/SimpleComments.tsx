@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Send, MessageCircle, User, Calendar, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { Send, MessageCircle, User, Calendar, CheckCircle, AlertCircle, Loader2, ChevronDown } from 'lucide-react'
 
 interface Comment {
   id: number
@@ -19,6 +19,7 @@ export default function SimpleComments({ postSlug }: { postSlug: string }) {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [authorFocused, setAuthorFocused] = useState(false)
   const [contentFocused, setContentFocused] = useState(false)
+  const [showForm, setShowForm] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
@@ -60,12 +61,7 @@ export default function SimpleComments({ postSlug }: { postSlug: string }) {
         setMessage({ type: 'success', text: '✨ Comment submitted for moderation! It will appear once approved.' })
         setContent('')
         fetchComments()
-        
-        // Scroll to top of comments section
-        const commentsSection = document.getElementById('comments-section')
-        if (commentsSection) {
-          commentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
+        setShowForm(false) // Collapse form after submission
         
         setTimeout(() => setMessage(null), 5000)
       } else {
@@ -82,143 +78,62 @@ export default function SimpleComments({ postSlug }: { postSlug: string }) {
   }
 
   return (
-    <div id="comments-section" className="mt-16 pt-8 border-t border-border scroll-mt-20">
+    <div id="comments-section" className="mt-12 pt-6 border-t border-border scroll-mt-20">
       {/* Header with gradient */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-accent-gold/10">
-            <MessageCircle size={22} className="text-accent-gold" />
+          <div className="p-2 rounded-xl bg-amber-500/10">
+            <MessageCircle size={20} className="text-amber-500" />
           </div>
           <div>
-            <h3 className="text-xl sm:text-2xl font-bold">Comments</h3>
-            <p className="text-sm text-text-muted">
-              Join the conversation • {comments.length} {comments.length === 1 ? 'comment' : 'comments'}
+            <h3 className="text-lg sm:text-xl font-bold">Comments</h3>
+            <p className="text-xs text-text-muted">
+              {comments.length} {comments.length === 1 ? 'person has' : 'people have'} joined the conversation
             </p>
           </div>
         </div>
         
-        {/* Comment count badge */}
-        <div className="flex items-center gap-2">
-          <div className="px-3 py-1 rounded-full bg-surface border border-border text-sm">
-            💬 {comments.length}
-          </div>
-        </div>
+        {/* Toggle Form Button */}
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 transition-colors text-sm"
+        >
+          {showForm ? 'Cancel' : 'Join the discussion'}
+          <ChevronDown size={14} className={`transition-transform ${showForm ? 'rotate-180' : ''}`} />
+        </button>
       </div>
       
-      {/* Comment Form - Modern card design */}
-      <div className="mb-10 rounded-2xl bg-gradient-to-br from-surface/80 to-surface/40 backdrop-blur-sm border border-border overflow-hidden shadow-lg">
-        <div className="p-5 sm:p-6">
-          <h4 className="font-semibold text-lg mb-1 flex items-center gap-2">
-            <span>✍️</span> Share your thoughts
-          </h4>
-          <p className="text-sm text-text-muted mb-4">
-            Your email won't be published. Comments are moderated.
-          </p>
-          
-          <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
-            {/* Name input with floating label effect */}
-            <div className="relative">
-              <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-all ${authorFocused || author ? 'text-accent-gold' : 'text-text-muted'}`}>
-                <User size={18} />
-              </div>
-              <input
-                type="text"
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
-                onFocus={() => setAuthorFocused(true)}
-                onBlur={() => setAuthorFocused(false)}
-                placeholder="Your name *"
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-surface border border-border focus:border-accent-gold/50 focus:outline-none focus:ring-1 focus:ring-accent-gold/50 transition-all text-sm sm:text-base"
-                required
-              />
-            </div>
-            
-            {/* Comment textarea */}
-            <div className="relative">
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                onFocus={() => setContentFocused(true)}
-                onBlur={() => setContentFocused(false)}
-                placeholder="What are your thoughts? *"
-                rows={4}
-                className="w-full px-4 py-3 rounded-xl bg-surface border border-border focus:border-accent-gold/50 focus:outline-none focus:ring-1 focus:ring-accent-gold/50 transition-all resize-none text-sm sm:text-base"
-                required
-              />
-            </div>
-            
-            {/* Submit button with loading state */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <button
-                type="submit"
-                disabled={submitting}
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-accent-gold to-accent-goldLight text-background rounded-xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100 shadow-lg font-medium"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 size={18} className="animate-spin" />
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    <Send size={18} />
-                    Post Comment
-                  </>
-                )}
-              </button>
-              
-              <p className="text-xs text-text-muted text-center sm:text-left">
-                Your comment will appear after moderation ✨
-              </p>
-            </div>
-            
-            {/* Message alert */}
-            {message && (
-              <div className={`flex items-center gap-2 p-3 rounded-lg ${
-                message.type === 'success' 
-                  ? 'bg-green-500/10 border border-green-500/20 text-green-500' 
-                  : 'bg-red-500/10 border border-red-500/20 text-red-500'
-              }`}>
-                {message.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
-                <span className="text-sm">{message.text}</span>
-              </div>
-            )}
-          </form>
-        </div>
-      </div>
-      
-      {/* Comments List - Smart and responsive */}
+      {/* Comments List - ABOVE the form */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-12">
-          <Loader2 size={32} className="animate-spin text-accent-gold mb-3" />
-          <p className="text-text-muted">Loading conversations...</p>
+        <div className="flex flex-col items-center justify-center py-10">
+          <Loader2 size={28} className="animate-spin text-amber-500 mb-3" />
+          <p className="text-text-muted text-sm">Loading conversations...</p>
         </div>
       ) : comments.length === 0 ? (
-        <div className="text-center py-12 rounded-2xl bg-surface/20 border border-border border-dashed">
-          <div className="text-5xl mb-3">💭</div>
-          <p className="text-text-muted font-medium">No comments yet</p>
-          <p className="text-sm text-text-muted/70 mt-1">Be the first to share your thoughts!</p>
+        <div className="text-center py-10 rounded-xl bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-800 border-dashed">
+          <div className="text-4xl mb-2">💭</div>
+          <p className="text-text-muted font-medium text-sm">No comments yet</p>
+          <p className="text-xs text-text-muted/70 mt-1">Be the first to share your thoughts!</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 mb-6">
           {comments.map((comment, index) => (
             <div 
               key={comment.id} 
-              className="group p-5 rounded-xl bg-surface/20 hover:bg-surface/30 transition-all duration-300 border border-border/50 hover:border-accent-gold/20"
-              style={{ animationDelay: `${index * 0.05}s` }}
+              className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900/30 hover:bg-gray-100 dark:hover:bg-gray-900/50 transition-all duration-300 border border-gray-200 dark:border-gray-800"
             >
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent-gold/20 to-accent-gold/5 flex items-center justify-center">
-                    <span className="text-accent-gold font-semibold text-sm">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-500/20 to-amber-500/5 flex items-center justify-center">
+                    <span className="text-amber-500 font-semibold text-xs">
                       {comment.author.charAt(0).toUpperCase()}
                     </span>
                   </div>
-                  <span className="font-semibold text-accent-gold">
+                  <span className="font-semibold text-amber-500 text-sm">
                     {comment.author}
                   </span>
                   <span className="text-xs text-text-muted flex items-center gap-1">
-                    <Calendar size={12} />
+                    <Calendar size={10} />
                     {new Date(comment.created_at).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'short',
@@ -230,17 +145,92 @@ export default function SimpleComments({ postSlug }: { postSlug: string }) {
                   <span className="text-xs text-text-muted/50">#{comments.length - index}</span>
                 </div>
               </div>
-              <p className="text-text-secondary leading-relaxed pl-10 sm:pl-10">
+              <p className="text-text-secondary text-sm leading-relaxed pl-9">
                 {comment.content}
               </p>
             </div>
           ))}
-          
-          {/* Total comments footer */}
-          <div className="pt-4 text-center">
-            <p className="text-sm text-text-muted">
-              {comments.length} {comments.length === 1 ? 'person has' : 'people have'} joined the conversation
+        </div>
+      )}
+      
+      {/* Comment Form - Now appears BELOW the comments */}
+      {showForm && (
+        <div className="rounded-xl bg-gradient-to-br from-amber-500/5 to-transparent border border-amber-500/20 overflow-hidden mt-4">
+          <div className="p-4 sm:p-5">
+            <h4 className="font-semibold text-sm mb-1 flex items-center gap-2">
+              <span>✍️</span> Share your thoughts
+            </h4>
+            <p className="text-xs text-text-muted mb-3">
+              Your email won't be published. Comments are moderated.
             </p>
+            
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-3">
+              {/* Name input */}
+              <div className="relative">
+                <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-all ${authorFocused || author ? 'text-amber-500' : 'text-text-muted'}`}>
+                  <User size={14} />
+                </div>
+                <input
+                  type="text"
+                  value={author}
+                  onChange={(e) => setAuthor(e.target.value)}
+                  onFocus={() => setAuthorFocused(true)}
+                  onBlur={() => setAuthorFocused(false)}
+                  placeholder="Your name *"
+                  className="w-full pl-9 pr-3 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-all text-sm"
+                  required
+                />
+              </div>
+              
+              {/* Comment textarea */}
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                onFocus={() => setContentFocused(true)}
+                onBlur={() => setContentFocused(false)}
+                placeholder="What are your thoughts? *"
+                rows={3}
+                className="w-full px-3 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-all resize-none text-sm"
+                required
+              />
+              
+              {/* Submit button */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg hover:scale-[1.02] transition-all disabled:opacity-50 text-sm font-medium"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Send size={14} />
+                      Post Comment
+                    </>
+                  )}
+                </button>
+                
+                <p className="text-xs text-text-muted">
+                  Your comment will appear after moderation ✨
+                </p>
+              </div>
+              
+              {/* Message alert */}
+              {message && (
+                <div className={`flex items-center gap-2 p-2 rounded-lg text-xs ${
+                  message.type === 'success' 
+                    ? 'bg-green-500/10 border border-green-500/20 text-green-500' 
+                    : 'bg-red-500/10 border border-red-500/20 text-red-500'
+                }`}>
+                  {message.type === 'success' ? <CheckCircle size={12} /> : <AlertCircle size={12} />}
+                  <span>{message.text}</span>
+                </div>
+              )}
+            </form>
           </div>
         </div>
       )}
