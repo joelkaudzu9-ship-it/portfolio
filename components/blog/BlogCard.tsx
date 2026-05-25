@@ -14,7 +14,7 @@ type Post = {
   featured_image_type: string | null
   video_id: string | null
   media_gallery: any[]
-  views?: number  // Add optional views field
+  views?: number
 }
 
 interface BlogCardProps {
@@ -100,7 +100,10 @@ export default function BlogCard({ post }: BlogCardProps) {
               })}
             </span>
             <span className="flex items-center gap-1">
-              <Eye size={12} /> {post.views || 0} views
+              <User size={12} /> Joel
+            </span>
+            <span className="flex items-center gap-1">
+              <Eye size={12} /> {post.views || 0}
             </span>
           </div>
           

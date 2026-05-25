@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { PageLoader } from '@/components/PageLoader'
-import { Calendar, User, ArrowLeft, Video, Play, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Calendar, User, ArrowLeft, Video, Play, Image as ImageIcon, ChevronLeft, ChevronRight, Eye } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import SocialShare from '@/components/SocialShare'
@@ -26,6 +26,7 @@ type Post = {
   featured_image_type: string | null
   video_id: string | null
   media_gallery: MediaItem[]
+  views?: number
 }
 
 export default function BlogPostClient({ initialPost }: { initialPost: Post | null }) {
@@ -72,7 +73,7 @@ export default function BlogPostClient({ initialPost }: { initialPost: Post | nu
 
         <div>
           <div className="mb-8">
-            <div className="flex items-center gap-4 text-sm text-text-muted mb-4">
+            <div className="flex flex-wrap items-center gap-4 text-sm text-text-muted mb-4">
               <span className="flex items-center gap-1">
                 <Calendar size={14} /> 
                 {new Date(post.created_at).toLocaleDateString('en-US', {
@@ -83,6 +84,9 @@ export default function BlogPostClient({ initialPost }: { initialPost: Post | nu
               </span>
               <span className="flex items-center gap-1">
                 <User size={14} /> Joel George Kaudzu
+              </span>
+              <span className="flex items-center gap-1">
+                <Eye size={14} /> {post.views || 0} views
               </span>
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold gradient-text-gold mb-4">
