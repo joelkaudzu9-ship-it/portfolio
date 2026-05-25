@@ -7,10 +7,12 @@ export default function Footer() {
     <footer className="border-t border-border mt-auto">
       <div className="container-custom py-6">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-3 text-sm">
+          {/* Copyright */}
           <p className="text-text-muted order-2 sm:order-1">
             © {currentYear} Joel George Kaudzu
           </p>
           
+          {/* Navigation Links */}
           <div className="flex flex-wrap justify-center gap-4 order-1 sm:order-2">
             <Link href="/about" className="text-text-secondary hover:text-accent-gold transition-colors">
               About
@@ -24,8 +26,13 @@ export default function Footer() {
             <Link href="/contact" className="text-text-secondary hover:text-accent-gold transition-colors">
               Contact
             </Link>
+            {/* Admin link - smaller and more subtle */}
+            <Link href="/admin" className="text-text-muted hover:text-accent-gold transition-colors text-xs">
+              Admin
+            </Link>
           </div>
           
+          {/* Social Icons */}
           <div className="flex gap-3 order-3">
             <a href="https://github.com/joelkaudzu9-ship-it" target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-accent-gold transition-colors">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
