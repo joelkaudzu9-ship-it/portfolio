@@ -44,17 +44,22 @@ export default function BlogContent() {
 
   return (
     <>
-      {/* Compact Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
+      {/* Ultra Compact Header - Directly below nav */}
+      <div className="flex flex-wrap items-end justify-between gap-3 pb-4 mb-6 border-b border-border">
         <div>
-          <span className="text-amber-500 text-sm font-semibold">Blog</span>
-          <p className="text-text-muted text-xs mt-0.5">Healthcare & tech insights</p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold gradient-text-gold">Blog</h1>
+            <span className="text-text-muted text-xs">insights</span>
+          </div>
+          <p className="text-text-muted text-xs mt-1 max-w-md">
+            Healthcare tech, frugal innovation & African systems
+          </p>
         </div>
         
         <div className="flex gap-2 text-sm">
           <button
             onClick={() => setSortOrder('newest')}
-            className={`px-3 py-1.5 rounded-lg transition-colors ${
+            className={`px-3 py-1 rounded-lg transition-colors text-sm ${
               sortOrder === 'newest' 
                 ? 'bg-amber-500 text-white' 
                 : 'bg-surface border border-border hover:border-amber-500/30'
@@ -64,7 +69,7 @@ export default function BlogContent() {
           </button>
           <button
             onClick={() => setSortOrder('oldest')}
-            className={`px-3 py-1.5 rounded-lg transition-colors ${
+            className={`px-3 py-1 rounded-lg transition-colors text-sm ${
               sortOrder === 'oldest' 
                 ? 'bg-amber-500 text-white' 
                 : 'bg-surface border border-border hover:border-amber-500/30'
