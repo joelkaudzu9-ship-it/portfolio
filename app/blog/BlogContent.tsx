@@ -17,6 +17,7 @@ type Post = {
   featured_image_type: string | null
   video_id: string | null
   media_gallery: any[]
+  views?: number
 }
 
 export default function BlogContent() {
@@ -44,39 +45,36 @@ export default function BlogContent() {
 
   return (
     <>
-      {/* Refined Header - Cleaner, more premium */}
-      <div className="mb-10">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+      {/* Clean Header */}
+      <div className="mb-8 sm:mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
           <div>
-            <div className="flex items-baseline gap-3">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
-                Blog
-              </h1>
-              <span className="text-xs text-text-muted uppercase tracking-wider hidden sm:inline">Insights</span>
-            </div>
-            <p className="text-text-secondary text-sm mt-2 max-w-lg leading-relaxed">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              Blog
+            </h1>
+            <p className="text-text-muted text-sm mt-1">
               Thoughts on medicine, technology, and building the future in Africa
             </p>
           </div>
           
-          {/* Softer sort buttons */}
-          <div className="flex gap-1.5">
+          {/* Sort buttons - subtle */}
+          <div className="flex gap-1">
             <button
               onClick={() => setSortOrder('newest')}
-              className={`px-3 py-1 rounded-md transition-all text-sm ${
+              className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
                 sortOrder === 'newest' 
                   ? 'bg-amber-500/10 text-amber-500 border border-amber-500/30' 
-                  : 'text-text-muted hover:text-text-secondary'
+                  : 'text-text-muted hover:text-text-secondary hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
             >
               Latest
             </button>
             <button
               onClick={() => setSortOrder('oldest')}
-              className={`px-3 py-1 rounded-md transition-all text-sm ${
+              className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
                 sortOrder === 'oldest' 
                   ? 'bg-amber-500/10 text-amber-500 border border-amber-500/30' 
-                  : 'text-text-muted hover:text-text-secondary'
+                  : 'text-text-muted hover:text-text-secondary hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
             >
               Oldest
@@ -84,11 +82,12 @@ export default function BlogContent() {
           </div>
         </div>
         
-        {/* Subtle divider - optional, adds separation without heaviness */}
-        <div className="h-px bg-gradient-to-r from-border via-border to-transparent mt-5" />
+        {/* Subtle divider */}
+        <div className="h-px bg-gradient-to-r from-border via-border/50 to-transparent mt-4 sm:mt-5" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Grid Layout - 2 columns on desktop, 1 on mobile */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         <div className="lg:col-span-2">
           <BlogGrid posts={sortedPosts} />
         </div>

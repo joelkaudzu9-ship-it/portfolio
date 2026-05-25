@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Send, Check, AlertCircle } from 'lucide-react'
 
 export default function Newsletter() {
   const [email, setEmail] = useState('')
@@ -10,15 +9,13 @@ export default function Newsletter() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (!email || !email.includes('@')) {
+    if (!email.trim()) {
       setStatus('error')
-      setMessage('Please enter a valid email address')
+      setMessage('Email required')
       return
     }
-    
+
     setStatus('loading')
-    setMessage('')
     
     try {
       const res = await fetch('/api/newsletter/subscribe', {
@@ -26,62 +23,47 @@ export default function Newsletter() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() }),
       })
-      
-      const data = await res.json()
-      
+
       if (res.ok) {
         setStatus('success')
-        setMessage('Thanks for subscribing! Check your email for a welcome message.')
+        setMessage('Subscribed! 🎉')
         setEmail('')
-        setTimeout(() => {
-          setStatus('idle')
-          setMessage('')
-        }, 5000)
+        setTimeout(() => setStatus('idle'), 3000)
       } else {
+        const error = await res.json()
         setStatus('error')
-        setMessage(data.error || 'Something went wrong')
+        setMessage(error.error || 'Failed')
+        setTimeout(() => setStatus('idle'), 3000)
       }
-    } catch (error) {
+    } catch {
       setStatus('error')
-      setMessage('Network error. Please try again.')
+      setMessage('Network error')
+      setTimeout(() => setStatus('idle'), 3000)
     }
   }
 
   return (
-    <div className="w-full">
-      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Your email address"
-          className="flex-1 px-3 py-2 text-sm rounded-lg bg-surface border border-border focus:border-accent-gold/50 focus:outline-none transition-colors text-text-primary"
-          disabled={status === 'loading'}
-        />
-        <button
-          type="submit"
-          disabled={status === 'loading'}
-          className="px-4 py-2 bg-accent-gold text-background rounded-lg text-sm font-medium hover:bg-accent-goldLight transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-        >
-          {status === 'loading' ? (
-            <div className="animate-spin rounded-full h-4 w-4 border-2 border-background border-t-transparent" />
-          ) : status === 'success' ? (
-            <Check size={16} />
-          ) : (
-            <Send size={16} />
-          )}
-          {status === 'loading' ? 'Subscribing...' : 'Subscribe'}
-        </button>
-      </form>
-      
+    <form onSubmit={handleSubmit} className="space-y-2">
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="your@email.com"
+        className="w-full px-3 py-2 text-sm rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-amber-500/50 focus:outline-none transition-colors"
+        disabled={status === 'loading'}
+      />
+      <button
+        type="submit"
+        disabled={status === 'loading'}
+        className="w-full px-3 py-2 text-sm bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg hover:scale-[1.02] transition-all disabled:opacity-50"
+      >
+        {status === 'loading' ? 'Subscribing...' : 'Subscribe'}
+      </button>
       {message && (
-        <p className={`text-xs mt-2 flex items-center gap-1 ${
-          status === 'success' ? 'text-green-500' : 'text-red-500'
-        }`}>
-          {status === 'error' && <AlertCircle size={12} />}
+        <p className={`text-xs ${status === 'success' ? 'text-green-500' : 'text-red-500'}`}>
           {message}
         </p>
       )}
-    </div>
+    </form>
   )
 }
