@@ -9,22 +9,22 @@ import { Sun, Moon, X, ChevronDown } from 'lucide-react'
 
 // Main navigation items
 const mainNavItems = [
-  { href: '/', label: 'Home' },
-  { href: '/about', label: 'About' },
-  { href: '/journey', label: 'Journey' },
-  { href: '/projects', label: 'Projects' },
-  { href: '/blog', label: 'Insights' },
-  { href: '/contact', label: 'Contact' },
+  { href: '/', label: 'Home', icon: '🏠' },
+  { href: '/about', label: 'About', icon: '👤' },
+  { href: '/journey', label: 'Journey', icon: '🛤️' },
+  { href: '/projects', label: 'Projects', icon: '🚀' },
+  { href: '/blog', label: 'Insights', icon: '📝' },
+  { href: '/contact', label: 'Contact', icon: '📧' },
 ]
 
 // Dropdown items
 const dropdownItems = [
-  { href: '/education', label: 'Education' },
-  { href: '/values', label: 'Values' },
-  { href: '/skills', label: 'Skills' },
-  { href: '/achievements', label: 'Achievements' },
-  { href: '/poetry', label: 'Poetry' },
-  { href: '/testimonials', label: 'Testimonials' },
+  { href: '/education', label: 'Education', icon: '🎓' },
+  { href: '/values', label: 'Values', icon: '💎' },
+  { href: '/skills', label: 'Skills', icon: '⚡' },
+  { href: '/achievements', label: 'Achievements', icon: '🏆' },
+  { href: '/poetry', label: 'Poetry', icon: '📖' },
+  { href: '/testimonials', label: 'Testimonials', icon: '⭐' },
 ]
 
 export default function Navigation() {
@@ -210,8 +210,12 @@ export default function Navigation() {
             isOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
+          {/* Header */}
           <div className="flex justify-between items-center p-4 border-b border-gray-800">
-            <span className="text-amber-500 font-bold text-lg">Menu</span>
+            <div className="flex items-center gap-2">
+              <span className="text-amber-500 font-bold text-lg">Menu</span>
+              <span className="text-xs text-gray-500">v1.0</span>
+            </div>
             <button
               onClick={() => setIsOpen(false)}
               className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors"
@@ -220,14 +224,14 @@ export default function Navigation() {
             </button>
           </div>
           
-          <div className="flex flex-col p-4 space-y-1 max-h-[calc(100vh-120px)] overflow-y-auto">
-            {/* Theme Toggle - ONLY ONE, AT THE TOP FOR EASY ACCESS */}
+          <div className="flex flex-col p-4 max-h-[calc(100vh-120px)] overflow-y-auto">
+            {/* Theme Toggle - At Top */}
             <button
               onClick={() => {
                 toggleTheme()
                 setIsOpen(false)
               }}
-              className="flex items-center gap-3 px-4 py-3 mb-2 bg-gray-800/50 text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-colors"
+              className="flex items-center justify-center gap-3 px-4 py-3 mb-4 bg-gradient-to-r from-amber-500/20 to-amber-600/20 text-amber-500 rounded-xl transition-all hover:scale-[1.02]"
               style={{
                 transitionDelay: `0ms`,
                 transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
@@ -235,79 +239,77 @@ export default function Navigation() {
               }}
             >
               {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-              <span className="text-base font-medium">
+              <span className="text-sm font-medium">
                 {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
               </span>
             </button>
             
-            {/* Divider */}
-            <div className="h-px bg-gray-800 my-2" style={{
-              transitionDelay: `50ms`,
-              transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
-              opacity: isOpen ? 1 : 0,
-            }} />
+            {/* Main Nav Items - 2 COLUMN GRID */}
+            <div className="mb-4">
+              <p className="text-xs text-gray-500 mb-2 px-1">Main</p>
+              <div className="grid grid-cols-2 gap-2">
+                {mainNavItems.map((item, index) => (
+                  <button
+                    key={item.href}
+                    onClick={() => handleLinkClick(item.href)}
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all duration-300 ${
+                      pathname === item.href 
+                        ? 'bg-amber-500/20 text-amber-500' 
+                        : 'bg-gray-800/50 text-gray-300 hover:bg-gray-800 hover:text-white'
+                    }`}
+                    style={{
+                      transitionDelay: `${(index + 1) * 50}ms`,
+                      transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
+                      opacity: isOpen ? 1 : 0,
+                    }}
+                  >
+                    <span className="text-base">{item.icon}</span>
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
             
-            {/* Main nav items */}
-            {mainNavItems.map((item, index) => (
-              <button
-                key={item.href}
-                onClick={() => handleLinkClick(item.href)}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-300 transform ${
-                  pathname === item.href 
-                    ? 'bg-amber-500/20 text-amber-500' 
-                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                }`}
-                style={{
-                  transitionDelay: `${(index + 1) * 50}ms`,
-                  transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
-                  opacity: isOpen ? 1 : 0,
-                }}
-              >
-                <span className="text-base font-medium">{item.label}</span>
-              </button>
-            ))}
-            
-            {/* Divider */}
-            <div className="h-px bg-gray-800 my-2" style={{
-              transitionDelay: `${(mainNavItems.length + 1) * 50}ms`,
-              transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
-              opacity: isOpen ? 1 : 0,
-            }} />
-            
-            {/* Dropdown items in mobile menu */}
-            {dropdownItems.map((item, index) => (
-              <button
-                key={item.href}
-                onClick={() => handleLinkClick(item.href)}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-300 transform ${
-                  pathname === item.href 
-                    ? 'bg-amber-500/20 text-amber-500' 
-                    : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                }`}
-                style={{
-                  transitionDelay: `${(mainNavItems.length + index + 2) * 50}ms`,
-                  transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
-                  opacity: isOpen ? 1 : 0,
-                }}
-              >
-                <span className="text-sm font-medium">{item.label}</span>
-              </button>
-            ))}
+            {/* Dropdown Items - 2 COLUMN GRID */}
+            <div>
+              <p className="text-xs text-gray-500 mb-2 px-1">More</p>
+              <div className="grid grid-cols-2 gap-2">
+                {dropdownItems.map((item, index) => (
+                  <button
+                    key={item.href}
+                    onClick={() => handleLinkClick(item.href)}
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all duration-300 ${
+                      pathname === item.href 
+                        ? 'bg-amber-500/20 text-amber-500' 
+                        : 'bg-gray-800/50 text-gray-400 hover:bg-gray-800 hover:text-white'
+                    }`}
+                    style={{
+                      transitionDelay: `${(mainNavItems.length + index + 1) * 50}ms`,
+                      transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
+                      opacity: isOpen ? 1 : 0,
+                    }}
+                  >
+                    <span className="text-base">{item.icon}</span>
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
           
-          {/* Footer in Mobile Menu - NO THEME TOGGLE HERE ANYMORE */}
+          {/* Footer */}
           <div 
-            className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-800 text-center"
+            className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-800 text-center bg-gray-900"
             style={{
-              transitionDelay: `${(mainNavItems.length + dropdownItems.length + 3) * 50}ms`,
+              transitionDelay: `${(mainNavItems.length + dropdownItems.length + 2) * 50}ms`,
               transform: isOpen ? 'translateY(0)' : 'translateY(30px)',
               opacity: isOpen ? 1 : 0,
             }}
           >
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-500 text-xs">
               © {new Date().getFullYear()} Joel George Kaudzu
             </p>
-            <p className="text-gray-600 text-xs mt-1">
+            <p className="text-gray-600 text-xs mt-0.5">
               Building systems that matter
             </p>
           </div>
