@@ -49,8 +49,6 @@ export default function BlogContent() {
       <div className="mb-10 sm:mb-12">
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
           <div>
-            {/* From the desk badge */}
-            <div className="flex items-center gap-2 mb-3">
             {/* Main title with gradient and underline effect */}
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight leading-tight">
               Writing on 
