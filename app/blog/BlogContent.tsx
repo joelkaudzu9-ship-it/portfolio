@@ -51,14 +51,6 @@ export default function BlogContent() {
           <div>
             {/* From the desk badge */}
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                <span className="text-amber-500 text-sm">✍️</span>
-              </div>
-              <span className="text-xs text-text-muted uppercase tracking-wider">
-                From the desk of Joel Kaudzu
-              </span>
-            </div>
-            
             {/* Main title with gradient and underline effect */}
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight leading-tight">
               Writing on 
