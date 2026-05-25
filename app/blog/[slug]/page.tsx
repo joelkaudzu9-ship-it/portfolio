@@ -1,90 +1,52 @@
 import { supabaseAdmin } from '@/lib/supabase/server'
 import BlogPostClient from './BlogPostClient'
 import SimpleComments from '@/components/SimpleComments'
+import { getReadingTime } from '@/lib/readingTime'
 
 async function getPost(slug: string) {
   const { data, error } = await supabaseAdmin
     .from('blog_posts')
     .select('*')
     .eq('slug', slug)
+    .single()
   
-  if (error || !data || data.length === 0) {
-    return null
-  }
-  
-  return data[0]
+  if (error || !data) return null
+  return data
 }
 
-// Function to increment views
-async function incrementViews(slug: string) {
-  try {
-    // First get current views
-    const { data: current } = await supabaseAdmin
-      .from('blog_posts')
-      .select('views')
-      .eq('slug', slug)
-      .single()
-    
-    const newViews = (current?.views || 0) + 1
-    
-    // Update with new count
-    await supabaseAdmin
-      .from('blog_posts')
-      .update({ views: newViews })
-      .eq('slug', slug)
-  } catch (error) {
-    console.error('Error incrementing views:', error)
-  }
+async function getAllPosts() {
+  const { data, error } = await supabaseAdmin
+    .from('blog_posts')
+    .select('id, title, slug, created_at, views')
+    .eq('published', true)
+    .order('created_at', { ascending: false })
+  
+  if (error) return []
+  return data || []
 }
 
 export default async function BlogPostPage({ params }: { params: { slug: string } }) {
   const { slug } = await params
   const post = await getPost(slug)
-  
-  // Increment views when page is viewed
-  if (post) {
-    await incrementViews(slug)
-  }
-  
-  return (
-    <>
-      <BlogPostClient initialPost={post} />
-      {/* Comments Section */}
-      {post && <SimpleComments postSlug={post.slug} />}
-    </>
-  )
-}
-
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const { slug } = await params
-  const post = await getPost(slug)
+  const allPosts = await getAllPosts()
   
   if (!post) {
-    return {
-      title: 'Post Not Found',
-    }
+    return (
+      <div className="min-h-screen py-20 text-center">
+        <h1 className="text-2xl font-bold">Post not found</h1>
+        <a href="/blog" className="text-accent-gold mt-4 inline-block">← Back to blog</a>
+      </div>
+    )
   }
-  
-  const baseUrl = 'https://joelkaudzu-portfolio.vercel.app'
-  const imageUrl = post.featured_image || `${baseUrl}/og-image.jpg`
-  
-  return {
-    title: post.title,
-    description: post.excerpt,
-    openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      url: `${baseUrl}/blog/${post.slug}`,
-      images: [imageUrl],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: post.title,
-      description: post.excerpt,
-      images: [imageUrl],
-    },
-    alternates: {
-      canonical: `${baseUrl}/blog/${post.slug}`,
-    },
-  }
+
+  return (
+    <>
+      <BlogPostClient 
+        initialPost={post} 
+        readingTime={getReadingTime(post.content)}
+        allPosts={allPosts}
+      />
+      <SimpleComments postSlug={post.slug} />
+    </>
+  )
 }
