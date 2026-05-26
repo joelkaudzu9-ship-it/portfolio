@@ -8,6 +8,7 @@ import {
   Calendar, User, Star, Eye, Mail, Sparkles, Quote, 
   ChevronRight, Zap, Shield, Coffee, Briefcase, BookOpen, Award
 } from 'lucide-react'
+import OptimizedImage from '@/components/OptimizedImage'  // Add this line
 
 type HeroData = {
   title: string
@@ -213,18 +214,13 @@ export default function Home() {
                   <div className="relative">
                     <div className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 opacity-60 blur-xl"></div>
                     <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-amber-500/30">
-                      <img 
+                      <OptimizedImage 
                         src={displayHero.profile_image_url} 
-                        alt={displayHero.title} 
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const img = e.currentTarget
-                          img.style.display = 'none'
-                          const parent = img.parentElement
-                          if (parent) {
-                            parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-500/20 to-amber-500/5 text-3xl">👨‍⚕️</div>'
-                          }
-                        }}
+                        alt={displayHero.title}
+                        width={120}
+                        height={120}
+                        priority={true}
+                        className="w-full h-full"
                       />
                     </div>
                   </div>
@@ -354,13 +350,12 @@ export default function Home() {
                     <div className="rounded-xl overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:border-amber-500/30 transition-all">
                       {project.image_url && (
                         <div className="h-40 overflow-hidden bg-gray-100 dark:bg-gray-800">
-                          <img 
+                          <OptimizedImage 
                             src={project.image_url} 
-                            alt={project.title} 
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                            onError={(e) => {
-                              e.currentTarget.src = 'https://placehold.co/600x400/1a1a1a/666?text=Project'
-                            }}
+                            alt={project.title}
+                            width={400}
+                            height={200}
+                            className="w-full h-full transition-transform duration-300 group-hover:scale-105"
                           />
                         </div>
                       )}
@@ -417,13 +412,12 @@ export default function Home() {
                     <div className="rounded-xl overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:border-amber-500/30 transition-all">
                       {post.featured_image && (
                         <div className="h-36 overflow-hidden bg-gray-100 dark:bg-gray-800">
-                          <img 
+                          <OptimizedImage 
                             src={post.featured_image} 
-                            alt={post.title} 
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                            onError={(e) => {
-                              e.currentTarget.src = 'https://placehold.co/600x400/1a1a1a/666?text=Blog'
-                            }}
+                            alt={post.title}
+                            width={400}
+                            height={150}
+                            className="w-full h-full transition-transform duration-300 group-hover:scale-105"
                           />
                         </div>
                       )}
