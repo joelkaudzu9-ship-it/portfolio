@@ -170,7 +170,7 @@ export default function CVPage() {
                     <Target size={16} /> Featured Projects
                   </h2>
                   <div className="space-y-4">
-                    <div className="print:break-inside-avoid">
+                    <div>
                       <h3 className="font-semibold text-gray-900">MoyoWanga</h3>
                       <p className="text-amber-600 text-xs">Multilingual Chronic Disease Support Ecosystem</p>
                       <p className="text-gray-600 text-xs mt-1">
@@ -181,7 +181,7 @@ export default function CVPage() {
                         <span className="text-xs text-gray-500">Tech: Python, Flask, PostgreSQL, Africa's Talking API</span>
                       </div>
                     </div>
-                    <div className="print:break-inside-avoid">
+                    <div>
                       <h3 className="font-semibold text-gray-900">CheckMySmile</h3>
                       <p className="text-amber-600 text-xs">AI-Powered Oral Health Screening System</p>
                       <p className="text-gray-600 text-xs mt-1">
@@ -189,7 +189,7 @@ export default function CVPage() {
                       </p>
                       <p className="text-gray-600 text-xs">Training accuracy: 92.3% | Validation: 94.2%</p>
                     </div>
-                    <div className="print:break-inside-avoid">
+                    <div>
                       <h3 className="font-semibold text-gray-900">SendMe</h3>
                       <p className="text-amber-600 text-xs">Campus Task Marketplace for KUHeS</p>
                       <p className="text-gray-600 text-xs mt-1">
@@ -293,7 +293,7 @@ export default function CVPage() {
                   <h2 className="text-lg font-bold text-amber-600 flex items-center gap-2 mb-3">
                     <PenTool size={16} /> Creative Work
                   </h2>
-                  <div className="bg-amber-50 p-3 rounded-lg border-l-4 border-amber-500 print:bg-gray-100 print:border-l-2 print:border-gray-400">
+                  <div className="bg-amber-50 p-3 rounded-lg border-l-4 border-amber-500">
                     <p className="text-gray-700 text-xs italic">
                       <strong>"Threads of Becoming"</strong> — A poetry collection exploring life, growth, and struggle. 
                       13 poems across 4 sections: Broken and Becoming, Light Through the Storm, Infinite Thoughts, 
@@ -332,8 +332,8 @@ export default function CVPage() {
               </div>
             </div>
 
-            {/* Interests - FIXED: Added print:border-none */}
-            <div className="mt-4 pt-3 border-t border-gray-200 print:border-none print:mt-2 print:pt-1">
+            {/* Interests */}
+            <div className="mt-4 pt-3 border-t border-gray-200">
               <h2 className="text-lg font-bold text-amber-600 flex items-center gap-2 mb-2">
                 <Heart size={16} /> Interests
               </h2>
@@ -344,8 +344,8 @@ export default function CVPage() {
               </div>
             </div>
 
-            {/* Quote Footer - FIXED: Added print:border-none */}
-            <div className="mt-6 pt-4 border-t border-gray-200 text-center print:border-none print:mt-2 print:pt-1">
+            {/* Quote Footer */}
+            <div className="mt-6 pt-4 border-t border-gray-200 text-center">
               <p className="text-gray-500 text-sm italic">
                 "Every problem becomes temporary once you prove to yourself that you can build something real from nothing."
               </p>
@@ -380,35 +380,10 @@ export default function CVPage() {
               color: #b45309 !important;
             }
             .bg-amber-50 {
-              background-color: #f3f4f6 !important;
+              background-color: #fffbeb !important;
             }
             button {
               display: none !important;
-            }
-            
-            /* Prevent content from being cut off */
-            .space-y-4 > div,
-            .space-y-3 > div,
-            .space-y-2 > div {
-              page-break-inside: avoid;
-              break-inside: avoid;
-            }
-            
-            /* Keep headings with their content */
-            h2, h3 {
-              page-break-after: avoid;
-              break-after: avoid;
-            }
-            
-            /* Add extra padding to prevent overlapping */
-            .px-6, .px-8 {
-              padding-left: 0.2in !important;
-              padding-right: 0.2in !important;
-            }
-            
-            .py-6 {
-              padding-top: 0.2in !important;
-              padding-bottom: 0.2in !important;
             }
           }
         `}</style>
