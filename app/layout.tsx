@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, JetBrains_Mono } from 'next/font/google'
-import Script from 'next/script'
 import './globals.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import Navigation from '@/components/Navigation'
@@ -14,7 +13,6 @@ const inter = Inter({
   variable: '--font-inter',
   display: 'swap',
   preload: true,
-  fallback: ['system-ui', 'sans-serif'],
 })
 
 const jetbrains = JetBrains_Mono({ 
@@ -22,7 +20,6 @@ const jetbrains = JetBrains_Mono({
   variable: '--font-jetbrains',
   display: 'swap',
   preload: false,
-  fallback: ['monospace'],
 })
 
 export const metadata: Metadata = {
@@ -96,7 +93,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Preconnect to critical origins */}
+        {/* Preconnect to critical origins - keeps existing ones */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
@@ -117,28 +114,6 @@ export default function RootLayout({
           </main>
           <Footer />
         </ThemeProvider>
-
-        {/* Defer Google Analytics until after page load */}
-        <Script
-          strategy="lazyOnload"
-          src="https://www.googletagmanager.com/gtag/js?id=G-SK1J9MS1TH"
-        />
-        <Script
-          id="google-analytics"
-          strategy="lazyOnload"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-SK1J9MS1TH', {
-                page_path: window.location.pathname,
-                send_page_view: false,
-                transport_type: 'beacon'
-              });
-            `,
-          }}
-        />
       </body>
     </html>
   )

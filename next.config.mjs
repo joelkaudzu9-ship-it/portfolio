@@ -20,10 +20,11 @@ const nextConfig = {
       },
     ],
     formats: ['image/avif', 'image/webp'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   experimental: {
     staleTimes: {
@@ -33,21 +34,16 @@ const nextConfig = {
     optimizeServerReact: true,
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
-    reactRemoveProperties: process.env.NODE_ENV === 'production',
-  },
   compress: true,
   poweredByHeader: false,
   swcMinify: true,
-  optimizeFonts: true,
-  reactStrictMode: true,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  // Add CDN optimization
+  assetPrefix: process.env.NEXT_PUBLIC_ASSET_PREFIX || '',
   // On-demand revalidation
   revalidate: 3600,
-  // Enable HTTP/2
-  httpAgentOptions: {
-    keepAlive: true,
-  },
 }
 
 export default nextConfig
