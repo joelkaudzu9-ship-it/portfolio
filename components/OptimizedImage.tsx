@@ -23,12 +23,11 @@ export default function OptimizedImage({
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  // Add Cloudinary optimization parameters - lower quality for better performance
   const getOptimizedSrc = () => {
     if (error) return null
     if (src.includes('cloudinary.com')) {
-      // q_30 for better performance, w_600 for smaller size
-      return src.replace('/upload/', '/upload/f_auto,q_30,w_600/')
+      // Back to q_40 for better quality without sacrificing speed
+      return src.replace('/upload/', '/upload/f_auto,q_40,w_600/')
     }
     if (src.includes('youtube.com') || src.includes('ytimg.com')) {
       return src
@@ -58,7 +57,7 @@ export default function OptimizedImage({
         loading={priority ? 'eager' : 'lazy'}
         sizes={priority ? '100vw' : '(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw'}
         className={`
-          duration-150 ease-in-out object-cover
+          duration-200 ease-in-out object-cover
           ${isLoading ? 'scale-110 blur-sm' : 'scale-100 blur-0'}
         `}
         onLoad={() => setIsLoading(false)}
