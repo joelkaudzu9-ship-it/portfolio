@@ -7,6 +7,7 @@ interface RelatedPostsProps {
   currentId: number
   currentTags?: string[]
 }
+//wwww
 
 export default function RelatedPosts({ currentId, currentTags }: RelatedPostsProps) {
   const [posts, setPosts] = useState<any[]>([])
