@@ -71,7 +71,7 @@ Healthcare Systems Builder
           <p>In the meantime, feel free to:</p>
           <ul>
             <li><a href="https://joelkaudzu-portfolio.vercel.app/projects">Check out my projects</a></li>
-            <li><a href="https://joelkaudzu.vercel.app/blog">Read my blog</a></li>
+            <li><a href="https://joelkaudzu-portfolio.vercel.app/blog">Read my blog</a></li>
             <li><a href="https://www.linkedin.com/in/joel-kaudzu-0bba48392">Connect on LinkedIn</a></li>
           </ul>
           <hr style="margin: 20px 0;">
