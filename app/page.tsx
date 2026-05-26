@@ -9,7 +9,22 @@ import {
   ChevronRight, Zap, Shield, Coffee, Briefcase, BookOpen, Award
 } from 'lucide-react'
 import OptimizedImage from '@/components/OptimizedImage'
-import { cachedFetch } from '@/lib/api-cache'
+
+// Simple in-memory cache
+const apiCache = new Map()
+const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+
+async function cachedFetch(url: string) {
+  const cached = apiCache.get(url)
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data
+  }
+  
+  const res = await fetch(url)
+  const data = await res.json()
+  apiCache.set(url, { data, timestamp: Date.now() })
+  return data
+}
 
 type HeroData = {
   title: string
@@ -63,13 +78,13 @@ type Testimonial = {
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 }
+  transition: { duration: 0.4 } // Reduced from 0.5
 }
 
 const staggerContainer = {
   animate: {
     transition: {
-      staggerChildren: 0.08
+      staggerChildren: 0.05 // Reduced from 0.08
     }
   }
 }
@@ -105,21 +120,22 @@ export default function Home() {
 
   const fetchAllData = async () => {
     try {
+      // Parallel fetching with caching
       const [heroData, valuesData, quotesData, projectsData, postsData, testimonialsData] = await Promise.all([
-        cachedFetch('hero', () => fetch('/api/dynamic/hero').then(res => res.json())),
-        cachedFetch('values', () => fetch('/api/dynamic/values').then(res => res.json())),
-        cachedFetch('quotes', () => fetch('/api/dynamic/quotes').then(res => res.json())),
-        cachedFetch('projects', () => fetch('/api/projects?featured=true').then(res => res.json())),
-        cachedFetch('posts', () => fetch('/api/blog').then(res => res.json())),
-        cachedFetch('testimonials', () => fetch('/api/dynamic/testimonials').then(res => res.json()))
+        cachedFetch('/api/dynamic/hero'),
+        cachedFetch('/api/dynamic/values'),
+        cachedFetch('/api/dynamic/quotes'),
+        cachedFetch('/api/projects?featured=true'),
+        cachedFetch('/api/blog'),
+        cachedFetch('/api/dynamic/testimonials')
       ])
       
       setHero(heroData[0] || null)
-      setValues(valuesData)
-      setQuotes(quotesData.filter((q: PersonalQuote) => q.is_featured))
-      setFeaturedProjects(projectsData.filter((p: any) => p.featured).slice(0, 3))
-      setLatestPosts(postsData.filter((p: any) => p.published).slice(0, 3))
-      setTestimonials(testimonialsData)
+      setValues(valuesData || [])
+      setQuotes((quotesData || []).filter((q: PersonalQuote) => q.is_featured))
+      setFeaturedProjects((projectsData || []).filter((p: any) => p.featured).slice(0, 3))
+      setLatestPosts((postsData || []).filter((p: any) => p.published).slice(0, 3))
+      setTestimonials(testimonialsData || [])
       setLoading(false)
     } catch (error) {
       console.error('Error fetching homepage data:', error)
@@ -182,7 +198,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-black">
-      {/* Scroll Progress Bar - Fixed */}
+      {/* Scroll Progress Bar */}
       <motion.div 
         className="fixed top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 to-amber-600 z-50 origin-left"
         style={{ scaleX: scrollProgress }}
@@ -269,7 +285,6 @@ export default function Home() {
           </motion.div>
         </div>
 
-        {/* Scroll indicator - removed pointer-events: auto issue */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-50">
           <div className="w-5 h-8 rounded-full border border-gray-400 flex justify-center">
             <div className="w-1 h-2 bg-amber-500 rounded-full mt-2 animate-pulse"></div>
@@ -277,7 +292,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Core Values - Compact spacing */}
+      {/* Core Values */}
       {values.length > 0 && (
         <section className="py-12 sm:py-16 bg-gray-50/50 dark:bg-gray-900/20">
           <div className="container-custom px-4 sm:px-6">
@@ -307,7 +322,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* Mission Statement - Compact */}
+      {/* Mission Statement */}
       <section className="py-12 sm:py-16">
         <div className="container-custom px-4 sm:px-6 max-w-3xl mx-auto">
           <div className="text-center p-6 sm:p-8 rounded-xl bg-gradient-to-br from-amber-500/5 to-transparent border border-amber-500/20">
@@ -488,7 +503,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* Newsletter - Compact */}
+      {/* Newsletter */}
       <section className="py-12 sm:py-16">
         <div className="container-custom px-4 sm:px-6 max-w-md mx-auto">
           <div className="text-center p-5 sm:p-6 rounded-xl bg-gradient-to-br from-amber-500/5 to-transparent border border-amber-500/20">

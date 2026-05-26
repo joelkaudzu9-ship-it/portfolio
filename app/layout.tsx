@@ -1,19 +1,17 @@
 import type { Metadata, Viewport } from 'next'
-import { Suspense } from 'react'
 import { Inter, JetBrains_Mono } from 'next/font/google'
-import { GoogleAnalytics } from '@next/third-parties/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import { ScrollReset } from '@/components/ScrollReset'
 import { PageLoader } from '@/components/PageLoader'
-import Script from 'next/script'
+import { Suspense } from 'react'
 
 const inter = Inter({ 
   subsets: ['latin'],
   variable: '--font-inter',
-  display: 'swap', // Important for performance
+  display: 'swap',
   preload: true,
 })
 
@@ -21,7 +19,7 @@ const jetbrains = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-jetbrains',
   display: 'swap',
-  preload: false, // Only preload critical fonts
+  preload: false,
 })
 
 export const metadata: Metadata = {
@@ -70,7 +68,6 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: '/favicon.ico',
-     // apple: '/apple-touch-icon.png',  //
     shortcut: '/favicon.ico',
   },
   manifest: '/site.webmanifest',
@@ -78,10 +75,6 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   category: 'technology',
-  // Add verification for search consoles
-  verification: {
-    google: 'your-google-verification-code',
-  },
 }
 
 export const viewport: Viewport = {
@@ -100,7 +93,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Preconnect to critical origins */}
+        {/* Preconnect to critical origins - keeps existing ones */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
@@ -109,15 +102,6 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
-        
-        {/* Preload critical assets */}
-        <link 
-          rel="preload" 
-          href="/og-image.jpg" 
-          as="image" 
-          type="image/jpeg"
-          fetchPriority="high"
-        />
       </head>
       <body className={`${inter.variable} ${jetbrains.variable} font-sans antialiased`}>
         <ThemeProvider>
@@ -130,27 +114,6 @@ export default function RootLayout({
           </main>
           <Footer />
         </ThemeProvider>
-        
-        {/* Defer Google Analytics */}
-        <Script
-          strategy="afterInteractive"
-          src={`https://www.googletagmanager.com/gtag/js?id=G-SK1J9MS1TH`}
-        />
-        <Script
-          id="google-analytics"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-SK1J9MS1TH', {
-                page_path: window.location.pathname,
-                send_page_view: false
-              });
-            `,
-          }}
-        />
       </body>
     </html>
   )
