@@ -8,7 +8,8 @@ import {
   Calendar, User, Star, Eye, Mail, Sparkles, Quote, 
   ChevronRight, Zap, Shield, Coffee, Briefcase, BookOpen, Award
 } from 'lucide-react'
-import OptimizedImage from '@/components/OptimizedImage'  // Add this line
+import OptimizedImage from '@/components/OptimizedImage'
+import { cachedFetch } from '@/lib/api-cache'
 
 type HeroData = {
   title: string
@@ -104,21 +105,14 @@ export default function Home() {
 
   const fetchAllData = async () => {
     try {
-      const [heroRes, valuesRes, quotesRes, projectsRes, postsRes, testimonialsRes] = await Promise.all([
-        fetch('/api/dynamic/hero'),
-        fetch('/api/dynamic/values'),
-        fetch('/api/dynamic/quotes'),
-        fetch('/api/projects?featured=true'),
-        fetch('/api/blog'),
-        fetch('/api/dynamic/testimonials')
+      const [heroData, valuesData, quotesData, projectsData, postsData, testimonialsData] = await Promise.all([
+        cachedFetch('hero', () => fetch('/api/dynamic/hero').then(res => res.json())),
+        cachedFetch('values', () => fetch('/api/dynamic/values').then(res => res.json())),
+        cachedFetch('quotes', () => fetch('/api/dynamic/quotes').then(res => res.json())),
+        cachedFetch('projects', () => fetch('/api/projects?featured=true').then(res => res.json())),
+        cachedFetch('posts', () => fetch('/api/blog').then(res => res.json())),
+        cachedFetch('testimonials', () => fetch('/api/dynamic/testimonials').then(res => res.json()))
       ])
-      
-      const heroData = await heroRes.json()
-      const valuesData = await valuesRes.json()
-      const quotesData = await quotesRes.json()
-      const projectsData = await projectsRes.json()
-      const postsData = await postsRes.json()
-      const testimonialsData = await testimonialsRes.json()
       
       setHero(heroData[0] || null)
       setValues(valuesData)
