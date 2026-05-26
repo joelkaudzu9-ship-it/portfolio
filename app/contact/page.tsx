@@ -26,7 +26,7 @@ const contactMethods = [
   {
     icon: MapPin,
     label: "Location",
-    value: "Lilongwe, Malawi",
+    value: "Blantyre, Malawi",
     href: null
   }
 ]
@@ -58,7 +58,7 @@ const socialLinks = [
       </svg>
     ),
     label: "WhatsApp", 
-    href: "https://wa.me/265983142415" 
+    href: "https://wa.me/265888147873" 
   }
 ]
 
