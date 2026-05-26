@@ -366,7 +366,7 @@ export default function MoyoWangaPage() {
         {/* Links */}
         <div className="flex flex-wrap gap-3 pt-4">
           <a 
-            href="https://moyowanga.onrender.com" 
+            href="https://moyowanga.fly.dev" 
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:scale-[1.02] transition-all"
