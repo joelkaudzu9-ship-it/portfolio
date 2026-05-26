@@ -10,7 +10,7 @@ import {
   Home, User, Compass, Rocket, 
   PenLine, Mail, GraduationCap, 
   Diamond, Zap, Trophy, BookOpen, 
-  Star, Menu
+  Star, Menu, FileText  // Added FileText for CV
 } from 'lucide-react'
 
 // Main navigation items with professional icons
@@ -20,6 +20,7 @@ const mainNavItems = [
   { href: '/journey', label: 'Journey', icon: Compass },
   { href: '/projects', label: 'Projects', icon: Rocket },
   { href: '/blog', label: 'Insights', icon: PenLine },
+  { href: '/cv', label: 'CV', icon: FileText },  // Added CV here
   { href: '/contact', label: 'Contact', icon: Mail },
 ]
 
@@ -104,22 +105,27 @@ export default function Navigation() {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-5">
-              {mainNavItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`relative text-sm font-medium transition-colors duration-300 whitespace-nowrap ${
-                    pathname === item.href 
-                      ? 'text-amber-500' 
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                  }`}
-                >
-                  {item.label}
-                  {pathname === item.href && (
-                    <span className="absolute -bottom-[21px] left-0 w-full h-0.5 bg-amber-500 rounded-full"></span>
-                  )}
-                </Link>
-              ))}
+              {mainNavItems.map((item) => {
+                const Icon = item.icon
+                const isActive = pathname === item.href
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`relative text-sm font-medium transition-colors duration-300 whitespace-nowrap flex items-center gap-1 ${
+                      isActive 
+                        ? 'text-amber-500' 
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <Icon size={14} />
+                    {item.label}
+                    {isActive && (
+                      <span className="absolute -bottom-[21px] left-0 w-full h-0.5 bg-amber-500 rounded-full"></span>
+                    )}
+                  </Link>
+                )
+              })}
 
               {/* Dropdown Menu */}
               <div ref={dropdownRef} className="relative">
@@ -138,26 +144,27 @@ export default function Navigation() {
                 {/* Dropdown Panel */}
                 {dropdownOpen && (
                   <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden z-50">
-                    {dropdownItems.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => {
-                          setDropdownOpen(false)
-                          setIsOpen(false)
-                        }}
-                        className={`block px-4 py-2.5 text-sm transition-colors ${
-                          pathname === item.href
-                            ? 'bg-amber-500/10 text-amber-500'
-                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <item.icon size={14} className="opacity-70" />
+                    {dropdownItems.map((item) => {
+                      const Icon = item.icon
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => {
+                            setDropdownOpen(false)
+                            setIsOpen(false)
+                          }}
+                          className={`flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${
+                            pathname === item.href
+                              ? 'bg-amber-500/10 text-amber-500'
+                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                          }`}
+                        >
+                          <Icon size={14} className="opacity-70" />
                           <span>{item.label}</span>
-                        </div>
-                      </Link>
-                    ))}
+                        </Link>
+                      )
+                    })}
                   </div>
                 )}
               </div>
