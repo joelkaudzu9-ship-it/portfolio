@@ -2,7 +2,6 @@
 
 import Image from 'next/image'
 import { useState } from 'react'
-import { ImageIcon } from 'lucide-react'  // Add this import
 
 interface OptimizedImageProps {
   src: string
@@ -24,11 +23,12 @@ export default function OptimizedImage({
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  // Add Cloudinary optimization parameters if using Cloudinary
+  // Add Cloudinary optimization parameters - lower quality for better performance
   const getOptimizedSrc = () => {
     if (error) return null
     if (src.includes('cloudinary.com')) {
-      return src.replace('/upload/', '/upload/f_auto,q_auto,w_800/')
+      // q_30 for better performance, w_600 for smaller size
+      return src.replace('/upload/', '/upload/f_auto,q_30,w_600/')
     }
     if (src.includes('youtube.com') || src.includes('ytimg.com')) {
       return src
@@ -41,7 +41,7 @@ export default function OptimizedImage({
   if (!optimizedSrc || error) {
     return (
       <div className={`flex items-center justify-center bg-gradient-to-br from-amber-500/20 to-amber-500/5 ${className}`}>
-        <ImageIcon size={32} className="text-text-muted" />
+        <span className="text-text-muted text-2xl">📷</span>
       </div>
     )
   }
@@ -54,10 +54,12 @@ export default function OptimizedImage({
         width={width}
         height={height}
         priority={priority}
+        fetchPriority={priority ? 'high' : 'auto'}
         loading={priority ? 'eager' : 'lazy'}
+        sizes={priority ? '100vw' : '(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw'}
         className={`
-          duration-700 ease-in-out object-cover
-          ${isLoading ? 'scale-110 blur-md' : 'scale-100 blur-0'}
+          duration-150 ease-in-out object-cover
+          ${isLoading ? 'scale-110 blur-sm' : 'scale-100 blur-0'}
         `}
         onLoad={() => setIsLoading(false)}
         onError={() => setError(true)}

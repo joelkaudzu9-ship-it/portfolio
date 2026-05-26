@@ -76,15 +76,15 @@ type Testimonial = {
 }
 
 const fadeInUp = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.4 } // Reduced from 0.5
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  transition: { duration: 0.2 }
 }
 
 const staggerContainer = {
   animate: {
     transition: {
-      staggerChildren: 0.05 // Reduced from 0.08
+      staggerChildren: 0.03
     }
   }
 }
