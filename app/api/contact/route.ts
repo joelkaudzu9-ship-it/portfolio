@@ -58,7 +58,7 @@ Thanks for reaching out! I've received your message and will get back to you wit
 In the meantime, feel free to:
 • Check out my projects: https://joelkaudzu-portfolio.vercel.app/projects
 • Read my blog: https://joelkaudzu-portfolio.vercel.app/blog
-• Connect on LinkedIn: https://www.linkedin.com/in/joel-kaudzu
+• Connect on LinkedIn: https://www.linkedin.com/in/joel-kaudzu-0bba48392
 
 Best regards,
 Joel George Kaudzu
@@ -70,9 +70,9 @@ Healthcare Systems Builder
           <p>I've received your message and will get back to you within 24-48 hours.</p>
           <p>In the meantime, feel free to:</p>
           <ul>
-            <li><a href="https://joelkaudzu.vercel.app/projects">Check out my projects</a></li>
+            <li><a href="https://joelkaudzu-portfolio.vercel.app/projects">Check out my projects</a></li>
             <li><a href="https://joelkaudzu.vercel.app/blog">Read my blog</a></li>
-            <li><a href="https://www.linkedin.com/in/joel-kaudzu">Connect on LinkedIn</a></li>
+            <li><a href="https://www.linkedin.com/in/joel-kaudzu-0bba48392">Connect on LinkedIn</a></li>
           </ul>
           <hr style="margin: 20px 0;">
           <p style="font-size: 12px; color: #6b7280;">Best regards,<br><strong>Joel George Kaudzu</strong><br>Healthcare Systems Builder</p>
