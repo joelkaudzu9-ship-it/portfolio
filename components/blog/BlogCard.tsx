@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Calendar, User, Video, Play, ImageIcon, Eye } from 'lucide-react'
+import OptimizedImage from '@/components/OptimizedImage'
 
 type Post = {
   id: number
@@ -45,21 +46,12 @@ export default function BlogCard({ post }: BlogCardProps) {
         <div className="relative h-48 overflow-hidden bg-gradient-to-br from-amber-500/20 to-amber-500/5">
           {displayImage ? (
             <>
-              <img 
+              <OptimizedImage 
                 src={displayImage} 
                 alt={post.title}
-                loading="lazy"
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none'
-                  const parent = e.currentTarget.parentElement
-                  if (parent) {
-                    const fallback = document.createElement('div')
-                    fallback.className = 'w-full h-full flex items-center justify-center'
-                    fallback.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-text-muted"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"></path></svg>'
-                    parent.appendChild(fallback)
-                  }
-                }}
+                width={400}
+                height={240}
+                className="w-full h-full transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </>

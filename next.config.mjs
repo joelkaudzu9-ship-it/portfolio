@@ -4,23 +4,46 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'res.cloudinary.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.youtube.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.ytimg.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
       },
     ],
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60,
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   experimental: {
-    // Keep pages in memory for instant back/forward navigation
     staleTimes: {
       dynamic: 30,
       static: 180,
     },
-    // Optimize client-side navigation
     optimizeServerReact: true,
+    optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
-  // Compress responses for faster loading
   compress: true,
-  // Remove powered by header for slightly better performance
   poweredByHeader: false,
+  swcMinify: true,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  // Add CDN optimization
+  assetPrefix: process.env.NEXT_PUBLIC_ASSET_PREFIX || '',
+  // On-demand revalidation
+  revalidate: 3600,
 }
 
 export default nextConfig
