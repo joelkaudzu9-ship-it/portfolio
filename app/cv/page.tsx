@@ -166,37 +166,62 @@ export default function CVPage() {
 
                 {/* Featured Projects */}
                 <div className="mb-5">
-                  <h2 className="text-lg font-bold text-amber-600 flex items-center gap-2 mb-3">
+                <h2 className="text-lg font-bold text-amber-600 flex items-center gap-2 mb-3">
                     <Target size={16} /> Featured Projects
-                  </h2>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-semibold text-gray-900">MoyoWanga</h3>
-                      <p className="text-amber-600 text-xs">Multilingual Chronic Disease Support Ecosystem</p>
-                      <p className="text-gray-600 text-xs mt-1">
+                </h2>
+                <div className="space-y-4">
+                    {/* MoyoWanga - Add relative positioning to avoid line overlap */}
+                    <div className="relative">
+                    <h3 className="font-semibold text-gray-900 text-base">MoyoWanga</h3>
+                    <p className="text-amber-600 text-sm mt-0.5">Multilingual Chronic Disease Support Ecosystem</p>
+                    <p className="text-gray-600 text-sm mt-2 leading-relaxed">
                         Hybrid digital health platform with SMS infrastructure supporting 6 languages (Chichewa, Tumbuka, Yao, Chisena, Chilomwe, English). 
                         Features daily medication reminders, two-way SMS, CHW dashboard, and adherence tracking.
-                      </p>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        <span className="text-xs text-gray-500">Tech: Python, Flask, PostgreSQL, Africa's Talking API</span>
-                      </div>
+                    </p>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">Python</span>
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">Flask</span>
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">PostgreSQL</span>
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">Africa's Talking API</span>
                     </div>
+                    </div>
+
+                    {/* Divider with proper spacing - not overlapping */}
+                    <div className="border-t border-gray-200 my-3"></div>
+
+                    {/* CheckMySmile */}
                     <div>
-                      <h3 className="font-semibold text-gray-900">CheckMySmile</h3>
-                      <p className="text-amber-600 text-xs">AI-Powered Oral Health Screening System</p>
-                      <p className="text-gray-600 text-xs mt-1">
+                    <h3 className="font-semibold text-gray-900 text-base">CheckMySmile</h3>
+                    <p className="text-amber-600 text-sm mt-0.5">AI-Powered Oral Health Screening System</p>
+                    <p className="text-gray-600 text-sm mt-2 leading-relaxed">
                         AI system analyzing oral images for gingivitis, cavities, plaque, and bleeding gums.
-                      </p>
-                      <p className="text-gray-600 text-xs">Training accuracy: 92.3% | Validation: 94.2%</p>
+                    </p>
+                    <p className="text-gray-600 text-sm">Training accuracy: 92.3% | Validation: 94.2%</p>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">Python</span>
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">TensorFlow</span>
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">Computer Vision</span>
                     </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="border-t border-gray-200 my-3"></div>
+
+                    {/* SendMe */}
                     <div>
-                      <h3 className="font-semibold text-gray-900">SendMe</h3>
-                      <p className="text-amber-600 text-xs">Campus Task Marketplace for KUHeS</p>
-                      <p className="text-gray-600 text-xs mt-1">
+                    <h3 className="font-semibold text-gray-900 text-base">SendMe</h3>
+                    <p className="text-amber-600 text-sm mt-0.5">Campus Task Marketplace for KUHeS</p>
+                    <p className="text-gray-600 text-sm mt-2 leading-relaxed">
                         PWA enabling students to post tasks (Help Me, Send Me, Deliver, Group Buy), coordinate via chat, and build reputation.
-                      </p>
+                    </p>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">Python</span>
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">Flask</span>
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">Supabase</span>
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">Firebase</span>
                     </div>
-                  </div>
+                    </div>
+                </div>
                 </div>
 
                 {/* Certifications & Achievements */}
