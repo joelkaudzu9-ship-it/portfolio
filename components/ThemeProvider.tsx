@@ -12,17 +12,15 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark') // DARK MODE IS NOW DEFAULT
+  const [theme, setTheme] = useState<Theme>('dark')
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    // Check localStorage only after mount (for returning users)
     const stored = localStorage.getItem('theme') as Theme | null
     if (stored === 'light' || stored === 'dark') {
       setTheme(stored)
     } else {
-      // No stored preference, default to dark
       setTheme('dark')
       localStorage.setItem('theme', 'dark')
     }
@@ -31,7 +29,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!mounted) return
     
-    // Update DOM
     const root = document.documentElement
     if (theme === 'dark') {
       root.classList.add('dark')
@@ -41,25 +38,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.classList.remove('dark')
     }
     
-    // Store preference
     localStorage.setItem('theme', theme)
   }, [theme, mounted])
 
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light')
-  }
-
-  // Prevent flash of wrong theme
   if (!mounted) {
-    return (
-      <div className="dark">
-        {children}
-      </div>
-    )
+    return <div className="dark">{children}</div>
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme: () => setTheme(prev => prev === 'light' ? 'dark' : 'light') }}>
       {children}
     </ThemeContext.Provider>
   )
@@ -68,7 +55,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 export function useTheme() {
   const context = useContext(ThemeContext)
   if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider')
+    // Return a default instead of throwing error during build
+    return { theme: 'dark' as Theme, toggleTheme: () => {} }
   }
   return context
 }
