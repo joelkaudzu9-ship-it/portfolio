@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Download, Printer, Copy, CheckCircle, Mail, Phone, MapPin, Globe, Award, BookOpen, Heart, Target, Sparkles, FileText, Calendar, Briefcase, Code, Users, MessageCircle, Activity, PenTool } from 'lucide-react'
-import { FaGithub, FaLinkedin } from 'react-icons/fa'
+import { Download, Printer, Copy, CheckCircle, Mail, Phone, MapPin, Github, Linkedin, Globe, Award, BookOpen, Heart, Target, Sparkles, FileText, Calendar, Briefcase, Code, Users, MessageCircle, Activity, PenTool } from 'lucide-react'
 import Link from 'next/link'
 
 export default function CVPage() {
@@ -39,7 +38,7 @@ export default function CVPage() {
           </button>
         </div>
 
-        {/* CV Card */}
+        {/* CV Card - Light background for better printing */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -49,6 +48,7 @@ export default function CVPage() {
           {/* Header Section with Photo */}
           <div className="bg-gradient-to-r from-amber-600 to-amber-800 print:bg-gray-800 px-6 sm:px-8 py-8">
             <div className="flex flex-col sm:flex-row items-center gap-6">
+              {/* Profile Photo */}
               <div className="relative">
                 <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/30 shadow-xl">
                   <img 
@@ -60,6 +60,7 @@ export default function CVPage() {
                 <div className="absolute -bottom-2 -right-2 bg-green-500 w-5 h-5 rounded-full border-2 border-white"></div>
               </div>
               
+              {/* Name & Title */}
               <div className="text-center sm:text-left">
                 <h1 className="text-3xl sm:text-4xl font-bold text-white">Joel George Kaudzu</h1>
                 <p className="text-amber-200 text-lg mt-1">Dental Surgery Student | Health-Tech Builder | Innovation Coordinator | Poet</p>
@@ -73,7 +74,7 @@ export default function CVPage() {
             </div>
           </div>
 
-          {/* Contact Bar */}
+          {/* Contact Bar - With actual links */}
           <div className="bg-gray-50 print:bg-gray-100 px-6 sm:px-8 py-3 border-b border-gray-200">
             <div className="flex flex-wrap justify-center gap-4 text-xs sm:text-sm">
               <div className="flex items-center gap-1 text-gray-600">
@@ -91,19 +92,19 @@ export default function CVPage() {
               </div>
               <div className="flex items-center gap-1">
                 <Globe size={14} className="text-amber-500" />
-                <a href="https://joelkaudzu-portfolio.vercel.app" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-amber-500 transition-colors">
+                <a href="https://joelkaudzu-portfolio.vercel.app" target="_blank" className="text-gray-600 hover:text-amber-500 transition-colors">
                   joelkaudzu-portfolio.vercel.app
                 </a>
               </div>
               <div className="flex items-center gap-1">
-                <FaGithub size={14} className="text-amber-500" />
-                <a href="https://github.com/joelkaudzu9-ship-it" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-amber-500 transition-colors">
+                <Github size={14} className="text-amber-500" />
+                <a href="https://github.com/joelkaudzu9-ship-it" target="_blank" className="text-gray-600 hover:text-amber-500 transition-colors">
                   github.com/joelkaudzu9-ship-it
                 </a>
               </div>
               <div className="flex items-center gap-1">
-                <FaLinkedin size={14} className="text-amber-500" />
-                <a href="https://www.linkedin.com/in/joel-kaudzu-0bba48392" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-amber-500 transition-colors">
+                <Linkedin size={14} className="text-amber-500" />
+                <a href="https://www.linkedin.com/in/joel-kaudzu-0bba48392" target="_blank" className="text-gray-600 hover:text-amber-500 transition-colors">
                   linkedin.com/in/joel-kaudzu
                 </a>
               </div>
@@ -354,6 +355,7 @@ export default function CVPage() {
           </div>
         </motion.div>
 
+        {/* Print CSS for better PDF output */}
         <style jsx global>{`
           @media print {
             body {
@@ -391,5 +393,3 @@ export default function CVPage() {
     </div>
   )
 }
-
-//eee
