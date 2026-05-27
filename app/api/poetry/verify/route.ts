@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/server'
 import nodemailer from 'nodemailer'
 
-// Configure email transporter (same as your existing setup)
+// Configure email transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
   }
 })
 
-// Helper function to send email with download link
+// Helper function to send email
 async function sendDownloadEmail(email: string, name: string, tx_ref: string) {
   try {
     const downloadLink = `${process.env.NEXT_PUBLIC_BASE_URL}/poetry/download?email=${encodeURIComponent(email)}&token=${tx_ref}`
@@ -21,62 +21,38 @@ async function sendDownloadEmail(email: string, name: string, tx_ref: string) {
       to: email,
       subject: '📖 Your Poetry Collection - Threads of Becoming',
       html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Your Poetry Download</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #D4A017, #B8860B); border-radius: 10px; color: white;">
-            <h1 style="margin: 0;">Threads of Becoming</h1>
-            <p style="margin: 5px 0 0; opacity: 0.9;">Poetry Collection by Joel Kaudzu</p>
-          </div>
-          
-          <div style="padding: 20px;">
-            <h2>Thank you for your purchase, ${name}!</h2>
-            <p>Your payment was successful. You can now download your copy of <strong>"Threads of Becoming"</strong>.</p>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${downloadLink}" style="display: inline-block; padding: 12px 30px; background: #D4A017; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">📥 Download Your Poetry Collection</a>
-            </div>
-            
-            <p>This collection includes <strong>13 poems</strong> across 4 sections:</p>
-            <ul>
-              <li><strong>Broken and Becoming</strong> - Personal transformation</li>
-              <li><strong>Light Through the Storm</strong> - Hope and resilience</li>
-              <li><strong>Infinite Thoughts</strong> - Deep reflections</li>
-              <li><strong>Society and Reality Check</strong> - Critical observations</li>
-            </ul>
-            
-            <p style="font-size: 12px; color: #666;">If the button doesn't work, copy and paste this link into your browser:</p>
-            <p style="font-size: 12px; color: #666; word-break: break-all;">${downloadLink}</p>
-            
-            <hr style="margin: 20px 0; border-color: #eee;">
-            
-            <p style="font-size: 12px; color: #666;">Thank you for supporting my work!</p>
-            <p style="font-size: 12px; color: #666;">© ${new Date().getFullYear()} Joel George Kaudzu</p>
-          </div>
-        </body>
-        </html>
+        <h2>Thank you for your purchase, ${name}!</h2>
+        <p>Click the link below to download your poetry collection:</p>
+        <a href="${downloadLink}">Download Threads of Becoming</a>
+        <p>Or copy this link: ${downloadLink}</p>
+        <br>
+        <p>Thank you for supporting my work!</p>
+        <p>Joel Kaudzu</p>
       `
     })
-    
     console.log('📧 Email sent to:', email)
+    return true
   } catch (error) {
     console.error('❌ Email error:', error)
+    return false
   }
 }
 
-// Handle redirect from PayChangu (GET request)
+// Handle GET request from PayChangu redirect
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const tx_ref = searchParams.get('tx_ref')
     const status = searchParams.get('status')
     
-    console.log('📡 Payment redirect received:', { tx_ref, status })
+    console.log('📡 ========== PAYMENT REDIRECT RECEIVED ==========')
+    console.log('tx_ref:', tx_ref)
+    console.log('status:', status)
+    
+    if (!tx_ref) {
+      console.error('❌ No tx_ref provided')
+      return NextResponse.redirect(new URL('/poetry/failed?error=no_reference', request.url))
+    }
     
     const secretKey = process.env.PAYCHANGU_SECRET_KEY
     
@@ -85,30 +61,44 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/poetry/failed?error=config', request.url))
     }
     
-    if (tx_ref) {
-      // Verify the payment status with PayChangu
-      const verifyUrl = `https://api.paychangu.com/verify-payment/${tx_ref}`
+    // Verify payment status with PayChangu
+    const verifyUrl = `https://api.paychangu.com/verify-payment/${tx_ref}`
+    console.log('🔍 Verifying payment at:', verifyUrl)
+    
+    const verifyResponse = await fetch(verifyUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${secretKey}`
+      }
+    })
+    
+    const verifyData = await verifyResponse.json()
+    console.log('📡 PayChangu verification response:', JSON.stringify(verifyData, null, 2))
+    
+    // Check if payment was successful
+    const isSuccessful = verifyData.status === 'success' && 
+                         verifyData.data?.status === 'success'
+    
+    if (isSuccessful) {
+      // Get customer details from response
+      const email = verifyData.data?.customer?.email || ''
+      const firstName = verifyData.data?.customer?.first_name || ''
+      const lastName = verifyData.data?.customer?.last_name || ''
+      const name = `${firstName} ${lastName}`.trim() || 'Customer'
+      const amount = verifyData.data?.amount || 200
       
-      const verifyResponse = await fetch(verifyUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${secretKey}`
-        }
-      })
+      console.log('✅ Payment successful for:', { email, name, amount })
       
-      const verifyData = await verifyResponse.json()
-      console.log('📡 Verification response:', JSON.stringify(verifyData, null, 2))
+      // Check if purchase already exists
+      const { data: existingPurchase } = await supabaseAdmin
+        .from('poetry_purchases')
+        .select('*')
+        .eq('tx_ref', tx_ref)
+        .single()
       
-      if (verifyData.status === 'success' && verifyData.data?.status === 'success') {
-        // Payment successful - get customer details
-        const email = verifyData.data?.customer?.email || ''
-        const firstName = verifyData.data?.customer?.first_name || ''
-        const lastName = verifyData.data?.customer?.last_name || ''
-        const name = `${firstName} ${lastName}`.trim() || 'Customer'
-        const amount = verifyData.data?.amount || 200
-        
-        // Save purchase to database
-        const { data: purchase, error: dbError } = await supabaseAdmin
+      if (!existingPurchase) {
+        // Save to database
+        const { data: newPurchase, error: dbError } = await supabaseAdmin
           .from('poetry_purchases')
           .insert({
             tx_ref: tx_ref,
@@ -123,67 +113,81 @@ export async function GET(request: NextRequest) {
           .single()
         
         if (dbError) {
-          console.error('❌ Database error:', dbError)
+          console.error('❌ Database insert error:', dbError)
         } else {
-          console.log('✅ Purchase saved:', purchase)
+          console.log('✅ Purchase saved to database:', newPurchase)
           
-          // Send email with download link using Nodemailer
+          // Send email
           await sendDownloadEmail(email, name, tx_ref)
         }
+      } else {
+        console.log('📦 Purchase already exists:', existingPurchase)
         
-        // Redirect to success page
-        return NextResponse.redirect(
-          new URL(`/poetry/success?email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&tx_ref=${tx_ref}`, request.url)
-        )
+        // Update status if pending
+        if (existingPurchase.status !== 'completed') {
+          await supabaseAdmin
+            .from('poetry_purchases')
+            .update({ status: 'completed', completed_at: new Date().toISOString() })
+            .eq('tx_ref', tx_ref)
+          console.log('✅ Purchase updated to completed')
+        }
+        
+        // Send email if not sent
+        await sendDownloadEmail(email, name, tx_ref)
       }
+      
+      // Redirect to success page
+      return NextResponse.redirect(
+        new URL(`/poetry/success?email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&tx_ref=${tx_ref}`, request.url)
+      )
+    } else {
+      console.error('❌ Payment verification failed:', verifyData)
+      return NextResponse.redirect(new URL('/poetry/failed?error=payment_failed', request.url))
     }
-    
-    // If payment failed or status unclear
-    return NextResponse.redirect(new URL('/poetry/failed', request.url))
     
   } catch (error) {
     console.error('❌ Verification error:', error)
-    return NextResponse.redirect(new URL('/poetry/failed', request.url))
+    return NextResponse.redirect(new URL('/poetry/failed?error=exception', request.url))
   }
 }
 
-// Handle webhook from PayChangu (POST request)
+// Handle POST for webhook
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    console.log('📡 Webhook received:', body)
+    console.log('📡 ========== WEBHOOK RECEIVED ==========')
+    console.log('Webhook body:', JSON.stringify(body, null, 2))
     
-    const { tx_ref, status, payment_status } = body
+    const { tx_ref, status } = body
     
-    if ((status === 'success' || payment_status === 'success') && tx_ref) {
-      console.log(`✅ Payment successful for tx_ref: ${tx_ref}`)
+    if ((status === 'success') && tx_ref) {
+      console.log(`✅ Webhook: Payment successful for tx_ref: ${tx_ref}`)
       
-      // Get or update purchase in database
-      const { data: existingPurchase } = await supabaseAdmin
-        .from('poetry_purchases')
-        .select('*')
-        .eq('tx_ref', tx_ref)
-        .single()
+      // Verify with PayChangu to get details
+      const secretKey = process.env.PAYCHANGU_SECRET_KEY
+      const verifyUrl = `https://api.paychangu.com/verify-payment/${tx_ref}`
       
-      if (!existingPurchase) {
-        // Try to get details from the payment
-        const secretKey = process.env.PAYCHANGU_SECRET_KEY
-        const verifyUrl = `https://api.paychangu.com/verify-payment/${tx_ref}`
+      const verifyResponse = await fetch(verifyUrl, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${secretKey}` }
+      })
+      const verifyData = await verifyResponse.json()
+      
+      if (verifyData.status === 'success') {
+        const email = verifyData.data?.customer?.email || ''
+        const firstName = verifyData.data?.customer?.first_name || ''
+        const lastName = verifyData.data?.customer?.last_name || ''
+        const name = `${firstName} ${lastName}`.trim() || 'Customer'
+        const amount = verifyData.data?.amount || 200
         
-        const verifyResponse = await fetch(verifyUrl, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${secretKey}` }
-        })
-        const verifyData = await verifyResponse.json()
+        // Save to database
+        const { data: existingPurchase } = await supabaseAdmin
+          .from('poetry_purchases')
+          .select('*')
+          .eq('tx_ref', tx_ref)
+          .single()
         
-        if (verifyData.status === 'success') {
-          const email = verifyData.data?.customer?.email || ''
-          const firstName = verifyData.data?.customer?.first_name || ''
-          const lastName = verifyData.data?.customer?.last_name || ''
-          const name = `${firstName} ${lastName}`.trim() || 'Customer'
-          const amount = verifyData.data?.amount || 200
-          
-          // Save to database
+        if (!existingPurchase) {
           await supabaseAdmin
             .from('poetry_purchases')
             .insert({
@@ -195,19 +199,11 @@ export async function POST(request: NextRequest) {
               payment_method: 'mobile_money',
               completed_at: new Date().toISOString()
             })
+          console.log('✅ Webhook: Purchase saved')
           
           // Send email
           await sendDownloadEmail(email, name, tx_ref)
         }
-      } else if (existingPurchase.status !== 'completed') {
-        // Update existing purchase
-        await supabaseAdmin
-          .from('poetry_purchases')
-          .update({ status: 'completed', completed_at: new Date().toISOString() })
-          .eq('tx_ref', tx_ref)
-        
-        // Send email
-        await sendDownloadEmail(existingPurchase.email, existingPurchase.name, tx_ref)
       }
     }
     
