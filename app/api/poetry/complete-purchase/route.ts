@@ -25,7 +25,7 @@ async function sendEmail(email: string, name: string, tx_ref: string) {
         },
         to: [{
           email: email,
-          name: name
+          name: name || 'Customer'
         }],
         subject: '📖 Your Poetry Collection - Threads of Becoming',
         htmlContent: `
@@ -39,7 +39,7 @@ async function sendEmail(email: string, name: string, tx_ref: string) {
             </div>
             
             <div style="padding: 20px;">
-              <h2>Thank you for your purchase, ${name}!</h2>
+              <h2>Thank you for your purchase, ${name || 'Poetry Lover'}!</h2>
               <p>Your payment was successful. Click the button below to download your poetry collection:</p>
               
               <div style="text-align: center; margin: 30px 0;">
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing tx_ref' }, { status: 400 })
     }
     
-    // Check if already exists
+    // Check if purchase already exists
     const { data: existing } = await supabaseAdmin
       .from('poetry_purchases')
       .select('*')
@@ -115,9 +115,11 @@ export async function POST(request: NextRequest) {
       
       console.log('✅ Purchase saved to database')
       
-      // Send email only for new purchases
+      // ✅ SEND EMAIL - This was missing!
       if (email) {
         emailSent = await sendEmail(email, name || 'Customer', tx_ref)
+      } else {
+        console.warn('⚠️ No email provided, cannot send download link')
       }
     } else {
       console.log('⚠️ Purchase already exists, skipping email')
@@ -132,6 +134,6 @@ export async function POST(request: NextRequest) {
     
   } catch (error) {
     console.error('❌ Complete purchase error:', error)
-    return NextResponse.json({ error: 'Failed' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to complete purchase' }, { status: 500 })
   }
 }
