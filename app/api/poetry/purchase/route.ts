@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { randomUUID } from 'crypto'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { name, email, phone, paymentMethod, amount, product } = body
     
+    console.log('📦 Purchase request received:', { name, email, phone, paymentMethod, amount })
+    
     const secretKey = process.env.PAYCHANGU_SECRET_KEY
     
     if (!secretKey) {
       return NextResponse.json(
-        { error: 'Payment provider not configured' },
+        { success: false, error: 'Payment provider not configured' },
         { status: 500 }
       )
     }
@@ -18,7 +19,6 @@ export async function POST(request: NextRequest) {
     // Generate unique transaction reference
     const tx_ref = `POETRY_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`
     
-    // Prepare payload - MATCHING THE WORKING TEST
     const payload = {
       amount: String(amount),
       currency: 'MWK',
@@ -31,13 +31,10 @@ export async function POST(request: NextRequest) {
       customization: {
         title: 'Threads of Becoming',
         description: product || 'Poetry Collection by Joel Kaudzu'
-      },
-      meta: JSON.stringify({
-        customer_name: name,
-        product_type: 'poetry_collection',
-        phone: phone
-      })
+      }
     }
+    
+    console.log('🚀 Sending to PayChangu:', { url: 'https://api.paychangu.com/payment', payload })
     
     const response = await fetch('https://api.paychangu.com/payment', {
       method: 'POST',
@@ -49,27 +46,27 @@ export async function POST(request: NextRequest) {
     })
     
     const data = await response.json()
+    console.log('📡 PayChangu response:', data)
     
     if (response.ok && data.status === 'success' && data.data?.checkout_url) {
-      // Save to database
-      // await savePurchase({ name, email, phone, amount, tx_ref })
-      
       return NextResponse.json({
         success: true,
         paymentUrl: data.data.checkout_url,
         tx_ref: tx_ref
       })
     } else {
+      // Always return a string error message
+      const errorMessage = data.message || data.error || 'Payment initialization failed'
       return NextResponse.json(
-        { error: data.message || 'Payment initialization failed' },
+        { success: false, error: errorMessage },
         { status: 400 }
       )
     }
     
   } catch (error) {
-    console.error('Payment error:', error)
+    console.error('❌ Payment error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { success: false, error: 'Internal server error. Please try again.' },
       { status: 500 }
     )
   }

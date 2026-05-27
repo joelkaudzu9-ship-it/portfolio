@@ -58,13 +58,18 @@ export default function BuyPoetryPage() {
         }),
       })
       
+      // Parse the response properly
       const data = await response.json()
       
-      if (response.ok && data.paymentUrl) {
-        // Redirect to PayChangu payment page
+      console.log('Response:', data) // Debug log
+      
+      if (response.ok && data.success && data.paymentUrl) {
+        // Redirect to PayChangu checkout
         window.location.href = data.paymentUrl
       } else {
-        alert(data.error || 'Payment initiation failed. Please try again.')
+        // Show the error message properly
+        const errorMsg = typeof data.error === 'string' ? data.error : 'Payment initiation failed'
+        alert(errorMsg)
       }
     } catch (error) {
       console.error('Payment error:', error)
