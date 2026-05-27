@@ -11,38 +11,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing tx_ref' }, { status: 400 })
     }
     
-    // Check if already exists
-    const { data: existing } = await supabaseAdmin
+    const { error: dbError } = await supabaseAdmin
       .from('poetry_purchases')
-      .select('*')
-      .eq('tx_ref', tx_ref)
-      .single()
+      .upsert({
+        tx_ref: tx_ref,
+        email: email || '',
+        name: name || 'Customer',
+        amount: 200,
+        status: 'completed',
+        payment_method: 'paychangu',
+        completed_at: new Date().toISOString()
+      }, { onConflict: 'tx_ref' })
     
-    if (!existing) {
-      const { error } = await supabaseAdmin
-        .from('poetry_purchases')
-        .insert({
-          tx_ref: tx_ref,
-          email: email || '',
-          name: name || 'Customer',
-          amount: 200,
-          status: 'completed',
-          payment_method: 'paychangu',
-          completed_at: new Date().toISOString()
-        })
-      
-      if (error) {
-        console.error('DB insert error:', error)
-        return NextResponse.json({ error: error.message }, { status: 500 })
-      }
-      
-      console.log('✅ Purchase saved successfully')
+    if (dbError) {
+      console.error('DB error:', dbError)
+      return NextResponse.json({ error: dbError.message }, { status: 500 })
     }
     
     return NextResponse.json({ success: true })
     
   } catch (error) {
-    console.error('Save purchase error:', error)
+    console.error('Save error:', error)
     return NextResponse.json({ error: 'Failed' }, { status: 500 })
   }
 }

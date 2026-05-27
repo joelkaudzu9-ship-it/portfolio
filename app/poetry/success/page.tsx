@@ -16,6 +16,16 @@ export default function PoetrySuccessPage() {
   const emailParam = searchParams.get('email') || ''
   const name = searchParams.get('name') || ''
 
+  useEffect(() => {
+    if (tx_ref) {
+      fetch('/api/poetry/save-purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tx_ref, email: emailParam, name })
+      })
+    }
+  }, [tx_ref])
+
   const handleDownload = async () => {
     setDownloading(true)
     try {
@@ -82,58 +92,30 @@ export default function PoetrySuccessPage() {
           </p>
           
           <div className="mt-6 space-y-3">
-            {/* Option 1: Download Now */}
-            <button
-              onClick={handleDownload}
-              disabled={downloading}
-              className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg font-semibold hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
-            >
+            <button onClick={handleDownload} disabled={downloading} className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg font-semibold hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
               {downloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
               Download Now
             </button>
             
-            {/* Option 2: Send to Email */}
-            <button
-              onClick={handleSendEmail}
-              disabled={sendingEmail}
-              className="w-full py-3 border border-gray-300 dark:border-gray-700 rounded-lg font-medium hover:border-amber-500 hover:text-amber-500 transition-all flex items-center justify-center gap-2"
-            >
+            <button onClick={handleSendEmail} disabled={sendingEmail} className="w-full py-3 border border-gray-300 dark:border-gray-700 rounded-lg font-medium hover:border-amber-500 hover:text-amber-500 transition-all flex items-center justify-center gap-2">
               {sendingEmail ? <Loader2 size={18} className="animate-spin" /> : <Mail size={18} />}
               Send to Email
             </button>
             
-            {emailSent && (
-              <p className="text-green-500 text-sm text-center animate-pulse">
-                ✓ Download link sent! Check your inbox.
-              </p>
-            )}
+            {emailSent && <p className="text-green-500 text-sm text-center animate-pulse">✓ Download link sent! Check your inbox.</p>}
           </div>
           
-          {/* Divider */}
           <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">or</span>
-            </div>
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-300 dark:border-gray-700"></div></div>
+            <div className="relative flex justify-center text-xs"><span className="px-2 bg-white dark:bg-gray-900 text-gray-500">or</span></div>
           </div>
           
-          {/* Copy Link Option */}
-          <button
-            onClick={copyDownloadLink}
-            className="text-sm text-amber-500 hover:underline flex items-center justify-center gap-1 w-full"
-          >
-            <Copy size={14} />
-            {copied ? 'Link copied!' : 'Copy download link'}
+          <button onClick={copyDownloadLink} className="text-sm text-amber-500 hover:underline flex items-center justify-center gap-1 w-full">
+            <Copy size={14} /> {copied ? 'Link copied!' : 'Copy download link'}
           </button>
           
-          <Link
-            href="/poetry"
-            className="inline-flex items-center justify-center gap-2 w-full mt-6 py-3 text-gray-600 dark:text-gray-400 hover:text-amber-500 transition-all text-sm"
-          >
-            <ArrowLeft size={16} />
-            Back to Poetry
+          <Link href="/poetry" className="inline-flex items-center justify-center gap-2 w-full mt-6 py-3 text-gray-600 dark:text-gray-400 hover:text-amber-500 transition-all text-sm">
+            <ArrowLeft size={16} /> Back to Poetry
           </Link>
         </div>
       </div>

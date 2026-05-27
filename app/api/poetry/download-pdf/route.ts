@@ -4,24 +4,12 @@ import path from 'path'
 
 export async function GET() {
   try {
-    // Path to your poetry PDF
     const pdfPath = path.join(process.cwd(), 'public', 'threads-of-becoming.pdf')
     
-    console.log('Looking for PDF at:', pdfPath)
-    
-    // Check if file exists
     if (!fs.existsSync(pdfPath)) {
-      console.error('PDF not found at:', pdfPath)
-      
-      // Return a helpful error message as text
       return new NextResponse(
-        'PDF file not found. Please contact joelkaudzu9@gmail.com for your download link.',
-        {
-          status: 404,
-          headers: {
-            'Content-Type': 'text/plain'
-          }
-        }
+        'PDF file not found. Please contact joelkaudzu9@gmail.com for assistance.',
+        { status: 404, headers: { 'Content-Type': 'text/plain' } }
       )
     }
     
@@ -38,9 +26,6 @@ export async function GET() {
     
   } catch (error) {
     console.error('Download error:', error)
-    return NextResponse.json(
-      { error: 'Failed to download file' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Download failed' }, { status: 500 })
   }
 }
