@@ -6,21 +6,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { name, email, phone, paymentMethod, amount, product } = body
     
-    console.log('📦 Purchase request:', { name, email, phone, paymentMethod, amount })
-    
-    // Validate required fields
-    if (!name || !email || !phone || !paymentMethod || !amount) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
-    }
-    
-    // Get the secret key from environment
     const secretKey = process.env.PAYCHANGU_SECRET_KEY
     
     if (!secretKey) {
-      console.error('❌ PayChangu secret key not configured')
       return NextResponse.json(
         { error: 'Payment provider not configured' },
         { status: 500 }
@@ -30,10 +18,7 @@ export async function POST(request: NextRequest) {
     // Generate unique transaction reference
     const tx_ref = `POETRY_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`
     
-    // CORRECT PayChangu API endpoint - /payment (not /payment/initialize)
-    const payChanguUrl = 'https://api.paychangu.com/payment'
-    
-    // Prepare payload according to PayChangu docs
+    // Prepare payload - MATCHING THE WORKING TEST
     const payload = {
       amount: String(amount),
       currency: 'MWK',
@@ -54,10 +39,7 @@ export async function POST(request: NextRequest) {
       })
     }
     
-    console.log('🚀 Sending to PayChangu:', { url: payChanguUrl, payload })
-    
-    // Make request to PayChangu
-    const response = await fetch(payChanguUrl, {
+    const response = await fetch('https://api.paychangu.com/payment', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -66,27 +48,11 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(payload)
     })
     
-    const responseText = await response.text()
-    console.log('📡 PayChangu response status:', response.status)
-    console.log('📡 PayChangu response body:', responseText)
+    const data = await response.json()
     
-    let data
-    try {
-      data = JSON.parse(responseText)
-    } catch (e) {
-      console.error('❌ Failed to parse PayChangu response:', responseText)
-      return NextResponse.json(
-        { error: 'Invalid response from payment provider' },
-        { status: 500 }
-      )
-    }
-    
-    // Handle successful response
     if (response.ok && data.status === 'success' && data.data?.checkout_url) {
-      console.log('✅ Payment initialized successfully')
-      
-      // Save purchase to database
-      // await savePurchase({ name, email, phone, amount, tx_ref, status: 'pending' })
+      // Save to database
+      // await savePurchase({ name, email, phone, amount, tx_ref })
       
       return NextResponse.json({
         success: true,
@@ -94,7 +60,6 @@ export async function POST(request: NextRequest) {
         tx_ref: tx_ref
       })
     } else {
-      console.error('❌ PayChangu error:', data)
       return NextResponse.json(
         { error: data.message || 'Payment initialization failed' },
         { status: 400 }
@@ -102,9 +67,9 @@ export async function POST(request: NextRequest) {
     }
     
   } catch (error) {
-    console.error('❌ Payment error:', error)
+    console.error('Payment error:', error)
     return NextResponse.json(
-      { error: 'Internal server error. Please try again.' },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
