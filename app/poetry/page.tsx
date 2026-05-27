@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   PenTool, Quote, BookOpen, Heart, Infinity, 
@@ -738,6 +739,15 @@ export default function PoetryPage() {
             <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 text-sm">4 Sections</span>
             <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 text-sm">2024 Collection</span>
           </div>
+          
+          {/* Buy Collection Button - ADDED HERE */}
+          <Link
+            href="/poetry/buy"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg font-semibold hover:scale-[1.02] transition-all mt-6 shadow-lg"
+          >
+            <BookOpen size={18} />
+            Buy Collection - MK 200
+          </Link>
         </motion.div>
 
         {/* Section Navigation */}

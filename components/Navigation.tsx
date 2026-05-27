@@ -10,7 +10,7 @@ import {
   Home, User, Compass, Rocket, 
   PenLine, Mail, GraduationCap, 
   Diamond, Zap, Trophy, BookOpen, 
-  Star, Menu, FileText  // Added FileText for CV
+  Star, Menu, FileText, DollarSign  // Added DollarSign for poetry sales
 } from 'lucide-react'
 
 // Main navigation items with professional icons
@@ -20,7 +20,7 @@ const mainNavItems = [
   { href: '/journey', label: 'Journey', icon: Compass },
   { href: '/projects', label: 'Projects', icon: Rocket },
   { href: '/blog', label: 'Insights', icon: PenLine },
-  { href: '/cv', label: 'CV', icon: FileText },  // Added CV here
+  { href: '/cv', label: 'CV', icon: FileText },
   { href: '/contact', label: 'Contact', icon: Mail },
 ]
 
@@ -34,20 +34,33 @@ const dropdownItems = [
   { href: '/testimonials', label: 'Testimonials', icon: Star },
 ]
 
+// Admin dropdown items (only visible to admin - optional)
+const adminDropdownItems = [
+  { href: '/admin/poetry-sales', label: 'Poetry Sales', icon: DollarSign },
+]
+
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [adminDropdownOpen, setAdminDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const adminDropdownRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
   const router = useRouter()
   const { theme, toggleTheme } = useTheme()
 
-  // Close dropdown when clicking outside
+  // Check if user is admin (you can customize this)
+  const isAdmin = true // Set to false for non-admin users
+
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false)
+      }
+      if (adminDropdownRef.current && !adminDropdownRef.current.contains(event.target as Node)) {
+        setAdminDropdownOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -65,6 +78,7 @@ export default function Navigation() {
   const handleLinkClick = (href: string) => {
     setIsOpen(false)
     setDropdownOpen(false)
+    setAdminDropdownOpen(false)
     router.push(href)
   }
 
@@ -168,6 +182,49 @@ export default function Navigation() {
                   </div>
                 )}
               </div>
+
+              {/* Admin Dropdown - Only visible to admin */}
+              {isAdmin && (
+                <div ref={adminDropdownRef} className="relative">
+                  <button
+                    onClick={() => setAdminDropdownOpen(!adminDropdownOpen)}
+                    className={`flex items-center gap-1 text-sm font-medium transition-colors duration-300 whitespace-nowrap ${
+                      adminDropdownItems.some(item => pathname === item.href)
+                        ? 'text-amber-500' 
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                  >
+                    Admin
+                    <ChevronDown size={14} className={`transition-transform duration-200 ${adminDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {adminDropdownOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden z-50">
+                      {adminDropdownItems.map((item) => {
+                        const Icon = item.icon
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => {
+                              setAdminDropdownOpen(false)
+                              setIsOpen(false)
+                            }}
+                            className={`flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${
+                              pathname === item.href
+                                ? 'bg-amber-500/10 text-amber-500'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                            }`}
+                          >
+                            <Icon size={14} className="opacity-70" />
+                            <span>{item.label}</span>
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
               
               {/* Theme Toggle - Desktop */}
               <button
@@ -210,7 +267,6 @@ export default function Navigation() {
             isOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
-          {/* Header - Sticky */}
           <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
             <div className="flex justify-between items-center p-5">
               <div>
@@ -226,9 +282,8 @@ export default function Navigation() {
             </div>
           </div>
           
-          {/* Scrollable Content */}
           <div className="flex flex-col p-5 pb-32">
-            {/* Theme Toggle - Full width button at top */}
+            {/* Theme Toggle */}
             <button
               onClick={() => toggleTheme()}
               className="flex items-center justify-between w-full px-4 py-3 mb-6 bg-gradient-to-r from-amber-500/10 to-amber-600/10 rounded-xl transition-all hover:scale-[1.02] border border-amber-500/20"
@@ -247,7 +302,7 @@ export default function Navigation() {
               <span className="text-xs text-gray-500 dark:text-gray-400">Toggle</span>
             </button>
             
-            {/* Main Nav Items - 2 COLUMN GRID */}
+            {/* Main Nav Items */}
             <div className="mb-8">
               <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
                 Main Navigation
@@ -279,8 +334,8 @@ export default function Navigation() {
               </div>
             </div>
             
-            {/* Dropdown Items - 2 COLUMN GRID */}
-            <div>
+            {/* Dropdown Items */}
+            <div className="mb-8">
               <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
                 Extended Journey
               </p>
@@ -310,9 +365,42 @@ export default function Navigation() {
                 })}
               </div>
             </div>
+
+            {/* Admin Section - Only for admin */}
+            {isAdmin && (
+              <div>
+                <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
+                  Admin
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  {adminDropdownItems.map((item, index) => {
+                    const Icon = item.icon
+                    const isActive = pathname === item.href
+                    return (
+                      <button
+                        key={item.href}
+                        onClick={() => handleLinkClick(item.href)}
+                        className={`flex flex-col items-center gap-2 px-3 py-4 rounded-xl transition-all duration-300 ${
+                          isActive 
+                            ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30' 
+                            : 'bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
+                        }`}
+                        style={{
+                          transitionDelay: `${(mainNavItems.length + dropdownItems.length + index + 1) * 50}ms`,
+                          transform: isOpen ? 'translateX(0)' : 'translateX(50px)',
+                          opacity: isOpen ? 1 : 0,
+                        }}
+                      >
+                        <Icon size={22} className={isActive ? 'text-amber-500' : 'text-gray-500 dark:text-gray-400'} />
+                        <span className="text-xs font-medium">{item.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </div>
           
-          {/* Footer - Sticky at bottom */}
           <div className="sticky bottom-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-5 text-center">
             <p className="text-gray-600 dark:text-gray-400 text-xs">
               © {new Date().getFullYear()} Joel George Kaudzu
