@@ -85,30 +85,43 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing tx_ref' }, { status: 400 })
     }
     
-    // Save to database
-    const { error: dbError } = await supabaseAdmin
+    // Check if already exists
+    const { data: existing } = await supabaseAdmin
       .from('poetry_purchases')
-      .upsert({
-        tx_ref: tx_ref,
-        email: email || '',
-        name: name || 'Customer',
-        amount: 200,
-        status: 'completed',
-        payment_method: 'paychangu',
-        completed_at: new Date().toISOString()
-      }, { onConflict: 'tx_ref' })
+      .select('*')
+      .eq('tx_ref', tx_ref)
+      .single()
     
-    if (dbError) {
-      console.error('❌ DB error:', dbError)
-      return NextResponse.json({ error: dbError.message }, { status: 500 })
-    }
-    
-    console.log('✅ Purchase saved to database')
-    
-    // Send email using Brevo
     let emailSent = false
-    if (email) {
-      emailSent = await sendEmail(email, name || 'Customer', tx_ref)
+    
+    if (!existing) {
+      // Save to database
+      const { error: dbError } = await supabaseAdmin
+        .from('poetry_purchases')
+        .insert({
+          tx_ref: tx_ref,
+          email: email || '',
+          name: name || 'Customer',
+          amount: 200,
+          status: 'completed',
+          payment_method: 'paychangu',
+          completed_at: new Date().toISOString()
+        })
+      
+      if (dbError) {
+        console.error('❌ DB error:', dbError)
+        return NextResponse.json({ error: dbError.message }, { status: 500 })
+      }
+      
+      console.log('✅ Purchase saved to database')
+      
+      // Send email only for new purchases
+      if (email) {
+        emailSent = await sendEmail(email, name || 'Customer', tx_ref)
+      }
+    } else {
+      console.log('⚠️ Purchase already exists, skipping email')
+      emailSent = true // Assume already sent
     }
     
     return NextResponse.json({ 
