@@ -8,29 +8,34 @@ import { CheckCircle, Download, Mail, ArrowLeft, Loader2 } from 'lucide-react'
 export default function PoetrySuccessPage() {
   const searchParams = useSearchParams()
   const [downloading, setDownloading] = useState(false)
-  const [purchaseSaved, setPurchaseSaved] = useState(false)
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   
   const tx_ref = searchParams.get('tx_ref') || ''
   const email = searchParams.get('email') || ''
   const name = searchParams.get('name') || ''
 
-  // Save purchase automatically when page loads
   useEffect(() => {
-    if (tx_ref && !purchaseSaved) {
-      savePurchase()
+    if (tx_ref) {
+      savePurchaseAndSendEmail()
     }
   }, [tx_ref])
 
-  const savePurchase = async () => {
+  const savePurchaseAndSendEmail = async () => {
     try {
-      await fetch('/api/poetry/save-purchase', {
+      const response = await fetch('/api/poetry/complete-purchase', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tx_ref, email, name })
       })
-      setPurchaseSaved(true)
+      
+      if (response.ok) {
+        setStatus('ready')
+      } else {
+        setStatus('error')
+      }
     } catch (error) {
-      console.error('Failed to save purchase:', error)
+      console.error('Failed:', error)
+      setStatus('error')
     }
   }
 
@@ -54,6 +59,15 @@ export default function PoetrySuccessPage() {
     }
   }
 
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 size={32} className="animate-spin text-amber-500" />
+        <span className="ml-2">Processing your purchase...</span>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-950 dark:to-black py-12">
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
@@ -67,13 +81,13 @@ export default function PoetrySuccessPage() {
         </p>
         
         <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-950/30 rounded-lg">
-          <p className="text-sm text-gray-700 dark:text-gray-300">
-            Your poetry collection is ready to download:
+          <p className="text-sm text-gray-700 dark:text-gray-300 font-medium mb-2">
+            Your poetry collection is ready:
           </p>
           <button
             onClick={handleDownload}
             disabled={downloading}
-            className="mt-3 w-full py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg font-semibold hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+            className="w-full py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg font-semibold hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
           >
             {downloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
             Download Now
@@ -83,19 +97,17 @@ export default function PoetrySuccessPage() {
         <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
           <Mail size={16} className="text-blue-500 inline mr-2" />
           <span className="text-sm text-gray-600 dark:text-gray-400">
-            A download link has also been sent to your email.
+            A download link has also been sent to <strong>{email || 'your email'}</strong>
           </span>
         </div>
         
-        <div className="mt-6 space-y-3">
-          <Link
-            href="/poetry"
-            className="inline-flex items-center justify-center gap-2 w-full py-3 border border-gray-300 dark:border-gray-700 rounded-lg font-medium hover:border-amber-500 hover:text-amber-500 transition-all"
-          >
-            <ArrowLeft size={16} />
-            Back to Poetry
-          </Link>
-        </div>
+        <Link
+          href="/poetry"
+          className="inline-flex items-center justify-center gap-2 w-full mt-6 py-3 border border-gray-300 dark:border-gray-700 rounded-lg font-medium hover:border-amber-500 hover:text-amber-500 transition-all"
+        >
+          <ArrowLeft size={16} />
+          Back to Poetry
+        </Link>
       </div>
     </div>
   )
