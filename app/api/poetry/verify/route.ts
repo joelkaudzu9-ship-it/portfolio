@@ -1,43 +1,68 @@
 import { NextRequest, NextResponse } from 'next/server'
-import crypto from 'crypto'
 
-export async function POST(request: NextRequest) {
+// Handle both GET (from redirect) and POST (webhook)
+export async function GET(request: NextRequest) {
   try {
-    // Verify webhook signature (optional but secure)
-    const signature = request.headers.get('x-paychangu-signature')
-    const webhookSecret = process.env.PAYCHANGU_WEBHOOK_SECRET
+    const searchParams = request.nextUrl.searchParams
+    const tx_ref = searchParams.get('tx_ref')
+    const status = searchParams.get('status')
     
-    const body = await request.json()
-    console.log('📡 Webhook received:', body)
+    console.log('📡 Payment redirect received:', { tx_ref, status })
     
-    // Verify signature if secret is set
-    if (webhookSecret && signature) {
-      const expectedSignature = crypto
-        .createHmac('sha256', webhookSecret)
-        .update(JSON.stringify(body))
-        .digest('hex')
+    // Get the secret key
+    const secretKey = process.env.PAYCHANGU_SECRET_KEY
+    
+    if (!secretKey) {
+      console.error('❌ PayChangu secret key not configured')
+      return NextResponse.redirect(new URL('/poetry/success?error=config', request.url))
+    }
+    
+    if (tx_ref) {
+      // Verify the payment status with PayChangu
+      const verifyUrl = `https://api.paychangu.com/verify-payment/${tx_ref}`
       
-      if (signature !== expectedSignature) {
-        console.error('❌ Invalid webhook signature')
-        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+      const verifyResponse = await fetch(verifyUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${secretKey}`
+        }
+      })
+      
+      const verifyData = await verifyResponse.json()
+      console.log('📡 Verification response:', verifyData)
+      
+      if (verifyData.status === 'success' && verifyData.data?.status === 'success') {
+        // Payment successful
+        const email = verifyData.data?.customer?.email || ''
+        const name = verifyData.data?.customer?.first_name || ''
+        
+        // Redirect to success page
+        return NextResponse.redirect(
+          new URL(`/poetry/success?email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&tx_ref=${tx_ref}`, request.url)
+        )
       }
     }
     
-    const { tx_ref, status, payment_status } = body
+    // If payment failed or status unclear, redirect to failure
+    return NextResponse.redirect(new URL('/poetry/failed', request.url))
     
-    if ((status === 'success' || payment_status === 'success') && tx_ref) {
+  } catch (error) {
+    console.error('❌ Verification error:', error)
+    return NextResponse.redirect(new URL('/poetry/failed', request.url))
+  }
+}
+
+// Handle POST for webhook (kept for automatic notifications)
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    console.log('📡 Webhook received:', body)
+    
+    const { tx_ref, status } = body
+    
+    if (status === 'success' && tx_ref) {
       console.log(`✅ Payment successful for tx_ref: ${tx_ref}`)
-      
-      // Get the purchase from database
-      // const purchase = await getPurchaseByTxRef(tx_ref)
-      
-      // Update purchase status
-      // await updatePurchaseStatus(tx_ref, 'completed')
-      
-      // Send email with download link
-      // await sendDownloadLink(purchase.email, purchase.name)
-      
-      return NextResponse.json({ status: 'success' })
+      // Update database, send email, etc.
     }
     
     return NextResponse.json({ status: 'received' })
