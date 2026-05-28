@@ -258,7 +258,7 @@ export default function PoetrySuccessPage() {
                         rel="noopener noreferrer"
                         className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 text-[#1DA1F2] transition-all text-sm"
                       >
-                        <Twitter size={16} />
+                        <FaTwitter size={16} />
                         <span className="hidden sm:inline">Twitter</span>
                       </a>
 
@@ -269,7 +269,7 @@ export default function PoetrySuccessPage() {
                         rel="noopener noreferrer"
                         className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-[#4267B2]/10 hover:bg-[#4267B2]/20 text-[#4267B2] transition-all text-sm"
                       >
-                        <Facebook size={16} />
+                        <FaFacebook size={16} />
                         <span className="hidden sm:inline">Facebook</span>
                       </a>
 
@@ -280,7 +280,7 @@ export default function PoetrySuccessPage() {
                         rel="noopener noreferrer"
                         className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-[#0077B5]/10 hover:bg-[#0077B5]/20 text-[#0077B5] transition-all text-sm"
                       >
-                        <Linkedin size={16} />
+                        <FaLinkedin size={16} />
                         <span className="hidden sm:inline">LinkedIn</span>
                       </a>
 
