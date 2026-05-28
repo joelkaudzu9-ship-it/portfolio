@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 import { 
   CheckCircle, Download, Mail, ArrowLeft, Loader2, 
   Sparkles, Heart, BookOpen, Star, Share2, 
-  Link as LinkIcon, Check
+  Link as LinkIcon, Check, ChevronDown
 } from 'lucide-react'
 import { FaTwitter, FaFacebook, FaLinkedin } from 'react-icons/fa'
 
