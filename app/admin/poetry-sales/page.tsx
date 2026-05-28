@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Download, DollarSign, Users, ShoppingBag, CheckCircle, Clock, XCircle } from 'lucide-react'
+import { ArrowLeft, Download, DollarSign, Users, ShoppingBag, CheckCircle, Clock, XCircle, TrendingUp } from 'lucide-react'
 
 type Purchase = {
   id: number
@@ -140,7 +140,7 @@ export default function PoetrySalesPage() {
                 <tr>
                   <td colSpan={5} className="p-8 text-center text-gray-500">
                     No purchases yet
-                  </td>
+                   </td>
                 </tr>
               ) : (
                 purchases.map((purchase) => (

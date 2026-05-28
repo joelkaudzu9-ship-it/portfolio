@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'  
 import { useTheme } from './ThemeProvider'
 import BlogSearch from './BlogSearch'
 import { 
@@ -10,11 +10,18 @@ import {
   Home, User, Compass, Rocket, 
   PenLine, Mail, GraduationCap, 
   Diamond, Zap, Trophy, BookOpen, 
-  Star, Menu, FileText, DollarSign  // Added DollarSign for poetry sales
+  Star, Menu, FileText
 } from 'lucide-react'
 
+// Define the type for nav items
+interface NavItem {
+  href: string
+  label: string
+  icon: any
+}
+
 // Main navigation items with professional icons
-const mainNavItems = [
+const mainNavItems: NavItem[] = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/about', label: 'About', icon: User },
   { href: '/journey', label: 'Journey', icon: Compass },
@@ -25,7 +32,7 @@ const mainNavItems = [
 ]
 
 // Dropdown items with professional icons
-const dropdownItems = [
+const dropdownItems: NavItem[] = [
   { href: '/education', label: 'Education', icon: GraduationCap },
   { href: '/values', label: 'Values', icon: Diamond },
   { href: '/skills', label: 'Skills', icon: Zap },
@@ -34,9 +41,9 @@ const dropdownItems = [
   { href: '/testimonials', label: 'Testimonials', icon: Star },
 ]
 
-// Admin dropdown items (only visible to admin - optional)
-const adminDropdownItems = [
-  { href: '/admin/poetry-sales', label: 'Poetry Sales', icon: DollarSign },
+// Admin dropdown items - explicitly typed as empty array
+const adminDropdownItems: NavItem[] = [
+  // Add admin items here if needed
 ]
 
 export default function Navigation() {
@@ -183,8 +190,8 @@ export default function Navigation() {
                 )}
               </div>
 
-              {/* Admin Dropdown - Only visible to admin */}
-              {isAdmin && (
+              {/* Admin Dropdown - Only visible when there are admin items */}
+              {isAdmin && adminDropdownItems.length > 0 && (
                 <div ref={adminDropdownRef} className="relative">
                   <button
                     onClick={() => setAdminDropdownOpen(!adminDropdownOpen)}
@@ -366,8 +373,8 @@ export default function Navigation() {
               </div>
             </div>
 
-            {/* Admin Section - Only for admin */}
-            {isAdmin && (
+            {/* Admin Section - Only visible when there are admin items */}
+            {isAdmin && adminDropdownItems.length > 0 && (
               <div>
                 <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
                   Admin

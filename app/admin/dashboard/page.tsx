@@ -7,7 +7,7 @@ import {
   LayoutDashboard, FileText, LogOut, 
   BookOpen, Briefcase, Users, Star, Award, 
   Heart, Settings, Plus, Mail, MessageCircle,
-  Shield, Eye, TrendingUp
+  Shield, Eye, TrendingUp, DollarSign
 } from 'lucide-react'
 
 export default function AdminDashboard() {
@@ -21,6 +21,8 @@ export default function AdminDashboard() {
     pendingComments: 0,
     achievements: 0,
     totalViews: 0,
+    poetrySales: 0,
+    poetryRevenue: 0,
   })
   const router = useRouter()
 
@@ -38,7 +40,7 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      const [postsRes, projectsRes, messagesRes, subscribersRes, commentsRes, achievementsRes, viewsRes] = await Promise.all([
+      const [postsRes, projectsRes, messagesRes, subscribersRes, commentsRes, achievementsRes, viewsRes, poetrySalesRes] = await Promise.all([
         fetch('/api/blog'),
         fetch('/api/projects'),
         fetch('/api/messages'),
@@ -46,6 +48,7 @@ export default function AdminDashboard() {
         fetch('/api/comments/admin'),
         fetch('/api/achievements'),
         fetch('/api/blog/stats/views'),
+        fetch('/api/poetry/sales-stats'),
       ])
       
       const posts = await postsRes.json()
@@ -55,6 +58,7 @@ export default function AdminDashboard() {
       const comments = await commentsRes.json()
       const achievements = await achievementsRes.json()
       const views = await viewsRes.json()
+      const poetrySales = await poetrySalesRes.json()
       
       setStats({
         posts: posts.filter((p: any) => p.published).length || 0,
@@ -65,6 +69,8 @@ export default function AdminDashboard() {
         pendingComments: comments.filter((c: any) => !c.approved).length || 0,
         achievements: achievements.length || 0,
         totalViews: views.total || 0,
+        poetrySales: poetrySales.totalSales || 0,
+        poetryRevenue: poetrySales.totalRevenue || 0,
       })
     } catch (error) {
       console.error('Error fetching stats:', error)
@@ -116,6 +122,14 @@ export default function AdminDashboard() {
       description: 'Manage what people say about you',
       color: 'text-purple-500',
       bgColor: 'bg-purple-500/10'
+    },
+    { 
+      title: 'Poetry Sales', 
+      icon: DollarSign, 
+      href: '/admin/poetry-sales',
+      description: 'Track poetry book sales and customer data',
+      color: 'text-emerald-500',
+      bgColor: 'bg-emerald-500/10'
     },
     { 
       title: 'Newsletter', 
@@ -185,8 +199,8 @@ export default function AdminDashboard() {
       </header>
 
       <div className="container-custom px-4 sm:px-6 py-6 sm:py-8">
-        {/* Stats Overview - 6 cards now */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+        {/* Stats Overview - 8 cards now */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-8">
           <div className="rounded-xl bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 p-3 text-center">
             <FileText size={18} className="mx-auto mb-1 text-amber-500" />
             <div className="text-xl font-bold">{stats.posts}</div>
@@ -203,6 +217,11 @@ export default function AdminDashboard() {
             <div className="text-xs text-text-muted">Achievements</div>
           </div>
           <div className="rounded-xl bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 p-3 text-center">
+            <DollarSign size={18} className="mx-auto mb-1 text-emerald-500" />
+            <div className="text-xl font-bold">{stats.poetrySales}</div>
+            <div className="text-xs text-text-muted">Poetry Sales</div>
+          </div>
+          <div className="rounded-xl bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 p-3 text-center">
             <Mail size={18} className="mx-auto mb-1 text-pink-500" />
             <div className="text-xl font-bold">{stats.subscribers}</div>
             <div className="text-xs text-text-muted">Subscribers</div>
@@ -216,6 +235,11 @@ export default function AdminDashboard() {
             <Eye size={18} className="mx-auto mb-1 text-purple-500" />
             <div className="text-xl font-bold">{stats.totalViews.toLocaleString()}</div>
             <div className="text-xs text-text-muted">Total Views</div>
+          </div>
+          <div className="rounded-xl bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 p-3 text-center">
+            <TrendingUp size={18} className="mx-auto mb-1 text-emerald-500" />
+            <div className="text-xl font-bold">MWK {stats.poetryRevenue.toLocaleString()}</div>
+            <div className="text-xs text-text-muted">Revenue</div>
           </div>
         </div>
 
@@ -262,6 +286,9 @@ export default function AdminDashboard() {
             <Link href="/admin/achievements/new" className="px-3 py-1.5 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors text-xs">
               Add Achievement
             </Link>
+            <Link href="/admin/poetry-sales" className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors text-xs">
+              View Poetry Sales
+            </Link>
             <Link href="/admin/newsletter/broadcast" className="px-3 py-1.5 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors text-xs">
               Send Broadcast
             </Link>
@@ -294,6 +321,11 @@ export default function AdminDashboard() {
             Recent Activity
           </h2>
           <div className="space-y-2">
+            <div className="flex items-center gap-3 text-xs">
+              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+              <span className="text-text-secondary">Poetry sales tracking integrated</span>
+              <span className="text-text-muted ml-auto">Today</span>
+            </div>
             <div className="flex items-center gap-3 text-xs">
               <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
               <span className="text-text-secondary">Newsletter system integrated</span>
