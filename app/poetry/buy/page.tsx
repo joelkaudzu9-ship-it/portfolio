@@ -56,7 +56,7 @@ export default function BuyPoetryPage() {
       const response = await fetch('/api/poetry/purchase', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, paymentMethod, amount: 200 })
+        body: JSON.stringify({ ...formData, paymentMethod, amount: 400 })
       })
       
       const data = await response.json()
@@ -105,7 +105,7 @@ export default function BuyPoetryPage() {
                 <p className="text-amber-500 text-center text-sm mt-1">Poetry Collection</p>
                 
                 <div className="mt-5 text-center">
-                  <span className="text-4xl font-bold text-gray-900 dark:text-white">MK 200</span>
+                  <span className="text-4xl font-bold text-gray-900 dark:text-white">MK 400</span>
                   <span className="text-sm text-gray-500 ml-1">(~$0.23 USD)</span>
                 </div>
                 
@@ -256,11 +256,11 @@ export default function BuyPoetryPage() {
                 <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 rounded-xl p-4 mt-2">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 dark:text-gray-400">Threads of Becoming</span>
-                    <span className="font-semibold">MK 200</span>
+                    <span className="font-semibold">MK 400</span>
                   </div>
                   <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
                     <span className="font-bold text-gray-900 dark:text-white">Total</span>
-                    <span className="font-bold text-2xl text-amber-600">MK 200</span>
+                    <span className="font-bold text-2xl text-amber-600">MK 400</span>
                   </div>
                 </div>
                 
@@ -271,7 +271,7 @@ export default function BuyPoetryPage() {
                   className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-semibold hover:scale-[1.02] transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
                 >
                   {loading ? <Loader2 size={20} className="animate-spin" /> : <Shield size={20} />}
-                  {loading ? 'Processing...' : `Pay MK 200 via ${paymentMethod === 'airtel' ? 'Airtel Money' : paymentMethod === 'mpamba' ? 'Mpamba' : 'Selected Method'}`}
+                  {loading ? 'Processing...' : `Pay MK 400 via ${paymentMethod === 'airtel' ? 'Airtel Money' : paymentMethod === 'mpamba' ? 'Mpamba' : 'Selected Method'}`}
                 </button>
                 
                 <p className="text-xs text-center text-gray-400">

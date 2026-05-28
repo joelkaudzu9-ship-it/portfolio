@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
           tx_ref: tx_ref,
           email: email || '',
           name: name || 'Customer',
-          amount: 200,
+          amount: 400,
           status: 'completed',
           payment_method: 'paychangu',
           completed_at: new Date().toISOString()

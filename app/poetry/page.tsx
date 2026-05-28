@@ -190,7 +190,7 @@ export default function PoetryPage() {
             className="inline-flex items-center gap-2 px-6 py-3 mt-6 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-semibold hover:scale-[1.02] transition-all shadow-lg"
           >
             <Download size={18} />
-            Buy Collection - MK 200
+            Buy Collection - MK 400
           </Link>
         </motion.div>
 
