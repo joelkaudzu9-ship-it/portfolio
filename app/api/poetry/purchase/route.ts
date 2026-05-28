@@ -19,6 +19,25 @@ export async function POST(request: NextRequest) {
     // Generate unique transaction reference
     const tx_ref = `POETRY_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`
     
+    // Save purchase with 'pending' status before payment
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/poetry/save-purchase`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          tx_ref, 
+          email, 
+          name, 
+          status: 'pending',
+          amount: String(amount)
+        })
+      })
+      console.log('💾 Pending purchase saved for:', tx_ref)
+    } catch (saveError) {
+      console.error('Failed to save pending purchase:', saveError)
+      // Continue with payment even if save fails
+    }
+    
     const payload = {
       amount: String(amount),
       currency: 'MWK',
@@ -52,6 +71,23 @@ export async function POST(request: NextRequest) {
         tx_ref: tx_ref
       })
     } else {
+      // Update status to 'failed' if payment initialization fails
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/poetry/save-purchase`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            tx_ref, 
+            email, 
+            name, 
+            status: 'failed',
+            amount: String(amount)
+          })
+        })
+      } catch (updateError) {
+        console.error('Failed to update purchase status to failed:', updateError)
+      }
+      
       return NextResponse.json(
         { error: data.message || 'Payment initialization failed' },
         { status: 400 }
