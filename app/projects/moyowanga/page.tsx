@@ -40,7 +40,7 @@ export default function MoyoWangaPage() {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = () => {
-    navigator.clipboard.writeText("MoyoWanga: Kumbukilani kumwa mankhwala anu. Yankhani ndi 'NDI' kutsimikizira.")
+    navigator.clipboard.writeText("MoyoWanga: Kumbukilani kumwa mankhwala anu. Yankhani ndi '1' kutsimikizira.")
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -190,13 +190,13 @@ export default function MoyoWangaPage() {
             <div className="flex flex-col gap-3">
               <div className="flex justify-start">
                 <div className="max-w-[80%] p-3 rounded-2xl rounded-tl-none bg-gray-800 text-white">
-                  <p className="text-sm">MoyoWanga: Kumbukilani kumwa mankhwala anu a shuga. Yankhani ndi 'NDI' kutsimikizira.</p>
+                  <p className="text-sm">MoyoWanga: Kumbukilani kumwa mankhwala anu a shuga. Yankhani ndi '1' kutsimikizira.</p>
                   <p className="text-xs text-gray-400 mt-1">(Diabetes medication reminder in Chichewa)</p>
                 </div>
               </div>
               <div className="flex justify-end">
                 <div className="max-w-[80%] p-3 rounded-2xl rounded-tr-none bg-green-600 text-white">
-                  <p className="text-sm">NDI</p>
+                  <p className="text-sm">1</p>
                   <p className="text-xs text-green-200 mt-1">Patient confirms adherence</p>
                 </div>
               </div>
@@ -208,7 +208,7 @@ export default function MoyoWangaPage() {
               </div>
             </div>
             <div className="mt-3 flex items-center justify-between p-2 bg-gray-800/50 rounded-lg">
-              <code className="text-xs text-gray-300">"MoyoWanga: Kumbukilani kumwa mankhwala anu a shuga. Yankhani ndi 'NDI' kutsimikizira."</code>
+              <code className="text-xs text-gray-300">"MoyoWanga: Kumbukilani kumwa mankhwala anu a shuga. Yankhani ndi '1' kutsimikizira."</code>
               <button onClick={handleCopy} className="p-1.5 hover:bg-amber-500/20 rounded-lg transition-colors">
                 <Copy size={14} className="text-amber-500" />
               </button>
