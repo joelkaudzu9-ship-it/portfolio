@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 import { 
   CheckCircle, Download, Mail, ArrowLeft, Loader2, 
   Sparkles, Heart, BookOpen, Star, Share2, XCircle,
-  Link as LinkIcon, Check, ChevronDown, Copy
+  Link as LinkIcon, Check, ChevronDown
 } from 'lucide-react'
 import { FaTwitter, FaFacebook, FaLinkedin } from 'react-icons/fa'
 
@@ -129,13 +129,6 @@ export default function PoetrySuccessPage() {
     } finally {
       setSendingEmail(false)
     }
-  }
-
-  const copyDownloadLink = () => {
-    const link = `${window.location.origin}/api/poetry/download-pdf?token=${tx_ref}`
-    navigator.clipboard.writeText(link)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
   }
 
   const shareText = `I just purchased "Threads of Becoming" by Joel Kaudzu - a beautiful poetry collection on life, growth, and struggle. Get your copy here:`
@@ -327,27 +320,8 @@ export default function PoetrySuccessPage() {
               )}
             </div>
             
-            {/* Divider */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
-              </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="px-3 bg-white dark:bg-gray-900 text-gray-400">or</span>
-              </div>
-            </div>
-            
-            {/* Copy Link Option */}
-            <button 
-              onClick={copyDownloadLink}
-              className="w-full py-2 text-sm text-amber-600 hover:text-amber-700 flex items-center justify-center gap-2 transition-colors"
-            >
-              <Copy size={14} />
-              {copied ? 'Download link copied!' : 'Copy direct download link'}
-            </button>
-            
             {/* Helpful Note */}
-            <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg text-center">
+            <div className="mt-6 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg text-center">
               <p className="text-xs text-gray-600 dark:text-gray-400">
                 💡 The PDF is also attached to the email we send you. 
                 Please check your spam folder if you don't see it within a few minutes.
