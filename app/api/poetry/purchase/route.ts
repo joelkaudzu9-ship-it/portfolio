@@ -38,8 +38,6 @@ export async function POST(request: NextRequest) {
       // Continue with payment even if save fails
     }
     
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://joelkaudzu-portfolio.vercel.app'
-
     const payload = {
       amount: String(amount),
       currency: 'MWK',
@@ -47,14 +45,14 @@ export async function POST(request: NextRequest) {
       first_name: name.split(' ')[0] || name,
       last_name: name.split(' ').slice(1).join(' ') || 'Customer',
       email: email,
-      callback_url: `${baseUrl}/api/poetry/verify`,
-      return_url: `${baseUrl}/poetry/success?status={status}`,  // PayChangu replaces {status}
+      callback_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/poetry/verify`,
+      return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/poetry/success`,
       customization: {
         title: 'Threads of Becoming',
         description: 'Poetry Collection by Joel Kaudzu'
       }
     }
-        
+    
     const response = await fetch('https://api.paychangu.com/payment', {
       method: 'POST',
       headers: {

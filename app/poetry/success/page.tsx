@@ -19,28 +19,20 @@ export default function PoetrySuccessPage() {
   const [copied, setCopied] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
   const [verifying, setVerifying] = useState(true)
-  const [paymentStatus, setPaymentStatus] = useState<'pending' | 'success' | 'failed' | 'cancelled'>('pending')
+  const [paymentStatus, setPaymentStatus] = useState<'pending' | 'success' | 'cancelled'>('pending')
   const [userEmail, setUserEmail] = useState('')
   const [userName, setUserName] = useState('')
   
   const tx_ref = searchParams.get('tx_ref') || ''
-  const status = searchParams.get('status') || ''
   const emailParam = searchParams.get('email') || ''
   const nameParam = searchParams.get('name') || ''
 
-  // Verify payment status when page loads
+  // Verify payment status with PayChangu API
   useEffect(() => {
     const verifyPayment = async () => {
       if (!tx_ref) {
         setVerifying(false)
-        setPaymentStatus('failed')
-        return
-      }
-
-      // If PayChangu returned status=cancelled, show cancelled page immediately
-      if (status === 'cancelled') {
         setPaymentStatus('cancelled')
-        setVerifying(false)
         return
       }
 
@@ -49,7 +41,9 @@ export default function PoetrySuccessPage() {
         const response = await fetch(`/api/poetry/verify-payment?tx_ref=${tx_ref}`)
         const data = await response.json()
         
-        if (data.status === 'success' && data.paymentStatus === 'success') {
+        if (data.paymentStatus === 'cancelled') {
+          setPaymentStatus('cancelled')
+        } else if (data.paymentStatus === 'success') {
           setPaymentStatus('success')
           
           // Get email from response or URL param
@@ -69,21 +63,20 @@ export default function PoetrySuccessPage() {
               status: 'completed' 
             })
           })
-        } else if (data.paymentStatus === 'cancelled') {
-          setPaymentStatus('cancelled')
         } else {
-          setPaymentStatus('failed')
+          // If payment is still pending or status unknown, treat as cancelled
+          setPaymentStatus('cancelled')
         }
       } catch (error) {
         console.error('Verification error:', error)
-        setPaymentStatus('failed')
+        setPaymentStatus('cancelled')
       } finally {
         setVerifying(false)
       }
     }
 
     verifyPayment()
-  }, [tx_ref, status, emailParam, nameParam])
+  }, [tx_ref, emailParam, nameParam])
 
   const handleDownload = async () => {
     setDownloading(true)
@@ -175,7 +168,7 @@ export default function PoetrySuccessPage() {
     )
   }
 
-  // Show cancelled page
+  // Show cancelled/failed page (since PayChangu doesn't send status, we show this for any non-success)
   if (paymentStatus === 'cancelled') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-black py-12 sm:py-16">
@@ -196,76 +189,46 @@ export default function PoetrySuccessPage() {
             </div>
             
             <div className="pt-10 pb-8 px-6 sm:px-8 text-center">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Payment Cancelled</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Payment Not Completed</h1>
               <p className="text-gray-600 dark:text-gray-400 mt-2">
-                You cancelled the payment. No charges were made to your account.
+                We couldn't confirm your payment. This could be because:
               </p>
+              <ul className="text-gray-600 dark:text-gray-400 mt-4 text-sm space-y-2 text-left max-w-sm mx-auto">
+                <li className="flex items-start gap-2">
+                  <span className="text-yellow-500">•</span>
+                  The payment was cancelled or didn't complete
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-yellow-500">•</span>
+                  There was a network issue during verification
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-yellow-500">•</span>
+                  The transaction is still being processed
+                </li>
+              </ul>
               
               <div className="mt-8 space-y-3">
                 <Link
-                  href="/poetry"
+                  href="/poetry/buy"
                   className="inline-flex items-center justify-center gap-2 w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-semibold hover:scale-[1.02] transition-all"
+                >
+                  Try Again
+                </Link>
+                <Link
+                  href="/poetry"
+                  className="inline-flex items-center justify-center gap-2 w-full py-3.5 border-2 border-gray-200 dark:border-gray-700 rounded-xl font-medium hover:border-amber-500 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all"
                 >
                   Browse Poetry Collection
                 </Link>
-                <Link
-                  href="/poetry/buy"
-                  className="inline-flex items-center justify-center gap-2 w-full py-3.5 border-2 border-gray-200 dark:border-gray-700 rounded-xl font-medium hover:border-amber-500 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all"
-                >
-                  Try Again
-                </Link>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    )
-  }
-
-  // Show failed page
-  if (paymentStatus === 'failed') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 dark:from-gray-950 dark:to-black py-12 sm:py-16">
-        <div className="container-custom max-w-2xl mx-auto px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-800"
-          >
-            <div className="relative h-32 bg-gradient-to-r from-red-500 to-red-600">
-              <div className="absolute inset-0 bg-black/20"></div>
-              <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-xl border-4 border-white dark:border-gray-900">
-                  <XCircle size={40} className="text-white" />
-                </div>
-              </div>
-            </div>
-            
-            <div className="pt-10 pb-8 px-6 sm:px-8 text-center">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Payment Failed</h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-2">
-                Your payment could not be processed. This could be due to insufficient funds, network issues, or a problem with your payment method.
-              </p>
-              
-              <div className="mt-8 space-y-3">
-                <Link
-                  href="/poetry/buy"
-                  className="inline-flex items-center justify-center gap-2 w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-semibold hover:scale-[1.02] transition-all"
-                >
-                  Try Again
-                </Link>
-                <Link
-                  href="/poetry"
-                  className="inline-flex items-center justify-center gap-2 w-full py-3.5 border-2 border-gray-200 dark:border-gray-700 rounded-xl font-medium hover:border-amber-500 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all"
-                >
-                  Back to Poetry
-                </Link>
               </div>
               
-              <div className="mt-6 p-4 bg-red-50 dark:bg-red-950/20 rounded-xl">
+              <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-950/20 rounded-xl">
                 <p className="text-xs text-gray-600 dark:text-gray-400">
-                  Need help? Contact me at <a href="mailto:joelkaudzu9@gmail.com" className="text-amber-600 hover:underline">joelkaudzu9@gmail.com</a>
+                  If you were charged but don't see your download, contact me at{' '}
+                  <a href="mailto:joelkaudzu9@gmail.com" className="text-amber-600 hover:underline">
+                    joelkaudzu9@gmail.com
+                  </a>
                 </p>
               </div>
             </div>
