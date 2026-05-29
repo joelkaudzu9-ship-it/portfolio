@@ -6,8 +6,8 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { 
   CheckCircle, Download, Mail, ArrowLeft, Loader2, 
-  Sparkles, Heart, BookOpen, Star, Share2, 
-  Link as LinkIcon, Check, ChevronDown
+  Sparkles, Heart, BookOpen, Star, Share2, XCircle,
+  Link as LinkIcon, Check, ChevronDown, Copy
 } from 'lucide-react'
 import { FaTwitter, FaFacebook, FaLinkedin } from 'react-icons/fa'
 
@@ -18,38 +18,72 @@ export default function PoetrySuccessPage() {
   const [emailSent, setEmailSent] = useState(false)
   const [copied, setCopied] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
-  const [purchase, setPurchase] = useState<{email: string; name: string} | null>(null)
+  const [verifying, setVerifying] = useState(true)
+  const [paymentStatus, setPaymentStatus] = useState<'pending' | 'success' | 'failed' | 'cancelled'>('pending')
+  const [userEmail, setUserEmail] = useState('')
+  const [userName, setUserName] = useState('')
   
   const tx_ref = searchParams.get('tx_ref') || ''
+  const status = searchParams.get('status') || ''
   const emailParam = searchParams.get('email') || ''
   const nameParam = searchParams.get('name') || ''
 
-  // Fetch purchase details if not in URL
+  // Verify payment status when page loads
   useEffect(() => {
-    const fetchPurchase = async () => {
-      if (tx_ref && !emailParam) {
-        const res = await fetch(`/api/poetry/purchase-details?tx_ref=${tx_ref}`)
-        const data = await res.json()
-        if (data.email) {
-          setPurchase({ email: data.email, name: data.name })
+    const verifyPayment = async () => {
+      if (!tx_ref) {
+        setVerifying(false)
+        setPaymentStatus('failed')
+        return
+      }
+
+      // If PayChangu returned status=cancelled, show cancelled page immediately
+      if (status === 'cancelled') {
+        setPaymentStatus('cancelled')
+        setVerifying(false)
+        return
+      }
+
+      try {
+        // Verify with PayChangu API
+        const response = await fetch(`/api/poetry/verify-payment?tx_ref=${tx_ref}`)
+        const data = await response.json()
+        
+        if (data.status === 'success' && data.paymentStatus === 'success') {
+          setPaymentStatus('success')
+          
+          // Get email from response or URL param
+          const finalEmail = emailParam || data.email || ''
+          const finalName = nameParam || data.name || 'Reader'
+          setUserEmail(finalEmail)
+          setUserName(finalName)
+          
+          // Save purchase to database
+          await fetch('/api/poetry/save-purchase', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              tx_ref, 
+              email: finalEmail, 
+              name: finalName, 
+              status: 'completed' 
+            })
+          })
+        } else if (data.paymentStatus === 'cancelled') {
+          setPaymentStatus('cancelled')
+        } else {
+          setPaymentStatus('failed')
         }
+      } catch (error) {
+        console.error('Verification error:', error)
+        setPaymentStatus('failed')
+      } finally {
+        setVerifying(false)
       }
     }
-    fetchPurchase()
-  }, [tx_ref])
 
-  const userEmail = emailParam || purchase?.email || ''
-  const userName = nameParam || purchase?.name || 'Reader'
-
-  useEffect(() => {
-    if (tx_ref && userEmail) {
-      fetch('/api/poetry/save-purchase', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tx_ref, email: userEmail, name: userName, status: 'completed' })
-      })
-    }
-  }, [tx_ref, userEmail])
+    verifyPayment()
+  }, [tx_ref, status, emailParam, nameParam])
 
   const handleDownload = async () => {
     setDownloading(true)
@@ -65,7 +99,7 @@ export default function PoetrySuccessPage() {
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
     } catch (error) {
-      alert('Download failed. Please try the email option.')
+      alert('Download failed. Please contact support.')
     } finally {
       setDownloading(false)
     }
@@ -73,16 +107,22 @@ export default function PoetrySuccessPage() {
 
   const handleSendEmail = async () => {
     if (!userEmail) {
-      alert('No email found. Please contact support.')
-      return
+      const email = prompt('Enter your email address to receive the PDF:')
+      if (!email) return
+      setUserEmail(email)
+      await sendEmailToAddress(email)
+    } else {
+      await sendEmailToAddress(userEmail)
     }
-    
+  }
+
+  const sendEmailToAddress = async (email: string) => {
     setSendingEmail(true)
     try {
       const response = await fetch('/api/poetry/send-download-link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail, name: userName, tx_ref })
+        body: JSON.stringify({ email, name: userName, tx_ref })
       })
       
       if (response.ok) {
@@ -96,6 +136,13 @@ export default function PoetrySuccessPage() {
     } finally {
       setSendingEmail(false)
     }
+  }
+
+  const copyDownloadLink = () => {
+    const link = `${window.location.origin}/api/poetry/download-pdf?token=${tx_ref}`
+    navigator.clipboard.writeText(link)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   const shareText = `I just purchased "Threads of Becoming" by Joel Kaudzu - a beautiful poetry collection on life, growth, and struggle. Get your copy here:`
@@ -115,6 +162,120 @@ export default function PoetrySuccessPage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  // Show loading while verifying
+  if (verifying) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-amber-50 dark:from-gray-950 dark:via-gray-900 dark:to-black flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 size={48} className="animate-spin text-amber-500 mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-gray-400">Verifying your payment...</p>
+          <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">Please wait while we confirm your transaction</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show cancelled page
+  if (paymentStatus === 'cancelled') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-black py-12 sm:py-16">
+        <div className="container-custom max-w-2xl mx-auto px-4 sm:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-800"
+          >
+            <div className="relative h-32 bg-gradient-to-r from-yellow-500 to-yellow-600">
+              <div className="absolute inset-0 bg-black/20"></div>
+              <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center shadow-xl border-4 border-white dark:border-gray-900">
+                  <XCircle size={40} className="text-white" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="pt-10 pb-8 px-6 sm:px-8 text-center">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Payment Cancelled</h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
+                You cancelled the payment. No charges were made to your account.
+              </p>
+              
+              <div className="mt-8 space-y-3">
+                <Link
+                  href="/poetry"
+                  className="inline-flex items-center justify-center gap-2 w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-semibold hover:scale-[1.02] transition-all"
+                >
+                  Browse Poetry Collection
+                </Link>
+                <Link
+                  href="/poetry/buy"
+                  className="inline-flex items-center justify-center gap-2 w-full py-3.5 border-2 border-gray-200 dark:border-gray-700 rounded-xl font-medium hover:border-amber-500 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all"
+                >
+                  Try Again
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show failed page
+  if (paymentStatus === 'failed') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 dark:from-gray-950 dark:to-black py-12 sm:py-16">
+        <div className="container-custom max-w-2xl mx-auto px-4 sm:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-800"
+          >
+            <div className="relative h-32 bg-gradient-to-r from-red-500 to-red-600">
+              <div className="absolute inset-0 bg-black/20"></div>
+              <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-xl border-4 border-white dark:border-gray-900">
+                  <XCircle size={40} className="text-white" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="pt-10 pb-8 px-6 sm:px-8 text-center">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Payment Failed</h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
+                Your payment could not be processed. This could be due to insufficient funds, network issues, or a problem with your payment method.
+              </p>
+              
+              <div className="mt-8 space-y-3">
+                <Link
+                  href="/poetry/buy"
+                  className="inline-flex items-center justify-center gap-2 w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-semibold hover:scale-[1.02] transition-all"
+                >
+                  Try Again
+                </Link>
+                <Link
+                  href="/poetry"
+                  className="inline-flex items-center justify-center gap-2 w-full py-3.5 border-2 border-gray-200 dark:border-gray-700 rounded-xl font-medium hover:border-amber-500 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all"
+                >
+                  Back to Poetry
+                </Link>
+              </div>
+              
+              <div className="mt-6 p-4 bg-red-50 dark:bg-red-950/20 rounded-xl">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  Need help? Contact me at <a href="mailto:joelkaudzu9@gmail.com" className="text-amber-600 hover:underline">joelkaudzu9@gmail.com</a>
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show success page
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-amber-50 dark:from-gray-950 dark:via-gray-900 dark:to-black py-12 sm:py-16">
       <div className="container-custom max-w-2xl mx-auto px-4 sm:px-6">
@@ -151,7 +312,7 @@ export default function PoetrySuccessPage() {
               <div className="flex items-center justify-center gap-2 mt-2">
                 <Sparkles size={14} className="text-amber-500" />
                 <p className="text-gray-600 dark:text-gray-400">
-                  Thank you, <span className="font-semibold text-amber-600">{userName}</span>
+                  Thank you, <span className="font-semibold text-amber-600">{userName || 'Reader'}</span>
                 </p>
                 <Sparkles size={14} className="text-amber-500" />
               </div>
@@ -212,6 +373,15 @@ export default function PoetrySuccessPage() {
                 <span className="px-3 bg-white dark:bg-gray-900 text-gray-400">or</span>
               </div>
             </div>
+            
+            {/* Copy Link Option */}
+            <button 
+              onClick={copyDownloadLink}
+              className="w-full py-2 text-sm text-amber-600 hover:text-amber-700 flex items-center justify-center gap-2 transition-colors"
+            >
+              <Copy size={14} />
+              {copied ? 'Download link copied!' : 'Copy direct download link'}
+            </button>
             
             {/* Helpful Note */}
             <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg text-center">

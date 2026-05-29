@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       last_name: name.split(' ').slice(1).join(' ') || 'Customer',
       email: email,
       callback_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/poetry/verify`,
-      return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/poetry/success`,
+      return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/poetry/success?status={status}`,
       customization: {
         title: 'Threads of Becoming',
         description: 'Poetry Collection by Joel Kaudzu'
