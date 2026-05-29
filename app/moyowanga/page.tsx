@@ -17,7 +17,7 @@ export default function MoyoWangaPage() {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = () => {
-    navigator.clipboard.writeText("MoyoWanga: Kumbukilani kumwa mankhwala anu. Yankhani ndi 'NDI' kutsimikizira.")
+    navigator.clipboard.writeText("MoyoWanga: Kumbukilani kumwa mankhwala anu. Yankhani ndi '1' kutsimikizira.")
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -115,7 +115,7 @@ export default function MoyoWangaPage() {
           <div className="mt-6 p-6 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800">
             <p className="font-semibold mb-3">📱 SMS Demo Message</p>
             <div className="flex items-center justify-between gap-4 p-3 bg-white dark:bg-gray-900 rounded-lg font-mono text-sm">
-              <code>"MoyoWanga: Kumbukilani kumwa mankhwala anu a shuga. Yankhani ndi 'NDI' kutsimikizira."</code>
+              <code>"MoyoWanga: Kumbukilani kumwa mankhwala anu a shuga. Yankhani ndi '1' kutsimikizira."</code>
               <button
                 onClick={handleCopy}
                 className="p-2 hover:bg-amber-500/20 rounded-lg transition-colors"
