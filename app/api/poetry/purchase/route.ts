@@ -45,8 +45,8 @@ export async function POST(request: NextRequest) {
       first_name: name.split(' ')[0] || name,
       last_name: name.split(' ').slice(1).join(' ') || 'Customer',
       email: email,
-      callback_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/poetry/verify`,
-      return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/poetry/success?status={status}`,
+      callback_url: 'https://joelkaudzu-portfolio.vercel.app/api/poetry/verify',
+      return_url: 'https://joelkaudzu-portfolio.vercel.app/poetry/success?status={status}',
       customization: {
         title: 'Threads of Becoming',
         description: 'Poetry Collection by Joel Kaudzu'
