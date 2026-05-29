@@ -34,22 +34,35 @@ export default function AdminDashboard() {
   const checkAuth = async () => {
     const res = await fetch('/api/admin/check')
     const data = await res.json()
+    console.log('Auth check:', data)
     if (!data.authenticated) router.push('/admin')
     setLoading(false)
   }
 
   const fetchStats = async () => {
     try {
+      console.log('Fetching stats...')
+      
       const [postsRes, projectsRes, messagesRes, subscribersRes, commentsRes, achievementsRes, viewsRes, poetrySalesRes] = await Promise.all([
         fetch('/api/blog'),
         fetch('/api/projects'),
         fetch('/api/messages'),
         fetch('/api/newsletter/subscribers'),
-        fetch('/api/comments/admin'),
+        fetch('/api/blog-comments/admin'),
         fetch('/api/achievements'),
         fetch('/api/blog/stats/views'),
         fetch('/api/poetry/sales-stats'),
       ])
+      
+      // Log response statuses
+      console.log('Posts response status:', postsRes.status)
+      console.log('Projects response status:', projectsRes.status)
+      console.log('Messages response status:', messagesRes.status)
+      console.log('Subscribers response status:', subscribersRes.status)
+      console.log('Comments response status:', commentsRes.status)
+      console.log('Achievements response status:', achievementsRes.status)
+      console.log('Views response status:', viewsRes.status)
+      console.log('Poetry Sales response status:', poetrySalesRes.status)
       
       const posts = await postsRes.json()
       const projects = await projectsRes.json()
@@ -60,17 +73,47 @@ export default function AdminDashboard() {
       const views = await viewsRes.json()
       const poetrySales = await poetrySalesRes.json()
       
+      // Debug logs - what's actually coming back
+      console.log('Posts data:', posts)
+      console.log('Posts length:', Array.isArray(posts) ? posts.length : 'Not an array')
+      console.log('Published posts:', Array.isArray(posts) ? posts.filter((p: any) => p.published).length : 0)
+      
+      console.log('Projects data:', projects)
+      console.log('Projects length:', Array.isArray(projects) ? projects.length : 'Not an array')
+      
+      console.log('Messages data:', messages)
+      console.log('Messages length:', Array.isArray(messages) ? messages.length : 'Not an array')
+      console.log('Unread messages:', Array.isArray(messages) ? messages.filter((m: any) => !m.read).length : 0)
+      
+      console.log('Subscribers data:', subscribers)
+      console.log('Subscribers length:', Array.isArray(subscribers) ? subscribers.length : 'Not an array')
+      
+      console.log('Comments data:', comments)
+      console.log('Comments length:', Array.isArray(comments) ? comments.length : 'Not an array')
+      console.log('Approved comments:', Array.isArray(comments) ? comments.filter((c: any) => c.approved).length : 0)
+      console.log('Pending comments:', Array.isArray(comments) ? comments.filter((c: any) => !c.approved).length : 0)
+      
+      console.log('Achievements data:', achievements)
+      console.log('Achievements length:', Array.isArray(achievements) ? achievements.length : 'Not an array')
+      
+      console.log('Views data:', views)
+      console.log('Total views:', views?.total || 0)
+      
+      console.log('Poetry Sales data:', poetrySales)
+      console.log('Total sales:', poetrySales?.totalSales || 0)
+      console.log('Total revenue:', poetrySales?.totalRevenue || 0)
+      
       setStats({
-        posts: posts.filter((p: any) => p.published).length || 0,
-        projects: projects.length || 0,
-        messages: messages.filter((m: any) => !m.read).length || 0,
-        subscribers: subscribers.length || 0,
-        comments: comments.filter((c: any) => c.approved).length || 0,
-        pendingComments: comments.filter((c: any) => !c.approved).length || 0,
-        achievements: achievements.length || 0,
-        totalViews: views.total || 0,
-        poetrySales: poetrySales.totalSales || 0,
-        poetryRevenue: poetrySales.totalRevenue || 0,
+        posts: Array.isArray(posts) ? posts.filter((p: any) => p.published).length : 0,
+        projects: Array.isArray(projects) ? projects.length : 0,
+        messages: Array.isArray(messages) ? messages.filter((m: any) => !m.read).length : 0,
+        subscribers: Array.isArray(subscribers) ? subscribers.length : 0,
+        comments: Array.isArray(comments) ? comments.filter((c: any) => c.approved).length : 0,
+        pendingComments: Array.isArray(comments) ? comments.filter((c: any) => !c.approved).length : 0,
+        achievements: Array.isArray(achievements) ? achievements.length : 0,
+        totalViews: views?.total || 0,
+        poetrySales: poetrySales?.totalSales || 0,
+        poetryRevenue: poetrySales?.totalRevenue || 0,
       })
     } catch (error) {
       console.error('Error fetching stats:', error)
